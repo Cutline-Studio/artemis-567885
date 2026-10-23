@@ -1,0 +1,13 @@
+{
+  "data_seed": 20261023,
+  "python": "3.13.5",
+  "torch": "2.14.1+cpu",
+  "numpy": "2.5.4",
+  "cpu_model": "Intel(R) Xeon(R) Processor",
+  "logical_cpus": 8,
+  "os": "Linux-6.12.94+-x86_64-with-glibc2.41",
+  "torch_num_threads_per_training_process": 1,
+  "training_worker_processes": 7,
+  "latency_phase": "sequential, single process, torch.set_num_threads(1)",
+  "cmd": "/usr/bin/python3 pilot/frequency_capacity_study.py --workers 7"
+}
