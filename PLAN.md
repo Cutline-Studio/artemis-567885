@@ -37,3 +37,8 @@ included in what was received.
 
 ## Deferred: SaaS layer (user decision 2026-10-23)
 On hold until stage 9c shows real held-out bits-per-byte results. When unblocked: local-only auth + usage limits first, then Stripe test mode. No hosting, no Vercel, no live payments without the user's approval. Spec: user's SaaS blueprint (tiers, /v1/field/query, /v1/context/infiltrate, /v1/field/stream).
+
+## Physics pilot benchmark (user spec, 2026-10-23) — measured, did NOT converge
+- pilot/artemis_physics_benchmark.py as given: 1000 epochs, test MSE 0.3567, rel L2 0.852, y-variance 0.441 (target 1e-4 never reached).
+- Variant with inputs normalized to [-1,1], 5000 epochs: test MSE 0.0935, rel L2 0.436, y-variance 0.155.
+- Next stage: diagnose — w0=30 is far too high-frequency for sin(x - 0.5t) (period ~2pi); sweep w0 (1, 3, 10, 30), lr, epochs, train set size; add a plain MLP/Fourier-feature baseline; report steps/time to MSE<1e-4 and y-variance. Only then consider Navier-Stokes.
