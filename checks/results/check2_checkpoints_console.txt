@@ -1,0 +1,31 @@
+$ python3 -m pytest -v -s checks/test_check2_checkpoints.py
+============================= test session starts ==============================
+platform linux -- Python 3.13.5, pytest-9.1.1, pluggy-1.7.0 -- /usr/bin/python3
+cachedir: .pytest_cache
+rootdir: /workspace/artemis-567885
+plugins: platformdirs-4.13.5
+collecting ... collected 10 items
+
+checks/test_check2_checkpoints.py::test_checkpoint_roundtrip_identical[bytelm.ByteModel] bytelm.ByteModel: fresh-init differs=True reload max|diff|=0.0
+PASSED
+checks/test_check2_checkpoints.py::test_checkpoint_roundtrip_identical[ledger.ArtemisFixedLanguageModel] ledger.ArtemisFixedLanguageModel: fresh-init differs=True reload max|diff|=0.0
+PASSED
+checks/test_check2_checkpoints.py::test_checkpoint_roundtrip_identical[historical_siren_study] historical_siren_study: fresh-init differs=True reload max|diff|=0.0
+PASSED
+checks/test_check2_checkpoints.py::test_checkpoint_roundtrip_identical[physics_moe] physics_moe: fresh-init differs=True reload max|diff|=0.0
+PASSED
+checks/test_check2_checkpoints.py::test_checkpoint_roundtrip_identical[moe_transformer legacy=True dispatch=loop causal=False] moe_transformer legacy=True dispatch=loop causal=False: fresh-init differs=True reload max|diff|=0.0
+PASSED
+checks/test_check2_checkpoints.py::test_checkpoint_roundtrip_identical[moe_transformer legacy=True dispatch=loop causal=True] moe_transformer legacy=True dispatch=loop causal=True: fresh-init differs=True reload max|diff|=0.0
+PASSED
+checks/test_check2_checkpoints.py::test_checkpoint_roundtrip_identical[moe_transformer legacy=False dispatch=loop causal=False] moe_transformer legacy=False dispatch=loop causal=False: fresh-init differs=True reload max|diff|=0.0
+PASSED
+checks/test_check2_checkpoints.py::test_checkpoint_roundtrip_identical[moe_transformer legacy=False dispatch=loop causal=True] moe_transformer legacy=False dispatch=loop causal=True: fresh-init differs=True reload max|diff|=0.0
+PASSED
+checks/test_check2_checkpoints.py::test_checkpoint_roundtrip_identical[moe_transformer legacy=False dispatch=vectorized causal=False] moe_transformer legacy=False dispatch=vectorized causal=False: fresh-init differs=True reload max|diff|=0.0
+PASSED
+checks/test_check2_checkpoints.py::test_checkpoint_roundtrip_identical[moe_transformer legacy=False dispatch=vectorized causal=True] moe_transformer legacy=False dispatch=vectorized causal=True: fresh-init differs=True reload max|diff|=0.0
+PASSED
+
+============================== 10 passed in 1.86s ==============================
+exit=0

@@ -1,0 +1,28 @@
+$ python3 -m pytest -v -s checks/test_check4_solver.py
+============================= test session starts ==============================
+platform linux -- Python 3.13.5, pytest-9.1.1, pluggy-1.7.0 -- /usr/bin/python3
+cachedir: .pytest_cache
+rootdir: /workspace/artemis-567885
+plugins: platformdirs-4.13.5
+collecting ... collected 6 items
+
+checks/test_check4_solver.py::test_print_table upwind {"n": 21, "dx": 0.09999999999999998, "steps": 13, "cfl": 0.38461538461538475, "max_abs": 0.31831313557784924, "l2": 0.0552256941134041}
+upwind {"n": 41, "dx": 0.050000000000000044, "steps": 25, "cfl": 0.39999999999999963, "max_abs": 0.18747648094786185, "l2": 0.03280775298708572, "order_l2": 0.7513028598284985, "order_max": 0.7637370728787755}
+upwind {"n": 81, "dx": 0.025000000000000022, "steps": 50, "cfl": 0.39999999999999963, "max_abs": 0.10498775708357144, "l2": 0.018307137028222533, "order_l2": 0.8416305945098285, "order_max": 0.8364885188950695}
+upwind {"n": 161, "dx": 0.012499999999999956, "steps": 101, "cfl": 0.39603960396039745, "max_abs": 0.056317773307281604, "l2": 0.009760458449273628, "order_l2": 0.907385374152694, "order_max": 0.8985589020665021}
+upwind {"n": 321, "dx": 0.006249999999999978, "steps": 201, "cfl": 0.3980099502487576, "max_abs": 0.029041604167655, "l2": 0.005029701048364894, "order_l2": 0.9564762601027765, "order_max": 0.95546914830098}
+laxwendroff {"n": 21, "dx": 0.09999999999999998, "steps": 13, "cfl": 0.38461538461538475, "max_abs": 0.08513340565665661, "l2": 0.016022625935874366}
+laxwendroff {"n": 41, "dx": 0.050000000000000044, "steps": 25, "cfl": 0.39999999999999963, "max_abs": 0.022095427945145407, "l2": 0.004222178611382568, "order_l2": 1.9240510936989685, "order_max": 1.945977471277455}
+laxwendroff {"n": 81, "dx": 0.025000000000000022, "steps": 50, "cfl": 0.39999999999999963, "max_abs": 0.005479576573962031, "l2": 0.0010783128188218828, "order_l2": 1.9692118454896794, "order_max": 2.0116115530254493}
+laxwendroff {"n": 161, "dx": 0.012499999999999956, "steps": 101, "cfl": 0.39603960396039745, "max_abs": 0.0013658441196287008, "l2": 0.0002731422961299022, "order_l2": 1.9810511269251292, "order_max": 2.004271573555252}
+laxwendroff {"n": 321, "dx": 0.006249999999999978, "steps": 201, "cfl": 0.3980099502487576, "max_abs": 0.00033842974534636916, "l2": 6.835112032725572e-05, "order_l2": 1.9986158429530974, "order_max": 2.012864561014894}
+PASSED
+checks/test_check4_solver.py::test_laxwendroff_second_order PASSED
+checks/test_check4_solver.py::test_upwind_first_order PASSED
+checks/test_check4_solver.py::test_errors_decrease_monotonically PASSED
+checks/test_check4_solver.py::test_heldout_reference_close_to_exact heldout set (6724, 3) fd_vs_exact_rel_l2 0.0008611402590759099
+PASSED
+checks/test_check4_solver.py::test_solver_uses_same_problem_as_pinn PASSED
+
+============================== 6 passed in 1.55s ===============================
+exit=0

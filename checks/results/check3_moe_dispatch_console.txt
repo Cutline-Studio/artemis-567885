@@ -1,0 +1,88 @@
+$ python3 -m pytest -v -s checks/test_check3_moe_dispatch.py
+============================= test session starts ==============================
+platform linux -- Python 3.13.5, pytest-9.1.1, pluggy-1.7.0 -- /usr/bin/python3
+cachedir: .pytest_cache
+rootdir: /workspace/artemis-567885
+plugins: platformdirs-4.13.5
+collecting ... collected 42 items
+
+checks/test_check3_moe_dispatch.py::test_loop_vs_vectorized[cfg0-False-dtype0] E=4 K=1 cf=1.0 N=256 float32 train=False: {'topk_equal': True, 'kept_equal': True, 'dropped': (24, 24), 'dropped_tokens': (24, 24), 'out_max_abs': 0.0, 'aux_abs': 0.0, 'xgrad_max_abs': 0.0, 'param_grad_max_abs': 3.814697265625e-06, 'param_grads_within_tol': True, 'param_grad_max_abs_over_max_grad': 2.9388336151429866e-07}
+PASSED
+checks/test_check3_moe_dispatch.py::test_loop_vs_vectorized[cfg0-False-dtype1] E=4 K=1 cf=1.0 N=256 float64 train=False: {'topk_equal': True, 'kept_equal': True, 'dropped': (41, 41), 'dropped_tokens': (41, 41), 'out_max_abs': 0.0, 'aux_abs': 0.0, 'xgrad_max_abs': 0.0, 'param_grad_max_abs': 7.105427357601002e-15, 'param_grads_within_tol': True, 'param_grad_max_abs_over_max_grad': 5.764528869530941e-16}
+PASSED
+checks/test_check3_moe_dispatch.py::test_loop_vs_vectorized[cfg0-True-dtype0] E=4 K=1 cf=1.0 N=256 float32 train=True: {'topk_equal': True, 'kept_equal': True, 'dropped': (21, 21), 'dropped_tokens': (21, 21), 'out_max_abs': 0.0, 'aux_abs': 0.0, 'xgrad_max_abs': 0.0, 'param_grad_max_abs': 3.814697265625e-06, 'param_grads_within_tol': True, 'param_grad_max_abs_over_max_grad': 2.343485808592047e-07}
+PASSED
+checks/test_check3_moe_dispatch.py::test_loop_vs_vectorized[cfg0-True-dtype1] E=4 K=1 cf=1.0 N=256 float64 train=True: {'topk_equal': True, 'kept_equal': True, 'dropped': (36, 36), 'dropped_tokens': (36, 36), 'out_max_abs': 0.0, 'aux_abs': 0.0, 'xgrad_max_abs': 0.0, 'param_grad_max_abs': 7.105427357601002e-15, 'param_grads_within_tol': True, 'param_grad_max_abs_over_max_grad': 4.883898328892687e-16}
+PASSED
+checks/test_check3_moe_dispatch.py::test_loop_vs_vectorized[cfg1-False-dtype0] E=4 K=2 cf=1.0 N=256 float32 train=False: {'topk_equal': True, 'kept_equal': True, 'dropped': (5, 5), 'dropped_tokens': (0, 0), 'out_max_abs': 0.0, 'aux_abs': 0.0, 'xgrad_max_abs': 0.0, 'param_grad_max_abs': 5.7220458984375e-06, 'param_grads_within_tol': True, 'param_grad_max_abs_over_max_grad': 4.038048570340441e-07}
+PASSED
+checks/test_check3_moe_dispatch.py::test_loop_vs_vectorized[cfg1-False-dtype1] E=4 K=2 cf=1.0 N=256 float64 train=False: {'topk_equal': True, 'kept_equal': True, 'dropped': (17, 17), 'dropped_tokens': (0, 0), 'out_max_abs': 0.0, 'aux_abs': 0.0, 'xgrad_max_abs': 0.0, 'param_grad_max_abs': 4.440892098500626e-15, 'param_grads_within_tol': True, 'param_grad_max_abs_over_max_grad': 7.462306028580566e-16}
+PASSED
+checks/test_check3_moe_dispatch.py::test_loop_vs_vectorized[cfg1-True-dtype0] E=4 K=2 cf=1.0 N=256 float32 train=True: {'topk_equal': True, 'kept_equal': True, 'dropped': (9, 9), 'dropped_tokens': (0, 0), 'out_max_abs': 0.0, 'aux_abs': 0.0, 'xgrad_max_abs': 0.0, 'param_grad_max_abs': 3.814697265625e-06, 'param_grads_within_tol': True, 'param_grad_max_abs_over_max_grad': 4.411351466046489e-07}
+PASSED
+checks/test_check3_moe_dispatch.py::test_loop_vs_vectorized[cfg1-True-dtype1] E=4 K=2 cf=1.0 N=256 float64 train=True: {'topk_equal': True, 'kept_equal': True, 'dropped': (20, 20), 'dropped_tokens': (0, 0), 'out_max_abs': 0.0, 'aux_abs': 0.0, 'xgrad_max_abs': 0.0, 'param_grad_max_abs': 7.993605777301127e-15, 'param_grads_within_tol': True, 'param_grad_max_abs_over_max_grad': 1.0943719172670493e-15}
+PASSED
+checks/test_check3_moe_dispatch.py::test_loop_vs_vectorized[cfg2-False-dtype0] E=4 K=2 cf=0.5 N=256 float32 train=False: {'topk_equal': True, 'kept_equal': True, 'dropped': (256, 256), 'dropped_tokens': (19, 19), 'out_max_abs': 0.0, 'aux_abs': 0.0, 'xgrad_max_abs': 0.0, 'param_grad_max_abs': 0.0, 'param_grads_within_tol': True, 'param_grad_max_abs_over_max_grad': 0.0}
+PASSED
+checks/test_check3_moe_dispatch.py::test_loop_vs_vectorized[cfg2-False-dtype1] E=4 K=2 cf=0.5 N=256 float64 train=False: {'topk_equal': True, 'kept_equal': True, 'dropped': (256, 256), 'dropped_tokens': (34, 34), 'out_max_abs': 0.0, 'aux_abs': 0.0, 'xgrad_max_abs': 0.0, 'param_grad_max_abs': 0.0, 'param_grads_within_tol': True, 'param_grad_max_abs_over_max_grad': 0.0}
+PASSED
+checks/test_check3_moe_dispatch.py::test_loop_vs_vectorized[cfg2-True-dtype0] E=4 K=2 cf=0.5 N=256 float32 train=True: {'topk_equal': True, 'kept_equal': True, 'dropped': (256, 256), 'dropped_tokens': (20, 20), 'out_max_abs': 0.0, 'aux_abs': 0.0, 'xgrad_max_abs': 0.0, 'param_grad_max_abs': 0.0, 'param_grads_within_tol': True, 'param_grad_max_abs_over_max_grad': 0.0}
+PASSED
+checks/test_check3_moe_dispatch.py::test_loop_vs_vectorized[cfg2-True-dtype1] E=4 K=2 cf=0.5 N=256 float64 train=True: {'topk_equal': True, 'kept_equal': True, 'dropped': (256, 256), 'dropped_tokens': (27, 27), 'out_max_abs': 0.0, 'aux_abs': 0.0, 'xgrad_max_abs': 0.0, 'param_grad_max_abs': 0.0, 'param_grads_within_tol': True, 'param_grad_max_abs_over_max_grad': 0.0}
+PASSED
+checks/test_check3_moe_dispatch.py::test_loop_vs_vectorized[cfg3-False-dtype0] E=8 K=2 cf=0.25 N=512 float32 train=False: {'topk_equal': True, 'kept_equal': True, 'dropped': (768, 768), 'dropped_tokens': (264, 264), 'out_max_abs': 0.0, 'aux_abs': 0.0, 'xgrad_max_abs': 0.0, 'param_grad_max_abs': 0.0, 'param_grads_within_tol': True, 'param_grad_max_abs_over_max_grad': 0.0}
+PASSED
+checks/test_check3_moe_dispatch.py::test_loop_vs_vectorized[cfg3-False-dtype1] E=8 K=2 cf=0.25 N=512 float64 train=False: {'topk_equal': True, 'kept_equal': True, 'dropped': (768, 768), 'dropped_tokens': (261, 261), 'out_max_abs': 0.0, 'aux_abs': 0.0, 'xgrad_max_abs': 0.0, 'param_grad_max_abs': 0.0, 'param_grads_within_tol': True, 'param_grad_max_abs_over_max_grad': 0.0}
+PASSED
+checks/test_check3_moe_dispatch.py::test_loop_vs_vectorized[cfg3-True-dtype0] E=8 K=2 cf=0.25 N=512 float32 train=True: {'topk_equal': True, 'kept_equal': True, 'dropped': (768, 768), 'dropped_tokens': (262, 262), 'out_max_abs': 0.0, 'aux_abs': 0.0, 'xgrad_max_abs': 0.0, 'param_grad_max_abs': 0.0, 'param_grads_within_tol': True, 'param_grad_max_abs_over_max_grad': 0.0}
+PASSED
+checks/test_check3_moe_dispatch.py::test_loop_vs_vectorized[cfg3-True-dtype1] E=8 K=2 cf=0.25 N=512 float64 train=True: {'topk_equal': True, 'kept_equal': True, 'dropped': (768, 768), 'dropped_tokens': (259, 259), 'out_max_abs': 0.0, 'aux_abs': 0.0, 'xgrad_max_abs': 0.0, 'param_grad_max_abs': 0.0, 'param_grads_within_tol': True, 'param_grad_max_abs_over_max_grad': 0.0}
+PASSED
+checks/test_check3_moe_dispatch.py::test_loop_vs_vectorized[cfg4-False-dtype0] E=16 K=2 cf=1.0 N=1024 float32 train=False: {'topk_equal': True, 'kept_equal': True, 'dropped': (153, 153), 'dropped_tokens': (0, 0), 'out_max_abs': 0.0, 'aux_abs': 0.0, 'xgrad_max_abs': 0.0, 'param_grad_max_abs': 5.7220458984375e-06, 'param_grads_within_tol': True, 'param_grad_max_abs_over_max_grad': 6.550356662241433e-07}
+PASSED
+checks/test_check3_moe_dispatch.py::test_loop_vs_vectorized[cfg4-False-dtype1] E=16 K=2 cf=1.0 N=1024 float64 train=False: {'topk_equal': True, 'kept_equal': True, 'dropped': (146, 146), 'dropped_tokens': (0, 0), 'out_max_abs': 0.0, 'aux_abs': 0.0, 'xgrad_max_abs': 0.0, 'param_grad_max_abs': 6.217248937900877e-15, 'param_grads_within_tol': True, 'param_grad_max_abs_over_max_grad': 1.0810175741327202e-15}
+PASSED
+checks/test_check3_moe_dispatch.py::test_loop_vs_vectorized[cfg4-True-dtype0] E=16 K=2 cf=1.0 N=1024 float32 train=True: {'topk_equal': True, 'kept_equal': True, 'dropped': (156, 156), 'dropped_tokens': (0, 0), 'out_max_abs': 0.0, 'aux_abs': 0.0, 'xgrad_max_abs': 0.0, 'param_grad_max_abs': 3.337860107421875e-06, 'param_grads_within_tol': True, 'param_grad_max_abs_over_max_grad': 4.345093715705443e-07}
+PASSED
+checks/test_check3_moe_dispatch.py::test_loop_vs_vectorized[cfg4-True-dtype1] E=16 K=2 cf=1.0 N=1024 float64 train=True: {'topk_equal': True, 'kept_equal': True, 'dropped': (145, 145), 'dropped_tokens': (0, 0), 'out_max_abs': 0.0, 'aux_abs': 0.0, 'xgrad_max_abs': 0.0, 'param_grad_max_abs': 1.4210854715202004e-14, 'param_grads_within_tol': True, 'param_grad_max_abs_over_max_grad': 8.95657092911825e-16}
+PASSED
+checks/test_check3_moe_dispatch.py::test_loop_vs_vectorized[cfg5-False-dtype0] E=64 K=2 cf=1.0 N=1024 float32 train=False: {'topk_equal': True, 'kept_equal': True, 'dropped': (328, 328), 'dropped_tokens': (2, 2), 'out_max_abs': 0.0, 'aux_abs': 0.0, 'xgrad_max_abs': 0.0, 'param_grad_max_abs': 9.5367431640625e-07, 'param_grads_within_tol': True, 'param_grad_max_abs_over_max_grad': 4.0794242137487744e-07}
+PASSED
+checks/test_check3_moe_dispatch.py::test_loop_vs_vectorized[cfg5-False-dtype1] E=64 K=2 cf=1.0 N=1024 float64 train=False: {'topk_equal': True, 'kept_equal': True, 'dropped': (298, 298), 'dropped_tokens': (2, 2), 'out_max_abs': 0.0, 'aux_abs': 0.0, 'xgrad_max_abs': 0.0, 'param_grad_max_abs': 1.7763568394002505e-15, 'param_grads_within_tol': True, 'param_grad_max_abs_over_max_grad': 6.058350697732565e-16}
+PASSED
+checks/test_check3_moe_dispatch.py::test_loop_vs_vectorized[cfg5-True-dtype0] E=64 K=2 cf=1.0 N=1024 float32 train=True: {'topk_equal': True, 'kept_equal': True, 'dropped': (325, 325), 'dropped_tokens': (5, 5), 'out_max_abs': 0.0, 'aux_abs': 0.0, 'xgrad_max_abs': 0.0, 'param_grad_max_abs': 9.5367431640625e-07, 'param_grads_within_tol': True, 'param_grad_max_abs_over_max_grad': 2.861336486398971e-07}
+PASSED
+checks/test_check3_moe_dispatch.py::test_loop_vs_vectorized[cfg5-True-dtype1] E=64 K=2 cf=1.0 N=1024 float64 train=True: {'topk_equal': True, 'kept_equal': True, 'dropped': (302, 302), 'dropped_tokens': (2, 2), 'out_max_abs': 0.0, 'aux_abs': 0.0, 'xgrad_max_abs': 0.0, 'param_grad_max_abs': 1.7763568394002505e-15, 'param_grads_within_tol': True, 'param_grad_max_abs_over_max_grad': 6.676255839659029e-16}
+PASSED
+checks/test_check3_moe_dispatch.py::test_loop_vs_vectorized[cfg6-False-dtype0] E=4 K=2 cf=None N=256 float32 train=False: {'topk_equal': True, 'kept_equal': True, 'dropped': (0, 0), 'dropped_tokens': (0, 0), 'out_max_abs': 0.0, 'aux_abs': 0.0, 'xgrad_max_abs': 0.0, 'param_grad_max_abs': 5.7220458984375e-06, 'param_grads_within_tol': True, 'param_grad_max_abs_over_max_grad': 5.950442926177913e-07}
+PASSED
+checks/test_check3_moe_dispatch.py::test_loop_vs_vectorized[cfg6-False-dtype1] E=4 K=2 cf=None N=256 float64 train=False: {'topk_equal': True, 'kept_equal': True, 'dropped': (0, 0), 'dropped_tokens': (0, 0), 'out_max_abs': 0.0, 'aux_abs': 0.0, 'xgrad_max_abs': 0.0, 'param_grad_max_abs': 7.105427357601002e-15, 'param_grads_within_tol': True, 'param_grad_max_abs_over_max_grad': 8.913173142250964e-16}
+PASSED
+checks/test_check3_moe_dispatch.py::test_loop_vs_vectorized[cfg6-True-dtype0] E=4 K=2 cf=None N=256 float32 train=True: {'topk_equal': True, 'kept_equal': True, 'dropped': (0, 0), 'dropped_tokens': (0, 0), 'out_max_abs': 0.0, 'aux_abs': 0.0, 'xgrad_max_abs': 0.0, 'param_grad_max_abs': 4.76837158203125e-06, 'param_grads_within_tol': True, 'param_grad_max_abs_over_max_grad': 5.265791829952838e-07}
+PASSED
+checks/test_check3_moe_dispatch.py::test_loop_vs_vectorized[cfg6-True-dtype1] E=4 K=2 cf=None N=256 float64 train=True: {'topk_equal': True, 'kept_equal': True, 'dropped': (0, 0), 'dropped_tokens': (0, 0), 'out_max_abs': 0.0, 'aux_abs': 0.0, 'xgrad_max_abs': 0.0, 'param_grad_max_abs': 1.0658141036401503e-14, 'param_grads_within_tol': True, 'param_grad_max_abs_over_max_grad': 1.2263626819531825e-15}
+PASSED
+checks/test_check3_moe_dispatch.py::test_loop_vs_vectorized[cfg7-False-dtype0] E=8 K=3 cf=0.75 N=300 float32 train=False: {'topk_equal': True, 'kept_equal': True, 'dropped': (223, 223), 'dropped_tokens': (0, 0), 'out_max_abs': 0.0, 'aux_abs': 0.0, 'xgrad_max_abs': 1.4901161193847656e-08, 'param_grad_max_abs': 7.152557373046875e-07, 'param_grads_within_tol': True, 'param_grad_max_abs_over_max_grad': 2.3626720497786648e-07}
+PASSED
+checks/test_check3_moe_dispatch.py::test_loop_vs_vectorized[cfg7-False-dtype1] E=8 K=3 cf=0.75 N=300 float64 train=False: {'topk_equal': True, 'kept_equal': True, 'dropped': (220, 220), 'dropped_tokens': (0, 0), 'out_max_abs': 0.0, 'aux_abs': 0.0, 'xgrad_max_abs': 2.7755575615628914e-17, 'param_grad_max_abs': 0.0, 'param_grads_within_tol': True, 'param_grad_max_abs_over_max_grad': 0.0}
+PASSED
+checks/test_check3_moe_dispatch.py::test_loop_vs_vectorized[cfg7-True-dtype0] E=8 K=3 cf=0.75 N=300 float32 train=True: {'topk_equal': True, 'kept_equal': True, 'dropped': (220, 220), 'dropped_tokens': (0, 0), 'out_max_abs': 0.0, 'aux_abs': 0.0, 'xgrad_max_abs': 1.4901161193847656e-08, 'param_grad_max_abs': 0.0, 'param_grads_within_tol': True, 'param_grad_max_abs_over_max_grad': 0.0}
+PASSED
+checks/test_check3_moe_dispatch.py::test_loop_vs_vectorized[cfg7-True-dtype1] E=8 K=3 cf=0.75 N=300 float64 train=True: {'topk_equal': True, 'kept_equal': True, 'dropped': (220, 220), 'dropped_tokens': (0, 0), 'out_max_abs': 0.0, 'aux_abs': 0.0, 'xgrad_max_abs': 2.7755575615628914e-17, 'param_grad_max_abs': 0.0, 'param_grads_within_tol': True, 'param_grad_max_abs_over_max_grad': 0.0}
+PASSED
+checks/test_check3_moe_dispatch.py::test_drops_actually_happen_in_capacity_configs PASSED
+checks/test_check3_moe_dispatch.py::test_vectorized_rejects_legacy PASSED
+checks/test_check3_moe_dispatch.py::test_legacy_matches_fixed_only_without_drops PASSED
+checks/test_check3_moe_dispatch.py::test_bench_size_float32_param_grads_at_stated_tol XFAIL
+checks/test_check3_moe_dispatch.py::test_bench_size_float64[4] PASSED
+checks/test_check3_moe_dispatch.py::test_bench_size_float64[16] PASSED
+checks/test_check3_moe_dispatch.py::test_bench_size_float64[64] PASSED
+checks/test_check3_moe_dispatch.py::test_bench_size_float32_routing_outputs_input_grads[4] E=4 float32 N=4096: {'topk_equal': True, 'kept_equal': True, 'dropped': (52, 52), 'dropped_tokens': (0, 0), 'out_max_abs': 0.0, 'aux_abs': 0.0, 'xgrad_max_abs': 0.0, 'param_grad_max_abs': 3.0517578125e-05, 'param_grads_within_tol': False, 'param_grad_max_abs_over_max_grad': 4.843906720565355e-07}
+PASSED
+checks/test_check3_moe_dispatch.py::test_bench_size_float32_routing_outputs_input_grads[16] E=16 float32 N=4096: {'topk_equal': True, 'kept_equal': True, 'dropped': (394, 394), 'dropped_tokens': (0, 0), 'out_max_abs': 0.0, 'aux_abs': 0.0, 'xgrad_max_abs': 0.0, 'param_grad_max_abs': 1.33514404296875e-05, 'param_grads_within_tol': False, 'param_grad_max_abs_over_max_grad': 7.820943619599541e-07}
+PASSED
+checks/test_check3_moe_dispatch.py::test_bench_size_float32_routing_outputs_input_grads[64] E=64 float32 N=4096: {'topk_equal': True, 'kept_equal': True, 'dropped': (580, 580), 'dropped_tokens': (0, 0), 'out_max_abs': 0.0, 'aux_abs': 0.0, 'xgrad_max_abs': 0.0, 'param_grad_max_abs': 4.291534423828125e-06, 'param_grads_within_tol': True, 'param_grad_max_abs_over_max_grad': 6.853062869846478e-07}
+PASSED
+
+======================== 41 passed, 1 xfailed in 2.74s =========================
+exit=0
