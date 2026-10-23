@@ -26,11 +26,12 @@ class MultiHeadAttention(nn.Module):
         return self.out_linear(context)
 
 class MoETransformerBlock(nn.Module):
-    def __init__(self, d_model: int, n_heads: int, d_ff: int, num_experts: int, top_k: int = 2, capacity_factor: float = 1.0):
+    def __init__(self, d_model: int, n_heads: int, d_ff: int, num_experts: int, top_k: int = 2, capacity_factor: float = 1.0,
+                 legacy: bool = False):
         super().__init__()
         self.attn = MultiHeadAttention(d_model, n_heads)
         self.ln1 = nn.LayerNorm(d_model)
-        self.moe = CapacitySparseMoELayer(d_model, d_ff, num_experts, top_k, capacity_factor)
+        self.moe = CapacitySparseMoELayer(d_model, d_ff, num_experts, top_k, capacity_factor, legacy=legacy)
         self.ln2 = nn.LayerNorm(d_model)
 
     def forward(self, x: torch.Tensor):
