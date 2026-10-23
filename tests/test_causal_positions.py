@@ -176,12 +176,27 @@ def test_byte_lm_rejects_batch_capacity():
         ArtemisByteLM("fourier", capacity_mode="batch")
 
 
+@pytest.mark.parametrize("training", [False, True])
+@pytest.mark.parametrize("mode", ["none", "causal"])
 @pytest.mark.parametrize("kind", ["none", "learned", "sinusoidal", "fourier"])
-def test_byte_lm_is_causal_end_to_end(kind):
+def test_byte_lm_is_causal_end_to_end(kind, mode, training):
+    """Complete model (embeddings, positions, all blocks, router noise in training mode, head)."""
     torch.manual_seed(0)
-    m = ArtemisByteLM(kind, d_model=D, d_ff=32, context=16, capacity_factor=0.5).eval()
+    m = ArtemisByteLM(kind, d_model=D, d_ff=32, context=16, capacity_factor=0.5, capacity_mode=mode)
+    m.train(training)
     x = torch.randint(0, 256, (2, 16))
-    assert _prefix_unchanged(lambda v: m(v)[0], x, _perturb_bytes, range(1, 16))
+    assert _prefix_unchanged(lambda v: m(v)[0], x, _perturb_bytes, range(1, 16),
+                             seed=7 if training else None)
+
+
+def test_dropless_byte_lm_output_does_not_depend_on_batch_companions():
+    torch.manual_seed(0)
+    m = ArtemisByteLM("fourier", d_model=D, d_ff=32, context=16, capacity_mode="none").eval()
+    x = torch.randint(0, 256, (3, 16))
+    alone = m(x[:1])[0]
+    together = m(x)[0][:1]
+    assert torch.allclose(alone, together, atol=1e-5)
+    assert m(x)[2] == 0
 
 
 def test_byte_lm_shapes_and_gradients():

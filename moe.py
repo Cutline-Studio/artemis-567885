@@ -124,6 +124,7 @@ class CapacitySparseMoELayer(nn.Module):
 
         topk_logits, topk_indices = torch.topk(logits, self.top_k, dim=-1)
         topk_softmax_weights = F.softmax(topk_logits, dim=-1)
+        self.last_topk = topk_indices.detach()  # routing diagnostics (load per expert); no effect on outputs
 
         # Aux load-balancing loss over all top-k assignments (uniform optimum = 1.0).
         gate_prob = F.softmax(clean_logits, dim=-1)

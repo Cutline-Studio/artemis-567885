@@ -107,7 +107,8 @@ def windows(documents, context):
             yield raw[start:start + context + 1]
 
 
-def batches(documents, context, batch_size, device):
+def batches(documents, context, batch_size, device, chunks=None):
+    """Batches of chunk-reset windows; `chunks` overrides the document-ordered windows."""
     pending = []
 
     def pack(chunks):
@@ -128,7 +129,7 @@ def batches(documents, context, batch_size, device):
         # to real target positions. Padded targets are excluded from loss.
         return x, y
 
-    for chunk in windows(documents, context):
+    for chunk in (windows(documents, context) if chunks is None else chunks):
         pending.append(chunk)
         if len(pending) == batch_size:
             yield pack(pending)
@@ -155,15 +156,67 @@ def run(model, x):
     return out, out.new_zeros(()), 0
 
 
+def moe_layers(model):
+    body = getattr(model, "body", None)
+    return [b.moe for b in body.blocks] if body is not None else []
+
+
+def parameter_counts(model, args):
+    total = sum(p.numel() for p in model.parameters())
+    layers = moe_layers(model)
+    inactive = sum((m.num_experts - m.top_k) * sum(p.numel() for p in m.experts[0].parameters())
+                   for m in layers)
+    return {"total": total, "active_per_byte": total - inactive,
+            "active_definition": (
+                "active_per_byte = total parameters minus the parameters of the (num_experts - top_k) "
+                "experts not selected for a byte, in every MoE layer. All shared parameters count as "
+                "active: the full 256-row byte-embedding table, the position module, attention, layer "
+                "norms, router gates, and the output head. Dense model: active_per_byte = total.")}
+
+
+class RoutingStats:
+    """Accumulates router top-k choices over real (non-padding) bytes, per MoE layer."""
+
+    def __init__(self, model):
+        self.layers = moe_layers(model)
+        self.counts = [torch.zeros(m.num_experts, dtype=torch.long) for m in self.layers]
+        self.aux_sum, self.batches, self.dropped = 0.0, 0, 0
+
+    def add(self, real_mask, aux, dropped):
+        keep = real_mask.reshape(-1).cpu()
+        for i, m in enumerate(self.layers):
+            idx = m.last_topk.cpu()[keep]
+            self.counts[i] += torch.bincount(idx.reshape(-1), minlength=m.num_experts)
+        self.aux_sum += float(aux)
+        self.batches += 1
+        self.dropped += int(dropped)
+
+    def summary(self):
+        if not self.layers:
+            return None
+        per_layer = []
+        for c in self.counts:
+            frac = (c.double() / max(1, int(c.sum()))).tolist()
+            ent = -sum(f * math.log(f) for f in frac if f > 0) / math.log(len(frac))
+            per_layer.append({"load_fraction": [round(f, 5) for f in frac],
+                              "normalized_entropy": round(ent, 5), "max_load": round(max(frac), 5)})
+        return {"per_layer": per_layer,
+                "mean_aux_loss_summed_over_layers": self.aux_sum / max(1, self.batches),
+                "dropped_assignments": self.dropped}
+
+
 def evaluate(model, documents, unigram_bits, args, device):
     model.eval()
     neural_nll, baseline_bits, scored, dropped, slots = 0.0, 0.0, 0, 0, 0
+    routing = RoutingStats(model)
 
     with torch.inference_mode():
         for x, y in batches(
             documents, args.context, args.batch_size, device
         ):
-            logits, _, d = run(model, x)
+            logits, aux, d = run(model, x)
+            if routing.layers:
+                routing.add(y != -100, aux, d)
             dropped += d
             slots += x.numel() * (0 if args.model == "dense" else 2 * 2)  # tokens * top_k * layers
             neural_nll += F.cross_entropy(
@@ -186,6 +239,8 @@ def evaluate(model, documents, unigram_bits, args, device):
         "unigram_bpb": baseline_bits / scored,
         "scored_bytes": scored,
         "dropped_assignment_fraction": dropped / slots if slots else 0.0,
+        "dropped_assignments": dropped,
+        "routing": routing.summary(),
     }
     if not all(math.isfinite(result[k])
                for k in ("neural_bpb", "unigram_bpb")):
@@ -195,7 +250,7 @@ def evaluate(model, documents, unigram_bits, args, device):
 
 def main(args):
     if min(args.context, args.batch_size, args.epochs,
-           args.steps, args.threads) < 1 or args.lr <= 0:
+           args.steps, args.threads) < 1 or args.lr <= 0 or args.eval_every < 0:
         raise ValueError("Budgets, dimensions, threads, and LR must be positive")
 
     random.seed(args.seed)
@@ -226,6 +281,7 @@ def main(args):
     }
     config.update({
         "parameters": sum(p.numel() for p in model.parameters()),
+        "parameter_counts": parameter_counts(model, args),
         "layers": 2,
         "width": 32,
         "heads": 2,
@@ -239,9 +295,22 @@ def main(args):
     best_record = None
     steps, consumed = 0, 0
     started = time.perf_counter()
+    train_seconds = 0.0
+    train_routing = RoutingStats(model)
+    train_ce_sum, train_batches = 0.0, 0
+
+    last_validated = None
 
     def validate(epoch):
-        nonlocal best_bpb, best_record
+        nonlocal best_bpb, best_record, last_validated, train_routing, train_ce_sum, train_batches
+        if last_validated == steps:
+            return
+        last_validated = steps
+        since = {"batches": train_batches,
+                 "mean_train_ce_bpb": train_ce_sum / train_batches / math.log(2) if train_batches else None,
+                 "routing": train_routing.summary()}
+        train_routing = RoutingStats(model)
+        train_ce_sum, train_batches = 0.0, 0
         metrics = evaluate(
             model, documents["val"], unigram_bits, args, device
         )
@@ -249,7 +318,9 @@ def main(args):
             "epoch": epoch,
             "optimizer_steps": steps,
             "training_target_bytes": consumed,
+            "training_seconds": train_seconds,
             **metrics,
+            "train_since_last_validation": since,
         }
         with (args.output / "validation.jsonl").open(
             "a", encoding="utf-8"
@@ -275,19 +346,26 @@ def main(args):
     for epoch in range(1, args.epochs + 1):
         training_docs = list(documents["train"])
         random.shuffle(training_docs)
+        epoch_chunks = None
+        if args.shuffle_windows:
+            # Mix windows across documents so a batch is not consecutive chunks of one book.
+            epoch_chunks = list(windows(training_docs, args.context))
+            random.shuffle(epoch_chunks)
 
         for x, y in batches(
-            training_docs, args.context, args.batch_size, device
+            training_docs, args.context, args.batch_size, device, chunks=epoch_chunks
         ):
+            step_started = time.perf_counter()
             model.train()
             optimizer.zero_grad(set_to_none=True)
-            logits, aux, _ = run(model, x)
-            loss = F.cross_entropy(
+            logits, aux, dropped_now = run(model, x)
+            ce = F.cross_entropy(
                 logits.flatten(0, 1),
                 y.flatten(),
                 ignore_index=-100,
                 reduction="mean",
-            ) + args.aux_weight * aux
+            )
+            loss = ce + args.aux_weight * aux  # aux in the training loss only, never in reported bpb
             if not torch.isfinite(loss):
                 raise RuntimeError("Nonfinite training loss")
 
@@ -296,9 +374,16 @@ def main(args):
                 model.parameters(), 1.0, error_if_nonfinite=True
             )
             optimizer.step()
+            train_seconds += time.perf_counter() - step_started
+            train_ce_sum += ce.item()
+            train_batches += 1
+            if train_routing.layers:
+                train_routing.add(y != -100, aux.detach(), dropped_now)
 
             steps += 1
             consumed += (y != -100).sum().item()
+            if args.eval_every and steps % args.eval_every == 0:
+                validate(epoch)
             if steps >= args.steps:
                 break
 
@@ -333,6 +418,7 @@ def main(args):
         "optimizer_steps": steps,
         "training_target_bytes": consumed,
         "total_elapsed_seconds": time.perf_counter() - started,
+        "training_seconds": train_seconds,
         "best_validation": best_record,
         "test": test,
         "checkpoint_sha256": hashlib.sha256(
@@ -362,6 +448,11 @@ if __name__ == "__main__":
                         default="learned")
     parser.add_argument("--experts", type=int, default=4)
     parser.add_argument("--capacity-factor", type=float, default=1.25)
-    parser.add_argument("--capacity-mode", choices=["causal", "none"], default="causal")
+    parser.add_argument("--capacity-mode", choices=["none", "causal"], default="none",
+                        help="none = dropless routing (default); causal = per-sequence prefix capacity")
+    parser.add_argument("--shuffle-windows", action="store_true",
+                        help="shuffle training windows across documents each epoch")
+    parser.add_argument("--eval-every", type=int, default=0,
+                        help="also validate every N optimizer steps (0 = epoch ends only)")
     parser.add_argument("--aux-weight", type=float, default=0.01)
     main(parser.parse_args())
