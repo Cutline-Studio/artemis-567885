@@ -29,9 +29,26 @@ class CapacitySparseMoELayer(nn.Module):
     dropped_count is the number of dropped (token, slot) assignments in both modes.
     """
 
+    CAPACITY_MODES = ("batch", "none", "causal")
+
     def __init__(self, d_model: int, d_ff: int, num_experts: int, top_k: int = 2,
-                 capacity_factor: float = 1.0, legacy: bool = False):
+                 capacity_factor: float = 1.0, legacy: bool = False, capacity_mode: str = "batch"):
+        """capacity_mode (fixed path only):
+          * "batch"  (default, unchanged): one capacity over the whole flattened batch, ranked by
+            slot then router probability. Not causal: a later token can evict an earlier one.
+          * "none":   no capacity limit, nothing is dropped.
+          * "causal": per sequence, positions are admitted in order; the token at position t is
+            accepted by expert e only if fewer than ceil((t+1)/E * capacity_factor * top_k)
+            earlier tokens of the same sequence were accepted by e. Decisions at t depend only on
+            positions <= t of the same sequence, so routing preserves causality in training and
+            evaluation. Requires input shaped [batch, seq, d_model].
+        """
+        if capacity_mode not in self.CAPACITY_MODES:
+            raise ValueError(f"capacity_mode must be one of {self.CAPACITY_MODES}, got {capacity_mode!r}")
+        if legacy and capacity_mode != "batch":
+            raise ValueError("legacy=True only supports capacity_mode='batch'")
         super().__init__()
+        self.capacity_mode = capacity_mode
         self.d_model = d_model
         self.d_ff = d_ff
         self.num_experts = num_experts
@@ -115,9 +132,13 @@ class CapacitySparseMoELayer(nn.Module):
         pe = gate_prob.mean(dim=0)
         aux_loss = self.num_experts * torch.sum(me * pe)
 
-        expert_capacity = self.expert_capacity(num_tokens)
         output_workspace = torch.zeros_like(flat_tokens)
         processed_slots = torch.zeros(num_tokens, self.top_k, dtype=torch.bool, device=x.device)
+        if self.capacity_mode != "batch":
+            return self._dispatch_masked(x, flat_tokens, topk_indices, topk_softmax_weights,
+                                         aux_loss, output_workspace, processed_slots)
+
+        expert_capacity = self.expert_capacity(num_tokens)
         dropped_count = 0
         # priority score = full router probability of the routing logits (detached);
         # the renormalised top-k weights tie at 1.0 when top_k == 1, so they can't rank.
@@ -147,6 +168,45 @@ class CapacitySparseMoELayer(nn.Module):
         self.last_stats = {"capacity": expert_capacity, "dropped_assignments": int(dropped_count),
                            "dropped_tokens": dropped_tokens, "num_tokens": num_tokens}
         return output_workspace.view(orig_shape), aux_loss, int(dropped_count)
+
+    def _causal_slot_mask(self, x: torch.Tensor, topk_indices: torch.Tensor) -> torch.Tensor:
+        """[N, top_k] bool: which (token, slot) assignments are admitted under causal capacity."""
+        if x.dim() != 3:
+            raise ValueError("capacity_mode='causal' needs input shaped [batch, seq, d_model]")
+        b, t, _ = x.shape
+        idx = topk_indices.view(b, t, self.top_k)
+        wants = F.one_hot(idx, self.num_experts).sum(dim=2).bool()        # [B, T, E]
+        accepted = torch.zeros_like(wants)
+        counts = torch.zeros(b, self.num_experts, dtype=torch.long, device=x.device)
+        scale = self.capacity_factor * self.top_k / self.num_experts
+        for pos in range(t):
+            cap = int(math.ceil((pos + 1) * scale))
+            ok = wants[:, pos] & (counts < cap)
+            accepted[:, pos] = ok
+            counts += ok.long()
+        return torch.gather(accepted, 2, idx).view(b * t, self.top_k)
+
+    def _dispatch_masked(self, x, flat_tokens, topk_indices, topk_weights, aux_loss,
+                         output_workspace, processed_slots):
+        n = flat_tokens.size(0)
+        if self.capacity_mode == "none":
+            keep = torch.ones(n, self.top_k, dtype=torch.bool, device=x.device)
+        else:
+            keep = self._causal_slot_mask(x, topk_indices)
+        for expert_idx in range(self.num_experts):
+            token_positions, k_positions = ((topk_indices == expert_idx) & keep).nonzero(as_tuple=True)
+            if token_positions.numel() == 0:
+                continue
+            expert_outputs = self.experts[expert_idx](flat_tokens[token_positions])
+            gating_weight = topk_weights[token_positions, k_positions].unsqueeze(-1)
+            output_workspace = output_workspace.index_add(0, token_positions, expert_outputs * gating_weight)
+            processed_slots[token_positions, k_positions] = True
+        dropped_count = int((~keep).sum().item())
+        dropped_tokens = int((~processed_slots.any(dim=-1)).sum().item())
+        self.last_stats = {"capacity": None if self.capacity_mode == "none" else "causal-prefix",
+                           "dropped_assignments": dropped_count, "dropped_tokens": dropped_tokens,
+                           "num_tokens": n}
+        return output_workspace.view(x.shape), aux_loss, dropped_count
 
     @torch.no_grad()
     def add_expert(self, source_idx: int = None, noise_std: float = 1e-2, generator: torch.Generator = None) -> int:

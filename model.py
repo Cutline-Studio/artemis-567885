@@ -15,7 +15,8 @@ class DynamicMultiBlockTransformer(nn.Module):
     """
 
     def __init__(self, d_model: int, n_heads: int, d_ff: int, num_experts: Union[int, Sequence[int]],
-                 num_layers: int = 1, top_k: int = 2, capacity_factor: float = 1.0, legacy: bool = False):
+                 num_layers: int = 1, top_k: int = 2, capacity_factor: float = 1.0, legacy: bool = False,
+                 causal: bool = False, capacity_mode: str = "batch"):
         super().__init__()
         if d_model % n_heads != 0:
             raise ValueError(f"d_model ({d_model}) must be divisible by n_heads ({n_heads})")
@@ -25,9 +26,11 @@ class DynamicMultiBlockTransformer(nn.Module):
             raise ValueError(f"num_experts list has {len(num_experts)} entries for {num_layers} layers")
         self.d_model, self.n_heads, self.d_ff = d_model, n_heads, d_ff
         self.top_k, self.legacy = top_k, legacy
+        self.causal, self.capacity_mode = causal, capacity_mode
         self._capacity_factor = capacity_factor
         self.blocks = nn.ModuleList([
-            MoETransformerBlock(d_model, n_heads, d_ff, e, top_k, capacity_factor, legacy=legacy)
+            MoETransformerBlock(d_model, n_heads, d_ff, e, top_k, capacity_factor, legacy=legacy,
+                                causal=causal, capacity_mode=capacity_mode)
             for e in num_experts])
 
     @property
@@ -63,7 +66,8 @@ class DynamicMultiBlockTransformer(nn.Module):
         """
         ref = next(self.parameters())
         blk = MoETransformerBlock(self.d_model, self.n_heads, self.d_ff, num_experts, self.top_k,
-                                  self._capacity_factor, legacy=self.legacy).to(ref.device, ref.dtype)
+                                  self._capacity_factor, legacy=self.legacy, causal=self.causal,
+                                  capacity_mode=self.capacity_mode).to(ref.device, ref.dtype)
         blk.attn.out_linear.weight.zero_(); blk.attn.out_linear.bias.zero_()
         for e in blk.moe.experts:
             e.w2.weight.zero_(); e.w2.bias.zero_()
