@@ -34,3 +34,6 @@ included in what was received.
 - Stage 3 acceptance checks: (1) causality — perturbing inputs at positions > t must leave outputs at positions <= t unchanged; (2) position — with positional encoding on, reordering a sequence must change outputs; keep the unmasked/no-position mode as an explicit option for non-causal tasks.
 - New stage (control experiment): compare the auto-growing expand run against a fixed-architecture baseline trained with comparable compute (same total steps / FLOPs) on the same X -> sin(X) data; report both held-out losses before claiming growth helps.
 - Keep three milestones separate in docs: (a) correctness tests pass, (b) PDE fit, (c) language generalization (held-out bits-per-byte, stage 9c — not yet tested).
+
+## Deferred: SaaS layer (user decision 2026-10-23)
+On hold until stage 9c shows real held-out bits-per-byte results. When unblocked: local-only auth + usage limits first, then Stripe test mode. No hosting, no Vercel, no live payments without the user's approval. Spec: user's SaaS blueprint (tiers, /v1/field/query, /v1/context/infiltrate, /v1/field/stream).
