@@ -29,3 +29,8 @@ included in what was received.
 | 9 (c) | Byte-level Continuous-Language-Field prototype: raw bytes → continuous vectors (learned 256-value byte embedding, or byte/255 scalar) **plus** γ(t) for the continuous document position t, through the MoE blocks with a **causal mask** (stage 3), predicting the next byte (256-way softmax). A field f(γ(t)) on position alone can only memorise a single document (it maps a coordinate to a value), so the model must be conditioned on the preceding bytes to generalise. | bits-per-byte on held-out text from 9(b) reported vs a unigram baseline (≈ entropy of the byte distribution) and vs a no-position ablation |
 | 9 (d) | Optional hypernetwork: a context vector (e.g. pooled preceding bytes) generates low-rank modulations (FiLM / LoRA-style deltas) of expert weights | tests: zero context ⇒ base experts exactly; bpb compared with 9(c) |
 | 9 (e) | Serving over HTTP — **deferred**. The user does not want Vercel deployment, and nothing gets hosted without asking first. | — |
+
+## Review notes from Codex (2026-10-23)
+- Stage 3 acceptance checks: (1) causality — perturbing inputs at positions > t must leave outputs at positions <= t unchanged; (2) position — with positional encoding on, reordering a sequence must change outputs; keep the unmasked/no-position mode as an explicit option for non-causal tasks.
+- New stage (control experiment): compare the auto-growing expand run against a fixed-architecture baseline trained with comparable compute (same total steps / FLOPs) on the same X -> sin(X) data; report both held-out losses before claiming growth helps.
+- Keep three milestones separate in docs: (a) correctness tests pass, (b) PDE fit, (c) language generalization (held-out bits-per-byte, stage 9c — not yet tested).
