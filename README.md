@@ -22,3 +22,17 @@ python sandbox.py               # legacy + fixed modes
 python sandbox.py --mode legacy # original numbers exactly
 python -m pytest -q
 ```
+
+## Expand engine (stage 2)
+```bash
+python expand.py init                       # writes config.json (single source of truth)
+python supervisor.py --cycles 10 --timeout 300
+```
+- `model.py`: `DynamicMultiBlockTransformer` (num_layers from config; aux and dropped summed over layers; `add_layer` = exact-identity init; `add_expert` = copy + noise of the most-loaded expert, gate grows one row).
+- `expand.py`: X → sin(X) regression on random vectors. Rules per cycle: dropped > 0 → capacity_factor += 0.05; aux > 1.2 → alpha × 1.5; loss stalls (< 1 % relative improvement) → add an expert, or a new layer if the previous expert addition did not help. Caps: CF ≤ 2.0, experts ≤ 32/layer, alpha ≤ 1.0, layers ≤ 8. Checkpoint in `runs/checkpoint.pt`, every cycle in `runs/expand_log.jsonl`.
+- `supervisor.py`: backup to `.backup_checkpoint/`, mutate config, `ast.parse`, subprocess with timeout, failure parsing (`runs/supervisor_log.jsonl`, `runs/runtime_errors.log`), shape auto-correct against the checkpoint with one validation re-run, rollback and a different mutation path otherwise.
+
+## Physics sandbox
+```bash
+python physics_simulation.py --seconds 120   # results in runs/physics/final.json
+```
