@@ -1,4 +1,4 @@
-# Artemis 567885
+# Artemis AI BY CUTLINE INDUSTRIES/CODENAME DARANGO
 
 A tokenization-free mathematical repository implementing a high-performance, CPU-optimized **Top-K Sparse Mixture of Experts (MoE) Layer** embedded inside a **Modular Transformer Block**.
 
