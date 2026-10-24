@@ -2,15 +2,16 @@
   "d_model": 16,
   "n_heads": 2,
   "d_ff": 64,
-  "num_layers": 3,
+  "num_layers": 4,
   "num_experts": [
     6,
     9,
-    4
+    5,
+    6
   ],
   "base_num_experts": 4,
   "top_k": 2,
-  "capacity_factor": 1.45,
+  "capacity_factor": 1.7,
   "alpha": 0.1,
   "lr": 0.001,
   "steps_per_cycle": 300,
@@ -31,7 +32,7 @@
     "alpha_max": 1.0,
     "num_layers_max": 8
   },
-  "cycle": 30,
+  "cycle": 40,
   "pending_mutation": null,
   "history": [
     {
@@ -1748,6 +1749,777 @@
       "steps": 300,
       "seconds": 3.47,
       "time": "2026-10-24T11:58:38-0400"
+    },
+    {
+      "cycle": 30,
+      "loss": 0.029033,
+      "train_loss_start": 0.028876,
+      "train_loss_end": 0.028004,
+      "rel_improvement": 0.030167,
+      "aux": 1.002525,
+      "aux_train_mean": 1.003136,
+      "dropped": 0,
+      "dropped_tokens": 0,
+      "dropped_train_mean": 0.08,
+      "capacity_factor": 1.5,
+      "alpha": 0.1,
+      "num_layers": 3,
+      "num_experts": [
+        6,
+        9,
+        4
+      ],
+      "num_experts_before": [
+        6,
+        9,
+        4
+      ],
+      "grad_x_norm": 0.003007,
+      "grad_gate_norm": 0.037144,
+      "output_shape_ok": true,
+      "expert_load": [
+        [
+          168,
+          174,
+          181,
+          156,
+          171,
+          174
+        ],
+        [
+          90,
+          111,
+          94,
+          115,
+          117,
+          135,
+          63,
+          147,
+          152
+        ],
+        [
+          263,
+          261,
+          259,
+          241
+        ]
+      ],
+      "mutation": {
+        "name": "soft",
+        "changes": {
+          "capacity_factor": 1.5
+        },
+        "reasons": [
+          "dropped=58>0 -> capacity_factor+=0.05"
+        ]
+      },
+      "optimizer_reset": false,
+      "weights_action": "loaded_checkpoint",
+      "grown": [],
+      "steps": 300,
+      "seconds": 3.55,
+      "time": "2026-10-24T14:57:47-0400"
+    },
+    {
+      "cycle": 31,
+      "loss": 0.030233,
+      "train_loss_start": 0.027689,
+      "train_loss_end": 0.027317,
+      "rel_improvement": 0.013414,
+      "aux": 1.000676,
+      "aux_train_mean": 1.003079,
+      "dropped": 3,
+      "dropped_tokens": 0,
+      "dropped_train_mean": 0.08,
+      "capacity_factor": 1.5,
+      "alpha": 0.1,
+      "num_layers": 3,
+      "num_experts": [
+        6,
+        9,
+        4
+      ],
+      "num_experts_before": [
+        6,
+        9,
+        4
+      ],
+      "grad_x_norm": 0.003183,
+      "grad_gate_norm": 0.048981,
+      "output_shape_ok": true,
+      "expert_load": [
+        [
+          168,
+          180,
+          172,
+          154,
+          173,
+          177
+        ],
+        [
+          107,
+          126,
+          96,
+          107,
+          118,
+          41,
+          174,
+          134,
+          121
+        ],
+        [
+          258,
+          276,
+          233,
+          257
+        ]
+      ],
+      "mutation": {
+        "name": "none",
+        "changes": {},
+        "reasons": []
+      },
+      "optimizer_reset": false,
+      "weights_action": "loaded_checkpoint",
+      "grown": [],
+      "steps": 300,
+      "seconds": 3.19,
+      "time": "2026-10-24T14:57:51-0400"
+    },
+    {
+      "cycle": 32,
+      "loss": 0.040748,
+      "train_loss_start": 0.027758,
+      "train_loss_end": 0.027474,
+      "rel_improvement": 0.010223,
+      "aux": 1.002417,
+      "aux_train_mean": 1.002922,
+      "dropped": 29,
+      "dropped_tokens": 0,
+      "dropped_train_mean": 0.053,
+      "capacity_factor": 1.55,
+      "alpha": 0.1,
+      "num_layers": 3,
+      "num_experts": [
+        6,
+        9,
+        4
+      ],
+      "num_experts_before": [
+        6,
+        9,
+        4
+      ],
+      "grad_x_norm": 0.003944,
+      "grad_gate_norm": 0.109229,
+      "output_shape_ok": true,
+      "expert_load": [
+        [
+          176,
+          169,
+          176,
+          157,
+          174,
+          172
+        ],
+        [
+          101,
+          117,
+          58,
+          110,
+          108,
+          111,
+          86,
+          127,
+          206
+        ],
+        [
+          269,
+          265,
+          234,
+          256
+        ]
+      ],
+      "mutation": {
+        "name": "soft",
+        "changes": {
+          "capacity_factor": 1.55
+        },
+        "reasons": [
+          "dropped=3>0 -> capacity_factor+=0.05"
+        ]
+      },
+      "optimizer_reset": false,
+      "weights_action": "loaded_checkpoint",
+      "grown": [],
+      "steps": 300,
+      "seconds": 3.1,
+      "time": "2026-10-24T14:57:56-0400"
+    },
+    {
+      "cycle": 33,
+      "loss": 0.027887,
+      "train_loss_start": 0.02723,
+      "train_loss_end": 0.027298,
+      "rel_improvement": -0.002477,
+      "aux": 1.001733,
+      "aux_train_mean": 1.002751,
+      "dropped": 0,
+      "dropped_tokens": 0,
+      "dropped_train_mean": 0.02,
+      "capacity_factor": 1.6,
+      "alpha": 0.1,
+      "num_layers": 3,
+      "num_experts": [
+        6,
+        9,
+        4
+      ],
+      "num_experts_before": [
+        6,
+        9,
+        4
+      ],
+      "grad_x_norm": 0.00299,
+      "grad_gate_norm": 0.055539,
+      "output_shape_ok": true,
+      "expert_load": [
+        [
+          190,
+          176,
+          162,
+          158,
+          170,
+          168
+        ],
+        [
+          102,
+          121,
+          92,
+          116,
+          120,
+          122,
+          164,
+          167,
+          20
+        ],
+        [
+          263,
+          271,
+          245,
+          245
+        ]
+      ],
+      "mutation": {
+        "name": "soft",
+        "changes": {
+          "capacity_factor": 1.6
+        },
+        "reasons": [
+          "dropped=29>0 -> capacity_factor+=0.05"
+        ]
+      },
+      "optimizer_reset": false,
+      "weights_action": "loaded_checkpoint",
+      "grown": [],
+      "steps": 300,
+      "seconds": 3.08,
+      "time": "2026-10-24T14:58:00-0400"
+    },
+    {
+      "cycle": 34,
+      "loss": 0.063178,
+      "train_loss_start": 0.026474,
+      "train_loss_end": 0.026659,
+      "rel_improvement": -0.006989,
+      "aux": 1.00442,
+      "aux_train_mean": 1.002789,
+      "dropped": 69,
+      "dropped_tokens": 0,
+      "dropped_train_mean": 0.027,
+      "capacity_factor": 1.6,
+      "alpha": 0.1,
+      "num_layers": 3,
+      "num_experts": [
+        6,
+        9,
+        5
+      ],
+      "num_experts_before": [
+        6,
+        9,
+        4
+      ],
+      "grad_x_norm": 0.005178,
+      "grad_gate_norm": 0.23792,
+      "output_shape_ok": true,
+      "expert_load": [
+        [
+          165,
+          165,
+          183,
+          153,
+          166,
+          192
+        ],
+        [
+          102,
+          111,
+          73,
+          115,
+          109,
+          17,
+          252,
+          102,
+          143
+        ],
+        [
+          191,
+          199,
+          231,
+          202,
+          201
+        ]
+      ],
+      "mutation": {
+        "name": "structural+soft",
+        "changes": {
+          "num_experts": [
+            6,
+            9,
+            5
+          ]
+        },
+        "reasons": [
+          "stall rel_improvement=-0.0025 -> add expert to layer 2"
+        ]
+      },
+      "optimizer_reset": true,
+      "weights_action": "loaded_checkpoint+grown",
+      "grown": [
+        "layer 2 expert 4 = copy of most-loaded expert 1 + noise"
+      ],
+      "steps": 300,
+      "seconds": 3.35,
+      "time": "2026-10-24T14:58:04-0400"
+    },
+    {
+      "cycle": 35,
+      "loss": 0.02955,
+      "train_loss_start": 0.026971,
+      "train_loss_end": 0.027223,
+      "rel_improvement": -0.00934,
+      "aux": 1.002728,
+      "aux_train_mean": 1.002438,
+      "dropped": 4,
+      "dropped_tokens": 0,
+      "dropped_train_mean": 0.017,
+      "capacity_factor": 1.65,
+      "alpha": 0.1,
+      "num_layers": 4,
+      "num_experts": [
+        6,
+        9,
+        5,
+        4
+      ],
+      "num_experts_before": [
+        6,
+        9,
+        5
+      ],
+      "grad_x_norm": 0.003131,
+      "grad_gate_norm": 0.059857,
+      "output_shape_ok": true,
+      "expert_load": [
+        [
+          188,
+          181,
+          162,
+          141,
+          181,
+          171
+        ],
+        [
+          111,
+          112,
+          39,
+          121,
+          107,
+          150,
+          84,
+          108,
+          192
+        ],
+        [
+          200,
+          217,
+          200,
+          195,
+          212
+        ],
+        [
+          241,
+          260,
+          250,
+          273
+        ]
+      ],
+      "mutation": {
+        "name": "structural+soft",
+        "changes": {
+          "capacity_factor": 1.65,
+          "num_layers": 4,
+          "num_experts": [
+            6,
+            9,
+            5,
+            4
+          ]
+        },
+        "reasons": [
+          "dropped=69>0 -> capacity_factor+=0.05",
+          "stall rel_improvement=-0.0070 after expert addition -> add layer"
+        ]
+      },
+      "optimizer_reset": true,
+      "weights_action": "loaded_checkpoint+grown",
+      "grown": [
+        "layer 3 added near-identity with 4 experts (only this layer initialised)"
+      ],
+      "steps": 300,
+      "seconds": 3.57,
+      "time": "2026-10-24T14:58:09-0400"
+    },
+    {
+      "cycle": 36,
+      "loss": 0.027287,
+      "train_loss_start": 0.027046,
+      "train_loss_end": 0.02599,
+      "rel_improvement": 0.039044,
+      "aux": 1.000615,
+      "aux_train_mean": 1.002403,
+      "dropped": 0,
+      "dropped_tokens": 0,
+      "dropped_train_mean": 0.02,
+      "capacity_factor": 1.7,
+      "alpha": 0.1,
+      "num_layers": 4,
+      "num_experts": [
+        6,
+        9,
+        5,
+        5
+      ],
+      "num_experts_before": [
+        6,
+        9,
+        5,
+        4
+      ],
+      "grad_x_norm": 0.002999,
+      "grad_gate_norm": 0.02992,
+      "output_shape_ok": true,
+      "expert_load": [
+        [
+          179,
+          185,
+          165,
+          170,
+          157,
+          168
+        ],
+        [
+          111,
+          111,
+          71,
+          125,
+          128,
+          113,
+          86,
+          135,
+          144
+        ],
+        [
+          240,
+          190,
+          212,
+          194,
+          188
+        ],
+        [
+          185,
+          181,
+          196,
+          231,
+          231
+        ]
+      ],
+      "mutation": {
+        "name": "structural+soft",
+        "changes": {
+          "capacity_factor": 1.7,
+          "num_experts": [
+            6,
+            9,
+            5,
+            5
+          ]
+        },
+        "reasons": [
+          "dropped=4>0 -> capacity_factor+=0.05",
+          "stall rel_improvement=-0.0093 -> add expert to layer 3"
+        ]
+      },
+      "optimizer_reset": true,
+      "weights_action": "loaded_checkpoint+grown",
+      "grown": [
+        "layer 3 expert 4 = copy of most-loaded expert 3 + noise"
+      ],
+      "steps": 300,
+      "seconds": 3.75,
+      "time": "2026-10-24T14:58:14-0400"
+    },
+    {
+      "cycle": 37,
+      "loss": 0.027747,
+      "train_loss_start": 0.025907,
+      "train_loss_end": 0.026166,
+      "rel_improvement": -0.009968,
+      "aux": 1.000825,
+      "aux_train_mean": 1.002139,
+      "dropped": 0,
+      "dropped_tokens": 0,
+      "dropped_train_mean": 0.0,
+      "capacity_factor": 1.7,
+      "alpha": 0.1,
+      "num_layers": 4,
+      "num_experts": [
+        6,
+        9,
+        5,
+        5
+      ],
+      "num_experts_before": [
+        6,
+        9,
+        5,
+        5
+      ],
+      "grad_x_norm": 0.003009,
+      "grad_gate_norm": 0.039488,
+      "output_shape_ok": true,
+      "expert_load": [
+        [
+          176,
+          174,
+          175,
+          177,
+          157,
+          165
+        ],
+        [
+          114,
+          105,
+          147,
+          138,
+          121,
+          112,
+          39,
+          107,
+          141
+        ],
+        [
+          221,
+          198,
+          203,
+          180,
+          222
+        ],
+        [
+          197,
+          176,
+          191,
+          226,
+          234
+        ]
+      ],
+      "mutation": {
+        "name": "none",
+        "changes": {},
+        "reasons": []
+      },
+      "optimizer_reset": false,
+      "weights_action": "loaded_checkpoint",
+      "grown": [],
+      "steps": 300,
+      "seconds": 3.59,
+      "time": "2026-10-24T14:58:19-0400"
+    },
+    {
+      "cycle": 38,
+      "loss": 0.027276,
+      "train_loss_start": 0.026452,
+      "train_loss_end": 0.025931,
+      "rel_improvement": 0.019702,
+      "aux": 1.00101,
+      "aux_train_mean": 1.002078,
+      "dropped": 0,
+      "dropped_tokens": 0,
+      "dropped_train_mean": 0.0,
+      "capacity_factor": 1.7,
+      "alpha": 0.1,
+      "num_layers": 4,
+      "num_experts": [
+        6,
+        9,
+        5,
+        6
+      ],
+      "num_experts_before": [
+        6,
+        9,
+        5,
+        5
+      ],
+      "grad_x_norm": 0.002998,
+      "grad_gate_norm": 0.05457,
+      "output_shape_ok": true,
+      "expert_load": [
+        [
+          181,
+          169,
+          184,
+          153,
+          167,
+          170
+        ],
+        [
+          105,
+          113,
+          132,
+          116,
+          119,
+          178,
+          87,
+          151,
+          23
+        ],
+        [
+          188,
+          202,
+          215,
+          202,
+          217
+        ],
+        [
+          188,
+          162,
+          163,
+          207,
+          143,
+          161
+        ]
+      ],
+      "mutation": {
+        "name": "structural+soft",
+        "changes": {
+          "num_experts": [
+            6,
+            9,
+            5,
+            6
+          ]
+        },
+        "reasons": [
+          "stall rel_improvement=-0.0100 -> add expert to layer 3"
+        ]
+      },
+      "optimizer_reset": true,
+      "weights_action": "loaded_checkpoint+grown",
+      "grown": [
+        "layer 3 expert 5 = copy of most-loaded expert 4 + noise"
+      ],
+      "steps": 300,
+      "seconds": 3.68,
+      "time": "2026-10-24T14:58:24-0400"
+    },
+    {
+      "cycle": 39,
+      "loss": 0.027932,
+      "train_loss_start": 0.026336,
+      "train_loss_end": 0.026465,
+      "rel_improvement": -0.004901,
+      "aux": 0.99948,
+      "aux_train_mean": 1.001934,
+      "dropped": 0,
+      "dropped_tokens": 0,
+      "dropped_train_mean": 0.0,
+      "capacity_factor": 1.7,
+      "alpha": 0.1,
+      "num_layers": 4,
+      "num_experts": [
+        6,
+        9,
+        5,
+        6
+      ],
+      "num_experts_before": [
+        6,
+        9,
+        5,
+        6
+      ],
+      "grad_x_norm": 0.003036,
+      "grad_gate_norm": 0.022833,
+      "output_shape_ok": true,
+      "expert_load": [
+        [
+          176,
+          171,
+          168,
+          163,
+          161,
+          185
+        ],
+        [
+          120,
+          120,
+          143,
+          111,
+          125,
+          89,
+          126,
+          93,
+          97
+        ],
+        [
+          195,
+          196,
+          208,
+          215,
+          210
+        ],
+        [
+          184,
+          146,
+          143,
+          201,
+          183,
+          167
+        ]
+      ],
+      "mutation": {
+        "name": "none",
+        "changes": {},
+        "reasons": []
+      },
+      "optimizer_reset": false,
+      "weights_action": "loaded_checkpoint",
+      "grown": [],
+      "steps": 300,
+      "seconds": 4.02,
+      "time": "2026-10-24T14:58:29-0400"
     }
   ]
 }
