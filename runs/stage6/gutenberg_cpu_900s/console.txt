@@ -1,0 +1,31 @@
+/workspace/artemis-567885/train_bytes.py:233: UserWarning: Converting a tensor with requires_grad=True to a scalar may lead to unexpected behavior.
+Consider using tensor.detach() first. (Triggered internally at /__w/pytorch/pytorch/torch/csrc/autograd/generated/python_variable_methods.cpp:820.)
+  last_aux, last_drop = float(aux), int(dropped)
+[stage6] corpus=/workspace/artemis-corpus-bench/corpus train/ vs val/ | train 11,984,086 B, held-out 1,230,205 B (eval 256 windows x 256 predicted bytes)
+[stage6] params 5,399,296 | d=256 layers=4 experts=4 top_k=2 seq=256 batch=32 | unigram bpb 4.5804 (eval windows) / 4.5817 (full held-out)
+step      0 t=    4.4s lr=0.00e+00 train   -    bpb | held-out 8.1240 bpb (unigram 4.5804)
+step    200 t=   65.3s lr=1.50e-03 train 3.9979 bpb | held-out 3.2684 bpb (unigram 4.5804)
+step    400 t=  135.6s lr=1.43e-03 train 2.7563 bpb | held-out 2.3780 bpb (unigram 4.5804)
+step    600 t=  202.9s lr=1.34e-03 train 2.2623 bpb | held-out 2.1248 bpb (unigram 4.5804)
+step    800 t=  268.5s lr=1.23e-03 train 2.0699 bpb | held-out 2.0176 bpb (unigram 4.5804)
+step   1000 t=  342.2s lr=1.08e-03 train 1.9582 bpb | held-out 1.9397 bpb (unigram 4.5804)
+step   1200 t=  403.1s lr=9.38e-04 train 1.8942 bpb | held-out 1.8942 bpb (unigram 4.5804)
+step   1400 t=  480.6s lr=7.56e-04 train 1.8373 bpb | held-out 1.8601 bpb (unigram 4.5804)
+step   1600 t=  540.8s lr=6.18e-04 train 1.7957 bpb | held-out 1.8248 bpb (unigram 4.5804)
+step   1800 t=  618.1s lr=4.54e-04 train 1.7613 bpb | held-out 1.7993 bpb (unigram 4.5804)
+step   2000 t=  683.4s lr=3.36e-04 train 1.7294 bpb | held-out 1.7813 bpb (unigram 4.5804)
+step   2200 t=  767.0s lr=2.23e-04 train 1.7017 bpb | held-out 1.7644 bpb (unigram 4.5804)
+step   2400 t=  828.5s lr=1.72e-04 train 1.6834 bpb | held-out 1.7544 bpb (unigram 4.5804)
+step   2593 t=  902.3s lr=1.50e-04 train 1.6726 bpb | held-out 1.7474 bpb (unigram 4.5804)
+[stage6] done: 2593 steps in 900.9s | held-out 1.7474 bpb vs unigram 4.5804 | samples:
+It was a little hour of spinning a shop family; and that
+who stood could cafry to the service at the man without other time they
+looked at the Bishop Caspections and those who I would have to be
+found. They saw the Richard le American we reasons itself a great deal
+upon his state, if I should not sleep t
+The first philosophical porters, at all, and the porters
+the scenes, after so loafly, I saw the man without of the more a family
+and servant and Castle apples to my face from the perfume.
+
+After that Men live Richard leaned so strength of my papa, busy that
+mournfully, but I thought of the great pl
