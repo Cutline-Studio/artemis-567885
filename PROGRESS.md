@@ -10,3 +10,10 @@
 
 ### Next
 - Stage 3: causal mask + positional encoding options (PLAN.md). Physics follow-ups: lower lr / cosine schedule, stronger load balancing to stop expert collapse, longer error-vs-time study.
+
+## Iteration 2 — 2026-10-24 (scheduled loop)
+- Expand engine: 10 more supervised cycles (10–19) on branch `expand-loop`. Eval loss 0.0521 → 0.0322; aux 1.0016 at cycle 19 (never > 1.2, alpha stays 0.1); dropped 1 token at cycle 13 → CF 1.20 → 1.25; loss stalls added experts to layer 1 at cycles 16 and 18 → experts [6, 6], 2 layers. No failures or rollbacks. Caps not reached.
+- Stage 3: `positional.py` (sinusoidal, learned, none) wired into `DynamicMultiBlockTransformer(pos_encoding=..., max_len=...)`, added once before the first block; default `none` keeps outputs and checkpoints unchanged (sinusoidal table is a non-persistent buffer). Causal mask was already in from repo-checks. New `tests/test_positional.py`: known sinusoid values, gradients to input/gate/learned table, permutation equivariance with `none` and broken with PE, causal future-independence (dropless routing) with every PE kind, max_len and bad-kind errors. Full suite 148 passed, 1 xfailed; checks 87 passed, 1 xfailed; `sandbox.py` legacy still reproduces Total Loss 1.5083.
+
+### Next
+- Stage 4: vectorized dispatch exists (check 3); remaining is `bench.py` comparing loop vs vectorized across E ∈ {4, 16, 64} with a committed table.
