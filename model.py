@@ -23,7 +23,7 @@ class DynamicMultiBlockTransformer(nn.Module):
     def __init__(self, d_model: int, n_heads: int, d_ff: int, num_experts: Union[int, Sequence[int]],
                  num_layers: int = 1, top_k: int = 2, capacity_factor: float = 1.0, legacy: bool = False,
                  causal: bool = False, dispatch: str = "loop", pos_encoding: str = "none",
-                 max_len: int = 512):
+                 max_len: int = 512, capacity_mode: str = "global"):
         super().__init__()
         if d_model % n_heads != 0:
             raise ValueError(f"d_model ({d_model}) must be divisible by n_heads ({n_heads})")
@@ -33,13 +33,14 @@ class DynamicMultiBlockTransformer(nn.Module):
             raise ValueError(f"num_experts list has {len(num_experts)} entries for {num_layers} layers")
         self.d_model, self.n_heads, self.d_ff = d_model, n_heads, d_ff
         self.top_k, self.legacy, self.causal, self.dispatch = top_k, legacy, causal, dispatch
+        self.capacity_mode = capacity_mode
         self._capacity_factor = capacity_factor
         self.pos_encoding, self.max_len = pos_encoding, max_len
         # "none" is nn.Identity (no parameters): default behaviour and checkpoints unchanged
         self.pos = build_positional(pos_encoding, d_model, max_len)
         self.blocks = nn.ModuleList([
             MoETransformerBlock(d_model, n_heads, d_ff, e, top_k, capacity_factor, legacy=legacy,
-                                causal=causal, dispatch=dispatch)
+                                causal=causal, dispatch=dispatch, capacity_mode=capacity_mode)
             for e in num_experts])
 
     @property
@@ -77,7 +78,8 @@ class DynamicMultiBlockTransformer(nn.Module):
         ref = next(self.parameters())
         blk = MoETransformerBlock(self.d_model, self.n_heads, self.d_ff, num_experts, self.top_k,
                                   self._capacity_factor, legacy=self.legacy, causal=self.causal,
-                                  dispatch=self.dispatch).to(ref.device, ref.dtype)
+                                  dispatch=self.dispatch,
+                                  capacity_mode=getattr(self, "capacity_mode", "global")).to(ref.device, ref.dtype)
         blk.attn.out_linear.weight.zero_(); blk.attn.out_linear.bias.zero_()
         for e in blk.moe.experts:
             e.w2.weight.zero_(); e.w2.bias.zero_()
@@ -103,7 +105,8 @@ class ArtemisModel(nn.Module):
     (dropless). Capacity-limited routing ranks tokens over the whole flattened
     batch, so a future byte can displace a past byte and leak information
     (checks/test_check5_causal.py); pass a float capacity_factor only when that is
-    acceptable. legacy=True is forwarded to every block (original MoE semantics)
+    acceptable, or use capacity_mode="sequence" (stage 7: per-sequence capacity
+    served in position order, causal-safe). legacy=True is forwarded to every block (original MoE semantics)
     and needs a float capacity_factor, since the original code has no dropless mode.
     """
 
@@ -112,7 +115,8 @@ class ArtemisModel(nn.Module):
     def __init__(self, d_model: int = 64, n_heads: int = 4, d_ff: int = 128,
                  num_experts: Union[int, Sequence[int]] = 4, num_layers: int = 2, top_k: int = 2,
                  capacity_factor: float = None, legacy: bool = False, causal: bool = True,
-                 dispatch: str = "loop", pos_encoding: str = "sinusoidal", max_len: int = 512):
+                 dispatch: str = "loop", pos_encoding: str = "sinusoidal", max_len: int = 512,
+                 capacity_mode: str = "global"):
         super().__init__()
         if legacy and capacity_factor is None:
             raise ValueError("legacy=True needs a float capacity_factor (original code has no dropless mode)")
@@ -120,7 +124,7 @@ class ArtemisModel(nn.Module):
         self.body = DynamicMultiBlockTransformer(d_model, n_heads, d_ff, num_experts, num_layers, top_k,
                                                  capacity_factor, legacy=legacy, causal=causal,
                                                  dispatch=dispatch, pos_encoding=pos_encoding,
-                                                 max_len=max_len)
+                                                 max_len=max_len, capacity_mode=capacity_mode)
         self.ln_f = nn.LayerNorm(d_model)
         self.head = nn.Linear(d_model, self.VOCAB)
 

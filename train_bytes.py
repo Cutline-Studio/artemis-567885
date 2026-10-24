@@ -28,6 +28,7 @@ import torch
 import torch.nn.functional as F
 
 from model import ArtemisModel, next_byte_loss, bits_per_byte
+from moe import expert_load_entropy
 
 DEFAULT_CORPUS = os.environ.get("ARTEMIS_CORPUS", "/workspace/artemis-corpus-bench/corpus")
 
@@ -98,19 +99,50 @@ def unigram_bpb(train, heldout, smoothing: float = 1.0) -> float:
 
 
 @torch.no_grad()
-def evaluate_bpb(model: ArtemisModel, windows: torch.Tensor, batch: int = 64) -> float:
-    """Mean next-byte cross-entropy over every predicted position of `windows`, in bpb."""
+def evaluate(model: ArtemisModel, windows: torch.Tensor, batch: int = 64) -> dict:
+    """Held-out metrics over `windows` in eval mode (no routing noise).
+
+    bpb / loss_nats: mean next-byte cross-entropy over every predicted position.
+    drop_rate: dropped (token, slot) assignments / all assignments, over all layers.
+    entropy_routed[l]: normalised expert-load entropy (expert_load_entropy) of the
+    router's top-k choices in layer l before capacity; entropy_kept[l]: same for
+    the assignments that were actually processed. *_mean: mean over layers.
+    """
     was = model.training
     model.eval()
     tot, n = 0.0, 0
+    blocks = list(model.blocks)
+    routed = [torch.zeros(b.moe.num_experts, dtype=torch.float64) for b in blocks]
+    kept = [torch.zeros(b.moe.num_experts, dtype=torch.float64) for b in blocks]
+    dropped, assigns = 0, 0
     for i in range(0, windows.size(0), batch):
         w = windows[i:i + batch]
-        logits, _, _ = model(w)
+        logits, _, d = model(w)
         k = w.size(0) * (w.size(1) - 1)
         tot += float(next_byte_loss(logits, w)) * k
         n += k
+        dropped += int(d)
+        for li, b in enumerate(blocks):
+            st = b.moe.last_stats
+            idx = st["topk_indices"]
+            E = b.moe.num_experts
+            routed[li] += torch.bincount(idx.reshape(-1), minlength=E).double()
+            kept[li] += torch.bincount(idx[st["kept_slots"]].reshape(-1), minlength=E).double()
+            assigns += idx.numel()
     model.train(was)
-    return bits_per_byte(tot / n)
+    loss = tot / n
+    er = [expert_load_entropy(c) for c in routed]
+    ek = [expert_load_entropy(c) for c in kept]
+    return dict(loss_nats=loss, bpb=bits_per_byte(loss), drop_rate=dropped / assigns if assigns else 0.0,
+                dropped=dropped, assignments=assigns,
+                entropy_routed=er, entropy_kept=ek,
+                entropy_routed_mean=sum(er) / len(er), entropy_kept_mean=sum(ek) / len(ek),
+                load_routed=[c.tolist() for c in routed])
+
+
+def evaluate_bpb(model: ArtemisModel, windows: torch.Tensor, batch: int = 64) -> float:
+    """Mean next-byte cross-entropy over every predicted position of `windows`, in bpb."""
+    return evaluate(model, windows, batch)["bpb"]
 
 
 @torch.no_grad()
@@ -164,15 +196,23 @@ def train(args, train_b: bytes, held_b: bytes, data_desc: str = "", log=print) -
     ev = eval_windows(ho, L, args.eval_windows)
     uni_eval = unigram_bpb(tr, ev[:, 1:])       # same target bytes as the model eval
     uni_full = unigram_bpb(tr, ho)              # whole held-out split
+    cf = getattr(args, "capacity_factor", None)
+    cmode = getattr(args, "capacity_mode", "sequence")
     model = ArtemisModel(args.d_model, args.n_heads, args.d_ff, args.experts, args.layers,
-                         top_k=args.top_k, capacity_factor=None, causal=True,
-                         pos_encoding=args.pos, max_len=L, dispatch=args.dispatch)
+                         top_k=args.top_k, capacity_factor=cf, causal=True,
+                         pos_encoding=args.pos, max_len=L, dispatch=args.dispatch,
+                         capacity_mode=cmode)
+    leaky = cf is not None and cmode == "global"
+    if leaky:
+        log("[stage6] WARNING: capacity_mode=global with a finite capacity factor ranks tokens over the "
+            "flattened batch and leaks future bytes (check 5); results are labelled leaky")
     n_params = sum(p.numel() for p in model.parameters())
     opt = torch.optim.AdamW(model.parameters(), lr=args.lr, weight_decay=args.weight_decay)
     out_dir = Path(args.out_dir) / args.run_name
     out_dir.mkdir(parents=True, exist_ok=True)
     fields = ["step", "elapsed_s", "lr", "train_loss_nats", "train_bpb", "aux", "dropped",
-              "heldout_bpb", "unigram_bpb"]
+              "train_aux_mean", "train_drop_rate", "heldout_bpb", "heldout_drop_rate", "heldout_entropy_routed",
+              "unigram_bpb"]
     fcsv = open(out_dir / "curve.csv", "w", newline="")
     wcsv = csv.DictWriter(fcsv, fieldnames=fields); wcsv.writeheader()
     fjl = open(out_dir / "curve.jsonl", "w")
@@ -184,22 +224,33 @@ def train(args, train_b: bytes, held_b: bytes, data_desc: str = "", log=print) -
 
     rows, t0, step, run_loss, run_n = [], time.time(), 0, 0.0, 0
     first_loss = None
+    # assignments per training step = batch * L tokens * top_k * layers
+    assign_per_step = args.batch * L * args.top_k * args.layers
+    run_drop, total_drop, run_aux = 0, 0, 0.0
+    last_ev = {}
 
     def do_eval(step, lr):
-        nonlocal run_loss, run_n
-        hb = evaluate_bpb(model, ev, args.eval_batch)
+        nonlocal run_loss, run_n, run_drop, run_aux, last_ev
+        evr = evaluate(model, ev, args.eval_batch)
+        last_ev = evr
+        hb = evr["bpb"]
         tl = run_loss / run_n if run_n else None   # mean train loss since the previous eval
+        tdr = run_drop / (run_n * assign_per_step) if run_n else None
         row = dict(step=step, elapsed_s=round(time.time() - t0, 2), lr=lr,
                    train_loss_nats=round(tl, 5) if tl is not None else None,
                    train_bpb=round(bits_per_byte(tl), 5) if tl is not None else None,
                    aux=round(last_aux, 5), dropped=last_drop,
-                   heldout_bpb=round(hb, 5), unigram_bpb=round(uni_eval, 5))
+                   train_aux_mean=round(run_aux / run_n, 5) if run_n else None,
+                   train_drop_rate=round(tdr, 6) if tdr is not None else None,
+                   heldout_bpb=round(hb, 5), heldout_drop_rate=round(evr["drop_rate"], 6),
+                   heldout_entropy_routed=round(evr["entropy_routed_mean"], 5),
+                   unigram_bpb=round(uni_eval, 5))
         rows.append(row); wcsv.writerow(row); fcsv.flush()
         fjl.write(json.dumps(row) + "\n"); fjl.flush()
         trs = f"{row['train_bpb']:.4f}" if tl is not None else "  -   "
         log(f"step {step:6d} t={row['elapsed_s']:7.1f}s lr={lr:.2e} train {trs} bpb "
             f"| held-out {hb:.4f} bpb (unigram {uni_eval:.4f})")
-        run_loss, run_n = 0.0, 0
+        run_loss, run_n, run_drop, run_aux = 0.0, 0, 0, 0.0
         return hb
 
     model.train()
@@ -231,6 +282,7 @@ def train(args, train_b: bytes, held_b: bytes, data_desc: str = "", log=print) -
         first_loss = lv if first_loss is None else first_loss
         run_loss += lv; run_n += 1
         last_aux, last_drop = aux.item(), int(dropped)
+        run_drop += last_drop; total_drop += last_drop; run_aux += last_aux
         if step % args.eval_every == 0:
             do_eval(step, lr)
     train_time = time.time() - t0
@@ -255,6 +307,16 @@ def train(args, train_b: bytes, held_b: bytes, data_desc: str = "", log=print) -
                    first_train_bpb=round(bits_per_byte(first_loss), 4) if first_loss else None,
                    initial_heldout_bpb=rows[0]["heldout_bpb"], final_heldout_bpb=final_bpb,
                    best_heldout_bpb=min(r["heldout_bpb"] for r in rows),
+                   final_heldout_loss_nats=round(last_ev["loss_nats"], 5),
+                   capacity_factor=cf, capacity_mode=cmode, leaky=leaky,
+                   train_drop_rate=round(total_drop / (step * assign_per_step), 6) if step else None,
+                   heldout_drop_rate=round(last_ev["drop_rate"], 6),
+                   heldout_entropy_routed=[round(e, 5) for e in last_ev["entropy_routed"]],
+                   heldout_entropy_kept=[round(e, 5) for e in last_ev["entropy_kept"]],
+                   heldout_entropy_routed_mean=round(last_ev["entropy_routed_mean"], 5),
+                   heldout_entropy_kept_mean=round(last_ev["entropy_kept_mean"], 5),
+                   heldout_load_routed=last_ev["load_routed"],
+                   final_aux=round(last_aux, 5),
                    unigram_bpb_eval_windows=round(uni_eval, 5), unigram_bpb_full_heldout=round(uni_full, 5),
                    config={k: v for k, v in vars(args).items() if k not in ("prompt",)},
                    torch=torch.__version__, threads=torch.get_num_threads(), samples=samples)
@@ -269,6 +331,10 @@ def train(args, train_b: bytes, held_b: bytes, data_desc: str = "", log=print) -
         log(s["text"])
     summary["model"] = model
     return summary
+
+
+def _cf(v: str):
+    return None if str(v).lower() in ("none", "inf", "dropless") else float(v)
 
 
 def build_parser():
@@ -292,6 +358,11 @@ def build_parser():
     p.add_argument("--weight-decay", type=float, default=0.01)
     p.add_argument("--grad-clip", type=float, default=1.0)
     p.add_argument("--aux-alpha", type=float, default=0.01)
+    p.add_argument("--capacity-factor", type=_cf, default=None,
+                   help="per-expert capacity factor; 'none' (default) = dropless")
+    p.add_argument("--capacity-mode", default="sequence", choices=["sequence", "global"],
+                   help="sequence (default): per-sequence, position-ordered, causal-safe; "
+                        "global: flattened-batch ranking (leaks future bytes, check 5)")
     p.add_argument("--max-steps", type=int, default=0, help="0 = no step limit")
     p.add_argument("--time-budget", type=float, default=900.0, help="seconds of training, 0 = none")
     p.add_argument("--eval-every", type=int, default=200)

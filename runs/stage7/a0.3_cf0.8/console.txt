@@ -1,0 +1,22 @@
+$ /workspace/artemis-567885/train_bytes.py --d-model 128 --n-heads 4 --d-ff 256 --experts 4 --layers 3 --top-k 2 --pos sinusoidal --seq-len 128 --batch 32 --lr 2e-3 --warmup 100 --eval-every 250 --eval-windows 256 --eval-batch 64 --seed 567885 --time-budget 0 --prompt 'It was a ' --sample-len 160 --max-steps 2000 --threads 2 --aux-alpha 0.3 --capacity-factor 0.8 --capacity-mode sequence --out-dir /workspace/artemis-567885/runs/stage7 --run-name a0.3_cf0.8
+[stage6] corpus=/workspace/artemis-corpus-bench/corpus train/ vs val/ | train 11,984,086 B, held-out 1,230,205 B (eval 256 windows x 128 predicted bytes)
+[stage6] params 1,058,304 | d=128 layers=3 experts=4 top_k=2 seq=128 batch=32 | unigram bpb 4.5965 (eval windows) / 4.5817 (full held-out)
+step      0 t=    0.6s lr=0.00e+00 train   -    bpb | held-out 8.2909 bpb (unigram 4.5965)
+step    250 t=   36.7s lr=1.93e-03 train 3.9797 bpb | held-out 3.2199 bpb (unigram 4.5965)
+step    500 t=   72.8s lr=1.74e-03 train 2.9139 bpb | held-out 2.6739 bpb (unigram 4.5965)
+step    750 t=  109.7s lr=1.45e-03 train 2.5755 bpb | held-out 2.4585 bpb (unigram 4.5965)
+step   1000 t=  146.9s lr=1.10e-03 train 2.3994 bpb | held-out 2.3341 bpb (unigram 4.5965)
+step   1250 t=  190.7s lr=7.57e-04 train 2.2991 bpb | held-out 2.2492 bpb (unigram 4.5965)
+step   1500 t=  228.1s lr=4.65e-04 train 2.2324 bpb | held-out 2.2052 bpb (unigram 4.5965)
+step   1750 t=  265.3s lr=2.69e-04 train 2.1852 bpb | held-out 2.1672 bpb (unigram 4.5965)
+step   2000 t=  301.8s lr=2.00e-04 train 2.1543 bpb | held-out 2.1507 bpb (unigram 4.5965)
+[stage6] done: 2000 steps in 301.8s | held-out 2.1507 bpb vs unigram 4.5965 | samples:
+It was a fewthendt
+on on with of that me, andedd arce and
+in ithese forticafle.
+
+Myauliter, appperbaded M. Mrysos, had the a from dead.
+
+
+
+The spors fir possaid t
