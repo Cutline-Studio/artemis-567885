@@ -1,7 +1,10 @@
-"""Stacked MoE transformer with vertical (layers) and horizontal (experts) growth."""
+"""Stacked MoE transformer with vertical (layers) and horizontal (experts) growth,
+plus ArtemisModel, the byte-level LM built on it (stage 5)."""
 from typing import List, Sequence, Union
+import math
 import torch
 import torch.nn as nn
+import torch.nn.functional as F
 from transformer import MoETransformerBlock
 from positional import build_positional
 
@@ -84,3 +87,75 @@ class DynamicMultiBlockTransformer(nn.Module):
     def add_expert(self, layer: int = -1, source_idx: int = None, noise_std: float = 1e-2,
                    generator: torch.Generator = None) -> int:
         return self.blocks[layer].moe.add_expert(source_idx, noise_std, generator)
+
+
+class ArtemisModel(nn.Module):
+    """Byte-level MoE language model (PLAN stage 5).
+
+    bytes [B, T] (LongTensor, values 0..255) -> nn.Embedding(256, d_model)
+    -> DynamicMultiBlockTransformer (N stacked MoETransformerBlocks, the same
+    causal / pos_encoding / dispatch / legacy options) -> LayerNorm -> Linear(d_model, 256).
+
+    forward(ids) -> (logits [B, T, 256], aux_loss_sum, dropped_count_sum), with aux and
+    dropped summed across layers exactly as in DynamicMultiBlockTransformer.
+
+    Defaults are for next-byte prediction: causal=True and capacity_factor=None
+    (dropless). Capacity-limited routing ranks tokens over the whole flattened
+    batch, so a future byte can displace a past byte and leak information
+    (checks/test_check5_causal.py); pass a float capacity_factor only when that is
+    acceptable. legacy=True is forwarded to every block (original MoE semantics)
+    and needs a float capacity_factor, since the original code has no dropless mode.
+    """
+
+    VOCAB = 256
+
+    def __init__(self, d_model: int = 64, n_heads: int = 4, d_ff: int = 128,
+                 num_experts: Union[int, Sequence[int]] = 4, num_layers: int = 2, top_k: int = 2,
+                 capacity_factor: float = None, legacy: bool = False, causal: bool = True,
+                 dispatch: str = "loop", pos_encoding: str = "sinusoidal", max_len: int = 512):
+        super().__init__()
+        if legacy and capacity_factor is None:
+            raise ValueError("legacy=True needs a float capacity_factor (original code has no dropless mode)")
+        self.embed = nn.Embedding(self.VOCAB, d_model)
+        self.body = DynamicMultiBlockTransformer(d_model, n_heads, d_ff, num_experts, num_layers, top_k,
+                                                 capacity_factor, legacy=legacy, causal=causal,
+                                                 dispatch=dispatch, pos_encoding=pos_encoding,
+                                                 max_len=max_len)
+        self.ln_f = nn.LayerNorm(d_model)
+        self.head = nn.Linear(d_model, self.VOCAB)
+
+    @property
+    def blocks(self):
+        return self.body.blocks
+
+    @property
+    def num_layers(self) -> int:
+        return self.body.num_layers
+
+    @property
+    def num_experts(self) -> List[int]:
+        return self.body.num_experts
+
+    def set_capacity_factor(self, cf: float):
+        self.body.set_capacity_factor(cf)
+
+    def forward(self, ids: torch.Tensor):
+        if ids.dtype not in (torch.int64, torch.int32, torch.int16, torch.uint8):
+            raise TypeError(f"ids must be an integer tensor of byte values, got {ids.dtype}")
+        if ids.dim() != 2:
+            raise ValueError(f"ids must have shape [B, T], got {tuple(ids.shape)}")
+        if ids.numel() and (int(ids.min()) < 0 or int(ids.max()) > self.VOCAB - 1):
+            raise ValueError(f"byte ids must be in 0..{self.VOCAB - 1}, got min {int(ids.min())} max {int(ids.max())}")
+        x = self.embed(ids.long())
+        x, aux, dropped = self.body(x)
+        return self.head(self.ln_f(x)), aux, dropped
+
+
+def next_byte_loss(logits: torch.Tensor, ids: torch.Tensor) -> torch.Tensor:
+    """Mean cross-entropy (nats) of predicting ids[:, t+1] from logits[:, t]."""
+    return F.cross_entropy(logits[:, :-1].reshape(-1, logits.size(-1)), ids[:, 1:].reshape(-1).long())
+
+
+def bits_per_byte(loss_nats) -> float:
+    """Convert a mean cross-entropy in nats to bits per byte (loss / ln 2)."""
+    return float(loss_nats) / math.log(2.0)
