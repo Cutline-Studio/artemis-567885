@@ -3,10 +3,10 @@ comparison from checks/test_check3_moe_dispatch.py at the benchmark size; abort
 if any assertion fails:
   * float64: routing, kept slots, drops, outputs, aux, input AND all parameter
     gradients within rtol=1e-12, atol=1e-12
-  * float32: routing, kept slots, drops, outputs, aux, input gradients within
-    rtol=1e-5, atol=1e-6; parameter-gradient diffs are printed, not asserted,
-    because they exceed that stated tolerance at this size (see the strict xfail
-    test_bench_size_float32_param_grads_at_stated_tol).
+  * float32: routing, kept slots, drops, outputs, aux, input AND all parameter
+    gradients within rtol=1e-5, atol=1e-6 (parameter gradients were printed but
+    not asserted until the vectorized path reduced expert-weight gradients in the
+    loop's row order; see moe._BatchedExpertFFN).
 Only then time loop vs vectorized (median of REPS after WARMUP, CPU, 1 thread).
 
 Usage: python3 checks/check3_bench.py
@@ -26,8 +26,8 @@ for E in (4, 16, 64):
     for train in (False, True):
         r64 = compare(E, K, CF, N, D, DFF, torch.float64, train, seed=E)
         print("EQUIV_OK_FLOAT64", json.dumps(dict(E=E, train=train, **r64)), flush=True)
-        r32 = compare(E, K, CF, N, D, DFF, torch.float32, train, seed=E, assert_param_grads=False)
-        print("EQUIV_OK_FLOAT32_EXCEPT_PARAM_GRADS", json.dumps(dict(E=E, train=train, **r32)), flush=True)
+        r32 = compare(E, K, CF, N, D, DFF, torch.float32, train, seed=E)
+        print("EQUIV_OK_FLOAT32", json.dumps(dict(E=E, train=train, **r32)), flush=True)
     a, b = pair(E, K, CF, D, DFF, torch.float32, E)
     x = torch.randn(N, D, generator=torch.Generator().manual_seed(1))
     row = dict(E=E)

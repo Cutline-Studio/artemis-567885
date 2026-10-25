@@ -1,0 +1,82 @@
+$ python3 -m pytest -q -p no:cacheprovider checks/test_check3_moe_dispatch.py -v
+============================= test session starts ==============================
+platform linux -- Python 3.13.5, pytest-9.1.1, pluggy-1.7.0
+rootdir: /workspace/a567-xfail
+plugins: platformdirs-4.13.5
+collected 46 items
+
+checks/test_check3_moe_dispatch.py ..................................... [ 80%]
+.........                                                                [100%]
+
+============================== 46 passed in 3.77s ==============================
+
+$ python3 -m pytest -q -p no:cacheprovider tests checks
+...................................................................      [100%]
+139 passed in 39.47s
+
+$ python3 checks/check3_maxdiff.py   # AFTER (loop vs vectorized max |diff|)
+bench E 4 torch.float32 seed 4 param_grad_max_abs 0.0 out 0.0 xgrad 0.0
+bench E 4 torch.float32 seed 4 param_grad_max_abs 0.0 out 0.0 xgrad 0.0
+bench E 4 torch.float64 seed 4 param_grad_max_abs 8.526512829121202e-14 out 8.326672684688674e-16 xgrad 3.3306690738754696e-16
+bench E 16 torch.float32 seed 16 param_grad_max_abs 0.0 out 0.0 xgrad 0.0
+bench E 16 torch.float64 seed 16 param_grad_max_abs 3.907985046680551e-14 out 6.661338147750939e-16 xgrad 3.3306690738754696e-16
+bench E 64 torch.float32 seed 64 param_grad_max_abs 0.0 out 0.0 xgrad 0.0
+bench E 64 torch.float64 seed 64 param_grad_max_abs 2.3092638912203256e-14 out 5.828670879282072e-16 xgrad 3.3306690738754696e-16
+small configs max param grad diff: 0.0
+
+$ (BEFORE, moe.py at f1d1ca2) python3 checks/check3_maxdiff.py
+bench E 4 torch.float32 seed 4 param_grad_max_abs 3.0517578125e-05 out 0.0 xgrad 0.0
+bench E 4 torch.float32 seed 4 param_grad_max_abs 3.0517578125e-05 out 0.0 xgrad 0.0
+bench E 4 torch.float64 seed 4 param_grad_max_abs 8.526512829121202e-14 out 8.326672684688674e-16 xgrad 3.3306690738754696e-16
+bench E 16 torch.float32 seed 16 param_grad_max_abs 1.33514404296875e-05 out 0.0 xgrad 0.0
+bench E 16 torch.float64 seed 16 param_grad_max_abs 3.907985046680551e-14 out 6.661338147750939e-16 xgrad 3.3306690738754696e-16
+bench E 64 torch.float32 seed 64 param_grad_max_abs 4.291534423828125e-06 out 0.0 xgrad 0.0
+bench E 64 torch.float64 seed 64 param_grad_max_abs 2.3092638912203256e-14 out 5.828670879282072e-16 xgrad 3.3306690738754696e-16
+small configs max param grad diff: 5.7220458984375e-06
+
+$ python3 checks/check3_bench.py   # AFTER
+ENV {"python": "3.13.5", "torch": "2.14.1+cpu", "threads": 1, "cpu": "x86_64", "N": 4096, "d": 128, "d_ff": 512, "top_k": 2, "cf": 1.0, "warmup": 3, "reps": 15}
+EQUIV_OK_FLOAT64 {"E": 4, "train": false, "topk_equal": true, "kept_equal": true, "dropped": [36, 36], "dropped_tokens": [0, 0], "out_max_abs": 0.0, "aux_abs": 0.0, "xgrad_max_abs": 0.0, "param_grad_max_abs": 0.0, "param_grads_within_tol": true, "param_grad_max_abs_over_max_grad": 0.0}
+EQUIV_OK_FLOAT32 {"E": 4, "train": false, "topk_equal": true, "kept_equal": true, "dropped": [55, 55], "dropped_tokens": [0, 0], "out_max_abs": 0.0, "aux_abs": 0.0, "xgrad_max_abs": 0.0, "param_grad_max_abs": 0.0, "param_grads_within_tol": true, "param_grad_max_abs_over_max_grad": 0.0}
+EQUIV_OK_FLOAT64 {"E": 4, "train": true, "topk_equal": true, "kept_equal": true, "dropped": [19, 19], "dropped_tokens": [0, 0], "out_max_abs": 0.0, "aux_abs": 0.0, "xgrad_max_abs": 0.0, "param_grad_max_abs": 0.0, "param_grads_within_tol": true, "param_grad_max_abs_over_max_grad": 0.0}
+EQUIV_OK_FLOAT32 {"E": 4, "train": true, "topk_equal": true, "kept_equal": true, "dropped": [52, 52], "dropped_tokens": [0, 0], "out_max_abs": 0.0, "aux_abs": 0.0, "xgrad_max_abs": 0.0, "param_grad_max_abs": 0.0, "param_grads_within_tol": true, "param_grad_max_abs_over_max_grad": 0.0}
+TIMING {"E": 4, "loop_fwd_eval_median_ms": 16.15, "loop_fwd_eval_min_ms": 15.857, "loop_fwd_bwd_train_median_ms": 39.263, "loop_fwd_bwd_train_min_ms": 37.503, "vectorized_fwd_eval_median_ms": 25.372, "vectorized_fwd_eval_min_ms": 24.6, "vectorized_fwd_bwd_train_median_ms": 63.758, "vectorized_fwd_bwd_train_min_ms": 61.133}
+EQUIV_OK_FLOAT64 {"E": 16, "train": false, "topk_equal": true, "kept_equal": true, "dropped": [323, 323], "dropped_tokens": [0, 0], "out_max_abs": 0.0, "aux_abs": 0.0, "xgrad_max_abs": 0.0, "param_grad_max_abs": 0.0, "param_grads_within_tol": true, "param_grad_max_abs_over_max_grad": 0.0}
+EQUIV_OK_FLOAT32 {"E": 16, "train": false, "topk_equal": true, "kept_equal": true, "dropped": [393, 393], "dropped_tokens": [0, 0], "out_max_abs": 0.0, "aux_abs": 0.0, "xgrad_max_abs": 0.0, "param_grad_max_abs": 0.0, "param_grads_within_tol": true, "param_grad_max_abs_over_max_grad": 0.0}
+EQUIV_OK_FLOAT64 {"E": 16, "train": true, "topk_equal": true, "kept_equal": true, "dropped": [334, 334], "dropped_tokens": [0, 0], "out_max_abs": 0.0, "aux_abs": 0.0, "xgrad_max_abs": 0.0, "param_grad_max_abs": 0.0, "param_grads_within_tol": true, "param_grad_max_abs_over_max_grad": 0.0}
+EQUIV_OK_FLOAT32 {"E": 16, "train": true, "topk_equal": true, "kept_equal": true, "dropped": [394, 394], "dropped_tokens": [0, 0], "out_max_abs": 0.0, "aux_abs": 0.0, "xgrad_max_abs": 0.0, "param_grad_max_abs": 0.0, "param_grads_within_tol": true, "param_grad_max_abs_over_max_grad": 0.0}
+TIMING {"E": 16, "loop_fwd_eval_median_ms": 20.453, "loop_fwd_eval_min_ms": 19.544, "loop_fwd_bwd_train_median_ms": 46.125, "loop_fwd_bwd_train_min_ms": 43.171, "vectorized_fwd_eval_median_ms": 26.455, "vectorized_fwd_eval_min_ms": 25.512, "vectorized_fwd_bwd_train_median_ms": 78.606, "vectorized_fwd_bwd_train_min_ms": 70.82}
+EQUIV_OK_FLOAT64 {"E": 64, "train": false, "topk_equal": true, "kept_equal": true, "dropped": [635, 635], "dropped_tokens": [0, 0], "out_max_abs": 0.0, "aux_abs": 0.0, "xgrad_max_abs": 0.0, "param_grad_max_abs": 0.0, "param_grads_within_tol": true, "param_grad_max_abs_over_max_grad": 0.0}
+EQUIV_OK_FLOAT32 {"E": 64, "train": false, "topk_equal": true, "kept_equal": true, "dropped": [605, 605], "dropped_tokens": [0, 0], "out_max_abs": 0.0, "aux_abs": 0.0, "xgrad_max_abs": 0.0, "param_grad_max_abs": 0.0, "param_grads_within_tol": true, "param_grad_max_abs_over_max_grad": 0.0}
+EQUIV_OK_FLOAT64 {"E": 64, "train": true, "topk_equal": true, "kept_equal": true, "dropped": [651, 651], "dropped_tokens": [0, 0], "out_max_abs": 0.0, "aux_abs": 0.0, "xgrad_max_abs": 0.0, "param_grad_max_abs": 0.0, "param_grads_within_tol": true, "param_grad_max_abs_over_max_grad": 0.0}
+EQUIV_OK_FLOAT32 {"E": 64, "train": true, "topk_equal": true, "kept_equal": true, "dropped": [580, 580], "dropped_tokens": [0, 0], "out_max_abs": 0.0, "aux_abs": 0.0, "xgrad_max_abs": 0.0, "param_grad_max_abs": 0.0, "param_grads_within_tol": true, "param_grad_max_abs_over_max_grad": 0.0}
+TIMING {"E": 64, "loop_fwd_eval_median_ms": 39.477, "loop_fwd_eval_min_ms": 38.02, "loop_fwd_bwd_train_median_ms": 69.452, "loop_fwd_bwd_train_min_ms": 67.141, "vectorized_fwd_eval_median_ms": 28.366, "vectorized_fwd_eval_min_ms": 26.809, "vectorized_fwd_bwd_train_median_ms": 91.131, "vectorized_fwd_bwd_train_min_ms": 89.178}
+
+$ python3 checks/check3_bench.py   # BEFORE (f1d1ca2)
+ENV {"python": "3.13.5", "torch": "2.14.1+cpu", "threads": 1, "cpu": "x86_64", "N": 4096, "d": 128, "d_ff": 512, "top_k": 2, "cf": 1.0, "warmup": 3, "reps": 15}
+EQUIV_OK_FLOAT64 {"E": 4, "train": false, "topk_equal": true, "kept_equal": true, "dropped": [36, 36], "dropped_tokens": [0, 0], "out_max_abs": 0.0, "aux_abs": 0.0, "xgrad_max_abs": 0.0, "param_grad_max_abs": 8.526512829121202e-14, "param_grads_within_tol": true, "param_grad_max_abs_over_max_grad": 9.20830961279952e-16}
+EQUIV_OK_FLOAT32_EXCEPT_PARAM_GRADS {"E": 4, "train": false, "topk_equal": true, "kept_equal": true, "dropped": [55, 55], "dropped_tokens": [0, 0], "out_max_abs": 0.0, "aux_abs": 0.0, "xgrad_max_abs": 0.0, "param_grad_max_abs": 3.0517578125e-05, "param_grads_within_tol": false, "param_grad_max_abs_over_max_grad": 4.5296607850279614e-07}
+EQUIV_OK_FLOAT64 {"E": 4, "train": true, "topk_equal": true, "kept_equal": true, "dropped": [19, 19], "dropped_tokens": [0, 0], "out_max_abs": 0.0, "aux_abs": 0.0, "xgrad_max_abs": 0.0, "param_grad_max_abs": 8.526512829121202e-14, "param_grads_within_tol": true, "param_grad_max_abs_over_max_grad": 1.060558405753558e-15}
+EQUIV_OK_FLOAT32_EXCEPT_PARAM_GRADS {"E": 4, "train": true, "topk_equal": true, "kept_equal": true, "dropped": [52, 52], "dropped_tokens": [0, 0], "out_max_abs": 0.0, "aux_abs": 0.0, "xgrad_max_abs": 0.0, "param_grad_max_abs": 3.0517578125e-05, "param_grads_within_tol": false, "param_grad_max_abs_over_max_grad": 4.4118273149023365e-07}
+TIMING {"E": 4, "loop_fwd_eval_median_ms": 16.641, "loop_fwd_eval_min_ms": 16.205, "loop_fwd_bwd_train_median_ms": 40.141, "loop_fwd_bwd_train_min_ms": 37.871, "vectorized_fwd_eval_median_ms": 17.925, "vectorized_fwd_eval_min_ms": 17.568, "vectorized_fwd_bwd_train_median_ms": 55.423, "vectorized_fwd_bwd_train_min_ms": 49.934}
+EQUIV_OK_FLOAT64 {"E": 16, "train": false, "topk_equal": true, "kept_equal": true, "dropped": [323, 323], "dropped_tokens": [0, 0], "out_max_abs": 0.0, "aux_abs": 0.0, "xgrad_max_abs": 0.0, "param_grad_max_abs": 2.4868995751603507e-14, "param_grads_within_tol": true, "param_grad_max_abs_over_max_grad": 1.3884620021588341e-15}
+EQUIV_OK_FLOAT32_EXCEPT_PARAM_GRADS {"E": 16, "train": false, "topk_equal": true, "kept_equal": true, "dropped": [393, 393], "dropped_tokens": [0, 0], "out_max_abs": 0.0, "aux_abs": 0.0, "xgrad_max_abs": 0.0, "param_grad_max_abs": 1.52587890625e-05, "param_grads_within_tol": false, "param_grad_max_abs_over_max_grad": 7.803720052858498e-07}
+EQUIV_OK_FLOAT64 {"E": 16, "train": true, "topk_equal": true, "kept_equal": true, "dropped": [334, 334], "dropped_tokens": [0, 0], "out_max_abs": 0.0, "aux_abs": 0.0, "xgrad_max_abs": 0.0, "param_grad_max_abs": 2.3092638912203256e-14, "param_grads_within_tol": true, "param_grad_max_abs_over_max_grad": 1.373653998119677e-15}
+EQUIV_OK_FLOAT32_EXCEPT_PARAM_GRADS {"E": 16, "train": true, "topk_equal": true, "kept_equal": true, "dropped": [394, 394], "dropped_tokens": [0, 0], "out_max_abs": 0.0, "aux_abs": 0.0, "xgrad_max_abs": 0.0, "param_grad_max_abs": 1.33514404296875e-05, "param_grads_within_tol": false, "param_grad_max_abs_over_max_grad": 7.820943619599541e-07}
+TIMING {"E": 16, "loop_fwd_eval_median_ms": 20.812, "loop_fwd_eval_min_ms": 20.042, "loop_fwd_bwd_train_median_ms": 45.91, "loop_fwd_bwd_train_min_ms": 44.642, "vectorized_fwd_eval_median_ms": 19.562, "vectorized_fwd_eval_min_ms": 19.081, "vectorized_fwd_bwd_train_median_ms": 55.9, "vectorized_fwd_bwd_train_min_ms": 52.646}
+EQUIV_OK_FLOAT64 {"E": 64, "train": false, "topk_equal": true, "kept_equal": true, "dropped": [635, 635], "dropped_tokens": [0, 0], "out_max_abs": 0.0, "aux_abs": 0.0, "xgrad_max_abs": 0.0, "param_grad_max_abs": 6.217248937900877e-15, "param_grads_within_tol": true, "param_grad_max_abs_over_max_grad": 1.6357073298652403e-15}
+EQUIV_OK_FLOAT32_EXCEPT_PARAM_GRADS {"E": 64, "train": false, "topk_equal": true, "kept_equal": true, "dropped": [605, 605], "dropped_tokens": [0, 0], "out_max_abs": 0.0, "aux_abs": 0.0, "xgrad_max_abs": 0.0, "param_grad_max_abs": 4.291534423828125e-06, "param_grads_within_tol": true, "param_grad_max_abs_over_max_grad": 7.363703825204817e-07}
+EQUIV_OK_FLOAT64 {"E": 64, "train": true, "topk_equal": true, "kept_equal": true, "dropped": [651, 651], "dropped_tokens": [0, 0], "out_max_abs": 0.0, "aux_abs": 0.0, "xgrad_max_abs": 0.0, "param_grad_max_abs": 7.105427357601002e-15, "param_grads_within_tol": true, "param_grad_max_abs_over_max_grad": 1.3875218219695143e-15}
+EQUIV_OK_FLOAT32_EXCEPT_PARAM_GRADS {"E": 64, "train": true, "topk_equal": true, "kept_equal": true, "dropped": [580, 580], "dropped_tokens": [0, 0], "out_max_abs": 0.0, "aux_abs": 0.0, "xgrad_max_abs": 0.0, "param_grad_max_abs": 4.291534423828125e-06, "param_grads_within_tol": true, "param_grad_max_abs_over_max_grad": 6.853062869846478e-07}
+TIMING {"E": 64, "loop_fwd_eval_median_ms": 39.79, "loop_fwd_eval_min_ms": 39.124, "loop_fwd_bwd_train_median_ms": 71.278, "loop_fwd_bwd_train_min_ms": 67.304, "vectorized_fwd_eval_median_ms": 27.984, "vectorized_fwd_eval_min_ms": 24.638, "vectorized_fwd_bwd_train_median_ms": 59.905, "vectorized_fwd_bwd_train_min_ms": 58.256}
+
+$ python3 sandbox.py --mode legacy
+--- Initializing Artemis 567885 Sparse Sandbox ---
+[mode: legacy (original behaviour); target: zeros (original)]
+
+=== SANDBOX EXECUTION METRICS ===
+Total Loss Value: 1.5083
+Enforced Drop-out Vector Count: 6
+Input Structural Gradient Norm (\nabla_x L): 0.1581
+Router Gate Matrix Gradient Norm (\nabla_W_g L): 0.0546
+Output shape == input shape: (2, 8, 16)
