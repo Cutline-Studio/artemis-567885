@@ -31,6 +31,57 @@ def expert_load_entropy(counts, normalize: bool = True) -> float:
     return h
 
 
+class _BatchedExpertFFN(torch.autograd.Function):
+    """Batched expert FFN over a padded [E, L, d] buffer for dispatch="vectorized".
+
+    Forward: the same two baddbmm calls as before (each output row depends only
+    on its own input row, so padding rows are inert and the rows equal the
+    loop's nn.Linear rows). Backward: input/activation gradients are batched
+    too (row-wise), but each expert's weight and bias gradients are reductions
+    over that expert's tokens, so they are computed per expert over exactly the
+    first n_e (real) rows, with the same mm/sum calls nn.Linear's autograd uses.
+    The backward is built from differentiable ops (activations are rebuilt
+    from the inputs when create_graph=True), so double backward still works.
+    The caller lays rows out in the loop's processing order, so the float32
+    reduction order (and therefore every bit of the gradient) matches
+    dispatch="loop". A padded batched reduction would sum over L >= n_e rows in
+    a different order/blocking and drift by ~eps * sum|terms| (measured ~3e-5
+    at N=4096, d=128, d_ff=512 before this change).
+    """
+
+    @staticmethod
+    def forward(ctx, buf, n_rows, W1, b1, W2, b2):
+        pre = torch.baddbmm(b1.unsqueeze(1), buf, W1.transpose(1, 2))
+        h = F.gelu(pre)
+        out = torch.baddbmm(b2.unsqueeze(1), h, W2.transpose(1, 2))
+        ctx.save_for_backward(buf, pre, h, W1, b1, W2)
+        ctx.n_rows = n_rows
+        return out
+
+    @staticmethod
+    def backward(ctx, g_out):
+        buf, pre, h, W1, b1, W2 = ctx.saved_tensors
+        if torch.is_grad_enabled():
+            # create_graph=True (double backward): rebuild the activations from the
+            # graph-carrying inputs so second-order terms through pre/h are kept.
+            pre = torch.baddbmm(b1.unsqueeze(1), buf, W1.transpose(1, 2))
+            h = F.gelu(pre)
+        g_out = g_out.contiguous()
+        g_h = torch.bmm(g_out, W2)
+        g_pre = torch.ops.aten.gelu_backward(g_h, pre)
+        g_buf = torch.bmm(g_pre, W1)
+        gW1, gb1, gW2, gb2 = [], [], [], []
+        for e, n in enumerate(ctx.n_rows):
+            if n == 0:  # idle expert: zero grads, as the padded batched path gave
+                gW1.append(W1.new_zeros(W1.shape[1:])); gb1.append(W1.new_zeros(W1.shape[1]))
+                gW2.append(W2.new_zeros(W2.shape[1:])); gb2.append(W2.new_zeros(W2.shape[1]))
+                continue
+            go, gp = g_out[e, :n], g_pre[e, :n]
+            gW2.append(go.t().mm(h[e, :n])); gb2.append(go.sum(0))
+            gW1.append(gp.t().mm(buf[e, :n])); gb1.append(gp.sum(0))
+        return g_buf, None, torch.stack(gW1), torch.stack(gb1), torch.stack(gW2), torch.stack(gb2)
+
+
 class CapacitySparseMoELayer(nn.Module):
     """Top-K sparse MoE with a per-expert capacity ceiling.
 
@@ -326,17 +377,24 @@ class CapacitySparseMoELayer(nn.Module):
         dropped_count = int((~keep).sum().item())
         k_order, k_e, k_rank = order[keep], e_sorted[keep], rank[keep]
         k_tok, k_slot = tok[k_order], slot[k_order]
+        # buffer row = position in the loop's processing order for that expert:
+        # nonzero() (token-major, slot) order when nothing overflows, the
+        # priority order (= rank) when the expert overflows its capacity.
+        f_order = torch.argsort(exp_, stable=True)
+        f_pos = torch.empty_like(f_order)
+        f_pos[f_order] = torch.arange(f_order.numel(), device=x.device) - starts[exp_[f_order]]
+        k_row = torch.where(counts[k_e] > cap, k_rank, f_pos[k_order])
+        n_rows = torch.clamp(counts, max=cap).tolist()
 
         buf_len = int(min(cap, int(counts.max().item()) if counts.numel() else 0))
         buf = flat_tokens.new_zeros(E, max(buf_len, 1), d)
-        buf = buf.index_put((k_e, k_rank), flat_tokens[k_tok])
+        buf = buf.index_put((k_e, k_row), flat_tokens[k_tok])
         W1 = torch.stack([e.w1.weight for e in self.experts])      # [E, d_ff, d]
         b1 = torch.stack([e.w1.bias for e in self.experts])        # [E, d_ff]
         W2 = torch.stack([e.w2.weight for e in self.experts])      # [E, d, d_ff]
         b2 = torch.stack([e.w2.bias for e in self.experts])        # [E, d]
-        h = self.experts[0].act(torch.baddbmm(b1.unsqueeze(1), buf, W1.transpose(1, 2)))
-        out = torch.baddbmm(b2.unsqueeze(1), h, W2.transpose(1, 2))  # [E, L, d]
-        contrib = out[k_e, k_rank] * topk_softmax_weights[k_tok, k_slot].unsqueeze(-1)
+        out = _BatchedExpertFFN.apply(buf, n_rows, W1, b1, W2, b2)  # [E, L, d]
+        contrib = out[k_e, k_row] * topk_softmax_weights[k_tok, k_slot].unsqueeze(-1)
         output_workspace = torch.zeros_like(flat_tokens).index_add(0, k_tok, contrib)
 
         processed_slots = torch.zeros(num_tokens, K, dtype=torch.bool, device=x.device)
