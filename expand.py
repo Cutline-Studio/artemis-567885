@@ -31,7 +31,7 @@ DEFAULT_CONFIG = {
     "eval_batch_size": 32, "seed": 567885,
     "rules": {"cf_step": 0.05, "aux_threshold": 1.2, "alpha_mult": 1.5, "stall_rel_improvement": 0.01,
               "expert_noise_std": 0.01},
-    "caps": {"capacity_factor_max": 2.0, "num_experts_max": 32, "alpha_max": 1.0, "num_layers_max": 8},
+    "caps": {"capacity_factor_max": 2.5, "num_experts_max": 16, "alpha_max": 1.0, "num_layers_max": 12},
     "cycle": 0, "pending_mutation": None, "history": [],
 }
 DIM_KEYS = ("d_model", "n_heads", "d_ff", "top_k")
@@ -104,18 +104,24 @@ def plan_mutations(cfg: dict) -> List[dict]:
 
     structural, s_reason = {}, None
     if last["rel_improvement"] < rules["stall_rel_improvement"]:
+        # caps["num_experts_max"] is a PER-LAYER cap on growth: a stall may only add an expert to a
+        # layer that is below it. Layers already above it (trained before the cap was lowered) keep
+        # all their experts; they just stop growing.
         experts = list(cfg["num_experts"])
         prev_mut = (last.get("mutation") or {}).get("changes", {})
         expert_added_last = "num_experts" in prev_mut and "num_layers" not in prev_mut
-        last_full = experts[-1] >= caps["num_experts_max"]
-        if (expert_added_last or last_full) and cfg["num_layers"] < caps["num_layers_max"]:
+        open_layers = [i for i, e in enumerate(experts) if e < caps["num_experts_max"]]
+        all_full = not open_layers
+        layer_room = cfg["num_layers"] < caps["num_layers_max"]
+        if (expert_added_last or all_full) and layer_room:
             structural = {"num_layers": cfg["num_layers"] + 1, "num_experts": experts + [cfg["base_num_experts"]]}
             s_reason = (f"stall rel_improvement={last['rel_improvement']:.4f} after "
-                        f"{'expert addition' if expert_added_last else 'expert cap'} -> add layer")
-        elif not last_full:
-            experts[-1] += 1
+                        f"{'expert addition' if expert_added_last else 'per-layer expert cap on every layer'} -> add layer")
+        elif not all_full:
+            layer = open_layers[-1]  # deepest layer still below the per-layer cap
+            experts[layer] += 1
             structural = {"num_experts": experts}
-            s_reason = f"stall rel_improvement={last['rel_improvement']:.4f} -> add expert to layer {len(experts)-1}"
+            s_reason = f"stall rel_improvement={last['rel_improvement']:.4f} -> add expert to layer {layer}"
 
     cands = []
     if structural:
@@ -133,6 +139,7 @@ def plan_mutations(cfg: dict) -> List[dict]:
 
 
 def apply_mutation(cfg: dict, mutation: dict) -> dict:
+    before_layers, before_experts = cfg["num_layers"], list(cfg["num_experts"])
     cfg = copy.deepcopy(cfg)
     caps = cfg["caps"]
     for k, v in mutation["changes"].items():
@@ -140,8 +147,10 @@ def apply_mutation(cfg: dict, mutation: dict) -> dict:
     # hard caps, enforced whatever the mutation says
     cfg["capacity_factor"] = min(cfg["capacity_factor"], caps["capacity_factor_max"])
     cfg["alpha"] = min(cfg["alpha"], caps["alpha_max"])
-    cfg["num_layers"] = min(cfg["num_layers"], caps["num_layers_max"])
-    cfg["num_experts"] = [min(e, caps["num_experts_max"]) for e in cfg["num_experts"]][:cfg["num_layers"]]
+    # structural caps block GROWTH only: existing trained layers/experts above a cap are never pruned
+    cfg["num_layers"] = min(cfg["num_layers"], max(caps["num_layers_max"], before_layers))
+    cfg["num_experts"] = [min(e, max(caps["num_experts_max"], before_experts[i] if i < len(before_experts) else 0))
+                          for i, e in enumerate(cfg["num_experts"])][:cfg["num_layers"]]
     cfg["pending_mutation"] = mutation
     return cfg
 
