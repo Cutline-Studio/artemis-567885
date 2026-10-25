@@ -97,12 +97,18 @@ def test_legacy_matches_fixed_only_without_drops():
     assert not torch.allclose(leg(x)[0], fix(x)[0], rtol=1e-5, atol=1e-6)
 
 
-@pytest.mark.xfail(strict=True, reason="MEASURED: at N=4096, d=128, d_ff=512 in float32 the expert-weight "
-                   "gradients differ by up to ~3e-5 (max |grad| ~69): reduction-order rounding of the batched "
-                   "matmul vs nn.Linear. Outputs, routing, drops and input grads are bit-identical, and float64 "
-                   "agrees to ~1e-13 (test_bench_size_float64). Tolerance deliberately NOT loosened.")
 def test_bench_size_float32_param_grads_at_stated_tol():
+    """Formerly a strict xfail: the vectorized path reduced expert-weight gradients
+    over a padded [E, cap, d] buffer in priority order, so float32 rounding drifted
+    up to ~3e-5 from the loop. Weight/bias grads are now reduced per expert over
+    exactly the kept rows in the loop's order (moe._BatchedExpertFFN), and they
+    must meet the unchanged float32 tolerance at the benchmark size."""
     compare(4, 2, 1.0, 4096, 128, 512, torch.float32, True, seed=4)
+
+
+@pytest.mark.parametrize("E", [4, 16, 64])
+def test_bench_size_float32_all_grads(E):
+    compare(E, 2, 1.0, 4096, 128, 512, torch.float32, True, seed=E)
 
 
 @pytest.mark.parametrize("E", [4, 16, 64])
@@ -114,3 +120,24 @@ def test_bench_size_float64(E):
 def test_bench_size_float32_routing_outputs_input_grads(E):
     res = compare(E, 2, 1.0, 4096, 128, 512, torch.float32, True, seed=E, assert_param_grads=False)
     print(f"E={E} float32 N=4096: {res}")
+
+
+def test_vectorized_second_order_grads_match_loop():
+    """The vectorized expert FFN uses a custom autograd.Function; its backward is
+    built from differentiable ops, so create_graph / double backward must still
+    work and agree with the loop path (float64, no drops)."""
+    a, b = pair(4, 2, None, 8, 16, torch.float64, 0)
+    x = torch.randn(64, 8, generator=torch.Generator().manual_seed(1), dtype=torch.float64)
+    res = []
+    for m in (a, b):
+        m.eval()
+        xi = x.clone().requires_grad_(True)
+        out = m(xi)[0]
+        g = torch.autograd.grad(out.pow(2).sum(), xi, create_graph=True)[0]
+        m.zero_grad(set_to_none=True)
+        g.pow(2).sum().backward()
+        res.append({n: p.grad.clone() for n, p in m.named_parameters() if p.grad is not None})
+    assert set(res[0]) == set(res[1])
+    for n in res[0]:
+        assert torch.allclose(res[0][n], res[1][n], **TOL[torch.float64]), n
+    assert torch.autograd.gradgradcheck(lambda t: b(t)[0], (x[:16].clone().requires_grad_(True),))
