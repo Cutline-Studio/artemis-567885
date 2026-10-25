@@ -1,0 +1,604 @@
+[
+  {
+    "book_id": 11,
+    "title": "Alice's Adventures in Wonderland",
+    "author": "Lewis Carroll",
+    "words": 27429,
+    "chunks": 192
+  },
+  {
+    "book_id": 19,
+    "title": "The Song of Hiawatha",
+    "author": "Henry Wadsworth Longfellow",
+    "words": 33248,
+    "chunks": 251
+  },
+  {
+    "book_id": 26,
+    "title": "Paradise Lost",
+    "author": "John Milton",
+    "words": 81110,
+    "chunks": 513
+  },
+  {
+    "book_id": 35,
+    "title": "The Time Machine",
+    "author": "H. G. Wells",
+    "words": 32896,
+    "chunks": 224
+  },
+  {
+    "book_id": 36,
+    "title": "The War of the Worlds",
+    "author": "H. G. Wells",
+    "words": 61018,
+    "chunks": 479
+  },
+  {
+    "book_id": 46,
+    "title": "A Christmas Carol",
+    "author": "Charles Dickens",
+    "words": 28851,
+    "chunks": 207
+  },
+  {
+    "book_id": 47,
+    "title": "Anne of Green Gables",
+    "author": "L. M. Montgomery",
+    "words": 92157,
+    "chunks": 652
+  },
+  {
+    "book_id": 62,
+    "title": "A Princess of Mars",
+    "author": "Edgar Rice Burroughs",
+    "words": 67765,
+    "chunks": 532
+  },
+  {
+    "book_id": 74,
+    "title": "The Adventures of Tom Sawyer",
+    "author": "Mark Twain",
+    "words": 74394,
+    "chunks": 505
+  },
+  {
+    "book_id": 76,
+    "title": "Adventures of Huckleberry Finn",
+    "author": "Mark Twain",
+    "words": 117787,
+    "chunks": 756
+  },
+  {
+    "book_id": 78,
+    "title": "Tarzan of the Apes",
+    "author": "Edgar Rice Burroughs",
+    "words": 87151,
+    "chunks": 615
+  },
+  {
+    "book_id": 83,
+    "title": "From the Earth to the Moon",
+    "author": "Jules Verne",
+    "words": 92602,
+    "chunks": 720
+  },
+  {
+    "book_id": 84,
+    "title": "Frankenstein; Or, The Modern Prometheus",
+    "author": "Mary Shelley",
+    "words": 75394,
+    "chunks": 556
+  },
+  {
+    "book_id": 98,
+    "title": "A Tale of Two Cities",
+    "author": "Charles Dickens",
+    "words": 138495,
+    "chunks": 1004
+  },
+  {
+    "book_id": 100,
+    "title": "The Complete Works of William Shakespeare",
+    "author": "William Shakespeare",
+    "words": 989183,
+    "chunks": 6848
+  },
+  {
+    "book_id": 103,
+    "title": "Around the World in Eighty Days",
+    "author": "Jules Verne",
+    "words": 64350,
+    "chunks": 494
+  },
+  {
+    "book_id": 105,
+    "title": "Persuasion",
+    "author": "Jane Austen",
+    "words": 84215,
+    "chunks": 614
+  },
+  {
+    "book_id": 113,
+    "title": "The Secret Garden",
+    "author": "Frances Hodgson Burnett",
+    "words": 83165,
+    "chunks": 563
+  },
+  {
+    "book_id": 120,
+    "title": "Treasure Island",
+    "author": "Robert Louis Stevenson",
+    "words": 70538,
+    "chunks": 499
+  },
+  {
+    "book_id": 135,
+    "title": "Les Mis\u00e9rables",
+    "author": "Victor Hugo",
+    "words": 576336,
+    "chunks": 4184
+  },
+  {
+    "book_id": 158,
+    "title": "Emma",
+    "author": "Jane Austen",
+    "words": 162103,
+    "chunks": 1157
+  },
+  {
+    "book_id": 159,
+    "title": "The Island of Doctor Moreau",
+    "author": "H. G. Wells",
+    "words": 44589,
+    "chunks": 318
+  },
+  {
+    "book_id": 161,
+    "title": "Sense and Sensibility",
+    "author": "Jane Austen",
+    "words": 120872,
+    "chunks": 891
+  },
+  {
+    "book_id": 164,
+    "title": "Twenty Thousand Leagues under the Sea",
+    "author": "Jules Verne",
+    "words": 105942,
+    "chunks": 785
+  },
+  {
+    "book_id": 174,
+    "title": "The Picture of Dorian Gray",
+    "author": "Oscar Wilde",
+    "words": 80488,
+    "chunks": 554
+  },
+  {
+    "book_id": 201,
+    "title": "Flatland",
+    "author": "Edwin A. Abbott",
+    "words": 34544,
+    "chunks": 261
+  },
+  {
+    "book_id": 205,
+    "title": "Walden",
+    "author": "Henry David Thoreau",
+    "words": 117435,
+    "chunks": 768
+  },
+  {
+    "book_id": 209,
+    "title": "The Turn of the Screw",
+    "author": "Henry James",
+    "words": 43449,
+    "chunks": 283
+  },
+  {
+    "book_id": 219,
+    "title": "Heart of Darkness",
+    "author": "Joseph Conrad",
+    "words": 39071,
+    "chunks": 255
+  },
+  {
+    "book_id": 236,
+    "title": "The Jungle Book",
+    "author": "Rudyard Kipling",
+    "words": 52347,
+    "chunks": 363
+  },
+  {
+    "book_id": 244,
+    "title": "A Study in Scarlet",
+    "author": "Arthur Conan Doyle",
+    "words": 44165,
+    "chunks": 310
+  },
+  {
+    "book_id": 246,
+    "title": "The Rubaiyat of Omar Khayyam",
+    "author": "Omar Khayyam",
+    "words": 12023,
+    "chunks": 82
+  },
+  {
+    "book_id": 345,
+    "title": "Dracula",
+    "author": "Bram Stoker",
+    "words": 163669,
+    "chunks": 1093
+  },
+  {
+    "book_id": 408,
+    "title": "The Souls of Black Folk",
+    "author": "W. E. B. Du Bois",
+    "words": 70289,
+    "chunks": 482
+  },
+  {
+    "book_id": 514,
+    "title": "Little Women",
+    "author": "Louisa May Alcott",
+    "words": 191249,
+    "chunks": 1330
+  },
+  {
+    "book_id": 564,
+    "title": "The Mystery of Edwin Drood",
+    "author": "Charles Dickens",
+    "words": 97993,
+    "chunks": 697
+  },
+  {
+    "book_id": 580,
+    "title": "The Pickwick Papers",
+    "author": "Charles Dickens",
+    "words": 310766,
+    "chunks": 2305
+  },
+  {
+    "book_id": 600,
+    "title": "Notes from the Underground",
+    "author": "Fyodor Dostoevsky",
+    "words": 44735,
+    "chunks": 292
+  },
+  {
+    "book_id": 624,
+    "title": "Looking Backward",
+    "author": "Edward Bellamy",
+    "words": 78178,
+    "chunks": 561
+  },
+  {
+    "book_id": 700,
+    "title": "The Old Curiosity Shop",
+    "author": "Charles Dickens",
+    "words": 221931,
+    "chunks": 1627
+  },
+  {
+    "book_id": 730,
+    "title": "Oliver Twist",
+    "author": "Charles Dickens",
+    "words": 162230,
+    "chunks": 1187
+  },
+  {
+    "book_id": 766,
+    "title": "David Copperfield",
+    "author": "Charles Dickens",
+    "words": 363880,
+    "chunks": 2618
+  },
+  {
+    "book_id": 768,
+    "title": "Wuthering Heights",
+    "author": "Emily Bront\u00eb",
+    "words": 119372,
+    "chunks": 848
+  },
+  {
+    "book_id": 786,
+    "title": "Hard Times",
+    "author": "Charles Dickens",
+    "words": 105941,
+    "chunks": 768
+  },
+  {
+    "book_id": 821,
+    "title": "Dombey and Son",
+    "author": "Charles Dickens",
+    "words": 364018,
+    "chunks": 2672
+  },
+  {
+    "book_id": 883,
+    "title": "Our Mutual Friend",
+    "author": "Charles Dickens",
+    "words": 334282,
+    "chunks": 2395
+  },
+  {
+    "book_id": 917,
+    "title": "Barnaby Rudge",
+    "author": "Charles Dickens",
+    "words": 260016,
+    "chunks": 1892
+  },
+  {
+    "book_id": 963,
+    "title": "Little Dorrit",
+    "author": "Charles Dickens",
+    "words": 345378,
+    "chunks": 2506
+  },
+  {
+    "book_id": 967,
+    "title": "Nicholas Nickleby",
+    "author": "Charles Dickens",
+    "words": 331064,
+    "chunks": 2450
+  },
+  {
+    "book_id": 968,
+    "title": "Martin Chuzzlewit",
+    "author": "Charles Dickens",
+    "words": 345554,
+    "chunks": 2497
+  },
+  {
+    "book_id": 1013,
+    "title": "The First Men in the Moon",
+    "author": "H. G. Wells",
+    "words": 69664,
+    "chunks": 501
+  },
+  {
+    "book_id": 1080,
+    "title": "A Modest Proposal",
+    "author": "Jonathan Swift",
+    "words": 3431,
+    "chunks": 28
+  },
+  {
+    "book_id": 1184,
+    "title": "The Count of Monte Cristo",
+    "author": "Alexandre Dumas",
+    "words": 470221,
+    "chunks": 3447
+  },
+  {
+    "book_id": 1232,
+    "title": "The Prince",
+    "author": "Niccol\u00f2 Machiavelli",
+    "words": 50178,
+    "chunks": 346
+  },
+  {
+    "book_id": 1260,
+    "title": "Jane Eyre",
+    "author": "Charlotte Bront\u00eb",
+    "words": 189613,
+    "chunks": 1349
+  },
+  {
+    "book_id": 1268,
+    "title": "The Mysterious Island",
+    "author": "Jules Verne",
+    "words": 195047,
+    "chunks": 1490
+  },
+  {
+    "book_id": 1322,
+    "title": "Leaves of Grass",
+    "author": "Walt Whitman",
+    "words": 126630,
+    "chunks": 922
+  },
+  {
+    "book_id": 1342,
+    "title": "Pride and Prejudice",
+    "author": "Jane Austen",
+    "words": 128706,
+    "chunks": 954
+  },
+  {
+    "book_id": 1399,
+    "title": "Anna Karenina",
+    "author": "Leo Tolstoy",
+    "words": 358634,
+    "chunks": 2564
+  },
+  {
+    "book_id": 1400,
+    "title": "Great Expectations",
+    "author": "Charles Dickens",
+    "words": 189057,
+    "chunks": 1340
+  },
+  {
+    "book_id": 1497,
+    "title": "The Republic",
+    "author": "Plato",
+    "words": 217828,
+    "chunks": 1491
+  },
+  {
+    "book_id": 1661,
+    "title": "The Adventures of Sherlock Holmes",
+    "author": "Arthur Conan Doyle",
+    "words": 105985,
+    "chunks": 735
+  },
+  {
+    "book_id": 1727,
+    "title": "The Odyssey",
+    "author": "Homer",
+    "words": 130514,
+    "chunks": 907
+  },
+  {
+    "book_id": 1906,
+    "title": "Erewhon",
+    "author": "Samuel Butler",
+    "words": 85075,
+    "chunks": 593
+  },
+  {
+    "book_id": 1934,
+    "title": "Songs of Innocence and of Experience",
+    "author": "William Blake",
+    "words": 5648,
+    "chunks": 37
+  },
+  {
+    "book_id": 1952,
+    "title": "The Yellow Wallpaper",
+    "author": "Charlotte Perkins Gilman",
+    "words": 6251,
+    "chunks": 38
+  },
+  {
+    "book_id": 2002,
+    "title": "Sonnets from the Portuguese",
+    "author": "Elizabeth Barrett Browning",
+    "words": 5672,
+    "chunks": 48
+  },
+  {
+    "book_id": 2097,
+    "title": "The Sign of the Four",
+    "author": "Arthur Conan Doyle",
+    "words": 43898,
+    "chunks": 305
+  },
+  {
+    "book_id": 2148,
+    "title": "The Works of Edgar Allan Poe",
+    "author": "Edgar Allan Poe",
+    "words": 97152,
+    "chunks": 694
+  },
+  {
+    "book_id": 2554,
+    "title": "Crime and Punishment",
+    "author": "Fyodor Dostoevsky",
+    "words": 209142,
+    "chunks": 1471
+  },
+  {
+    "book_id": 2600,
+    "title": "War and Peace",
+    "author": "Leo Tolstoy",
+    "words": 583722,
+    "chunks": 4229
+  },
+  {
+    "book_id": 2680,
+    "title": "Meditations",
+    "author": "Marcus Aurelius",
+    "words": 72168,
+    "chunks": 505
+  },
+  {
+    "book_id": 2701,
+    "title": "Moby Dick; Or, The Whale",
+    "author": "Herman Melville",
+    "words": 219432,
+    "chunks": 1573
+  },
+  {
+    "book_id": 2852,
+    "title": "The Hound of the Baskervilles",
+    "author": "Arthur Conan Doyle",
+    "words": 60053,
+    "chunks": 407
+  },
+  {
+    "book_id": 4300,
+    "title": "Ulysses",
+    "author": "James Joyce",
+    "words": 269677,
+    "chunks": 1906
+  },
+  {
+    "book_id": 4363,
+    "title": "Beyond Good and Evil",
+    "author": "Friedrich Nietzsche",
+    "words": 64379,
+    "chunks": 453
+  },
+  {
+    "book_id": 5200,
+    "title": "Metamorphosis",
+    "author": "Franz Kafka",
+    "words": 22377,
+    "chunks": 143
+  },
+  {
+    "book_id": 5230,
+    "title": "The Invisible Man",
+    "author": "H. G. Wells",
+    "words": 49986,
+    "chunks": 356
+  },
+  {
+    "book_id": 6130,
+    "title": "The Iliad",
+    "author": "Homer",
+    "words": 195858,
+    "chunks": 1431
+  },
+  {
+    "book_id": 8800,
+    "title": "The Divine Comedy",
+    "author": "Dante Alighieri",
+    "words": 114204,
+    "chunks": 793
+  },
+  {
+    "book_id": 12242,
+    "title": "Poems of Emily Dickinson",
+    "author": "Emily Dickinson",
+    "words": 30921,
+    "chunks": 207
+  },
+  {
+    "book_id": 16328,
+    "title": "Beowulf",
+    "author": "Unknown",
+    "words": 41753,
+    "chunks": 318
+  },
+  {
+    "book_id": 18857,
+    "title": "A Journey to the Centre of the Earth",
+    "author": "Jules Verne",
+    "words": 86520,
+    "chunks": 648
+  },
+  {
+    "book_id": 25344,
+    "title": "The Scarlet Letter",
+    "author": "Nathaniel Hawthorne",
+    "words": 85845,
+    "chunks": 629
+  },
+  {
+    "book_id": 28054,
+    "title": "The Brothers Karamazov",
+    "author": "Fyodor Dostoevsky",
+    "words": 360373,
+    "chunks": 2454
+  },
+  {
+    "book_id": 64317,
+    "title": "The Great Gatsby",
+    "author": "F. Scott Fitzgerald",
+    "words": 50013,
+    "chunks": 359
+  }
+]

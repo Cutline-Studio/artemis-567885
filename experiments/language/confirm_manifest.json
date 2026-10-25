@@ -1,0 +1,1106 @@
+{
+  "created_utc": "2026-10-23T07:33:38.372449+00:00",
+  "description": "Artemis 567885 confirmation set: untouched; author-disjoint and edition-disjoint from the development corpus. Not to be scored until development results are final.",
+  "selection_source": "Gutenberg IDs from the user-supplied 'Lisa' corpus manifest.json (its cleaned text files were not used)",
+  "development_manifest_sha256": "ab94040953aeb890566c3f89fa11b54ed068ac12106aa41b4bcf93c2773c8397",
+  "processing_rules": [
+    "Download https://www.gutenberg.org/cache/epub/<ID>/pg<ID>.txt; keep raw bytes unchanged in raw/.",
+    "Decode as UTF-8 (strict); drop a leading BOM.",
+    "Read 'Title:' and 'Author:' from the header before the START marker; require the expected author surname.",
+    "Keep only the text strictly between the line '*** START OF THE/THIS PROJECT GUTENBERG EBOOK ...' and the line '*** END OF THE/THIS PROJECT GUTENBERG EBOOK ...'; fail if either marker is missing.",
+    "Normalise line endings CRLF/CR -> LF; strip leading and trailing whitespace of the whole body; append one trailing LF. No other edits (no Unicode normalisation, no removal of in-body notes).",
+    "Encode the result as UTF-8; that file is the document. One book = one document.",
+    "Translator read from the header 'Translator:' line when present (null otherwise).",
+    "Excluded: same Gutenberg ID as development; author surname (from the Lisa list or the header) equal to any development author surname; missing header Author line; any fetch/clean failure.",
+    "Overlap: distinct word 8-grams of each book; containment = share of them that also occur anywhere in the development corpus (train+val+test); flag above 5%."
+  ],
+  "summary": {
+    "books": 45,
+    "authors": [
+      "Alexandre Dumas Auguste Maquet",
+      "Charlotte Perkins Gilman",
+      "Dante Alighieri",
+      "Edgar Allan Poe",
+      "Edgar Rice Burroughs",
+      "Edward Bellamy",
+      "Edwin Abbott Abbott",
+      "Elizabeth Barrett Browning",
+      "Emily Dickinson",
+      "Emperor of Rome Marcus Aurelius",
+      "F. Scott Fitzgerald",
+      "Frances Hodgson Burnett",
+      "Franz Kafka",
+      "Friedrich Wilhelm Nietzsche",
+      "Fyodor Dostoyevsky",
+      "Henry David Thoreau",
+      "Henry James",
+      "Henry Wadsworth Longfellow",
+      "Homer",
+      "James Joyce",
+      "John Milton",
+      "Jonathan Swift",
+      "Jules Verne",
+      "L. M. Montgomery",
+      "Louisa May Alcott",
+      "Niccol\u00f2 Machiavelli",
+      "Omar Khayyam",
+      "Plato",
+      "Rudyard Kipling",
+      "Samuel Butler",
+      "Victor Hugo",
+      "W. E. B. Du Bois",
+      "Walt Whitman",
+      "William Blake",
+      "William Shakespeare",
+      "graf Leo Tolstoy"
+    ],
+    "bytes": 37708556,
+    "translated_books": 16
+  },
+  "overlap_check": {
+    "max_containment": 0.00053,
+    "flagged": [],
+    "all": [
+      {
+        "gutenberg_id": 19,
+        "distinct_8grams": 32880,
+        "containment_in_development": 0.0,
+        "flagged": false
+      },
+      {
+        "gutenberg_id": 26,
+        "distinct_8grams": 81085,
+        "containment_in_development": 0.00046,
+        "flagged": false
+      },
+      {
+        "gutenberg_id": 47,
+        "distinct_8grams": 92131,
+        "containment_in_development": 0.00014,
+        "flagged": false
+      },
+      {
+        "gutenberg_id": 62,
+        "distinct_8grams": 67709,
+        "containment_in_development": 1e-05,
+        "flagged": false
+      },
+      {
+        "gutenberg_id": 78,
+        "distinct_8grams": 87121,
+        "containment_in_development": 9e-05,
+        "flagged": false
+      },
+      {
+        "gutenberg_id": 83,
+        "distinct_8grams": 92454,
+        "containment_in_development": 1e-05,
+        "flagged": false
+      },
+      {
+        "gutenberg_id": 100,
+        "distinct_8grams": 986694,
+        "containment_in_development": 0.00014,
+        "flagged": false
+      },
+      {
+        "gutenberg_id": 103,
+        "distinct_8grams": 64014,
+        "containment_in_development": 9e-05,
+        "flagged": false
+      },
+      {
+        "gutenberg_id": 113,
+        "distinct_8grams": 83107,
+        "containment_in_development": 0.00026,
+        "flagged": false
+      },
+      {
+        "gutenberg_id": 135,
+        "distinct_8grams": 575064,
+        "containment_in_development": 5e-05,
+        "flagged": false
+      },
+      {
+        "gutenberg_id": 164,
+        "distinct_8grams": 105887,
+        "containment_in_development": 3e-05,
+        "flagged": false
+      },
+      {
+        "gutenberg_id": 201,
+        "distinct_8grams": 34461,
+        "containment_in_development": 0.0,
+        "flagged": false
+      },
+      {
+        "gutenberg_id": 205,
+        "distinct_8grams": 117384,
+        "containment_in_development": 3e-05,
+        "flagged": false
+      },
+      {
+        "gutenberg_id": 209,
+        "distinct_8grams": 43442,
+        "containment_in_development": 0.00053,
+        "flagged": false
+      },
+      {
+        "gutenberg_id": 236,
+        "distinct_8grams": 52186,
+        "containment_in_development": 6e-05,
+        "flagged": false
+      },
+      {
+        "gutenberg_id": 246,
+        "distinct_8grams": 11218,
+        "containment_in_development": 0.0,
+        "flagged": false
+      },
+      {
+        "gutenberg_id": 408,
+        "distinct_8grams": 70253,
+        "containment_in_development": 0.00016,
+        "flagged": false
+      },
+      {
+        "gutenberg_id": 514,
+        "distinct_8grams": 191204,
+        "containment_in_development": 0.0002,
+        "flagged": false
+      },
+      {
+        "gutenberg_id": 600,
+        "distinct_8grams": 44691,
+        "containment_in_development": 0.0002,
+        "flagged": false
+      },
+      {
+        "gutenberg_id": 624,
+        "distinct_8grams": 78162,
+        "containment_in_development": 9e-05,
+        "flagged": false
+      },
+      {
+        "gutenberg_id": 1080,
+        "distinct_8grams": 3424,
+        "containment_in_development": 0.0,
+        "flagged": false
+      },
+      {
+        "gutenberg_id": 1184,
+        "distinct_8grams": 469852,
+        "containment_in_development": 9e-05,
+        "flagged": false
+      },
+      {
+        "gutenberg_id": 1232,
+        "distinct_8grams": 50013,
+        "containment_in_development": 0.0,
+        "flagged": false
+      },
+      {
+        "gutenberg_id": 1268,
+        "distinct_8grams": 194991,
+        "containment_in_development": 0.0001,
+        "flagged": false
+      },
+      {
+        "gutenberg_id": 1322,
+        "distinct_8grams": 126488,
+        "containment_in_development": 0.00012,
+        "flagged": false
+      },
+      {
+        "gutenberg_id": 1399,
+        "distinct_8grams": 358473,
+        "containment_in_development": 0.0001,
+        "flagged": false
+      },
+      {
+        "gutenberg_id": 1497,
+        "distinct_8grams": 217288,
+        "containment_in_development": 3e-05,
+        "flagged": false
+      },
+      {
+        "gutenberg_id": 1727,
+        "distinct_8grams": 127847,
+        "containment_in_development": 8e-05,
+        "flagged": false
+      },
+      {
+        "gutenberg_id": 1906,
+        "distinct_8grams": 85029,
+        "containment_in_development": 9e-05,
+        "flagged": false
+      },
+      {
+        "gutenberg_id": 1934,
+        "distinct_8grams": 5611,
+        "containment_in_development": 0.0,
+        "flagged": false
+      },
+      {
+        "gutenberg_id": 1952,
+        "distinct_8grams": 6244,
+        "containment_in_development": 0.0,
+        "flagged": false
+      },
+      {
+        "gutenberg_id": 2002,
+        "distinct_8grams": 5560,
+        "containment_in_development": 0.0,
+        "flagged": false
+      },
+      {
+        "gutenberg_id": 2148,
+        "distinct_8grams": 96996,
+        "containment_in_development": 2e-05,
+        "flagged": false
+      },
+      {
+        "gutenberg_id": 2554,
+        "distinct_8grams": 209026,
+        "containment_in_development": 0.00029,
+        "flagged": false
+      },
+      {
+        "gutenberg_id": 2600,
+        "distinct_8grams": 582920,
+        "containment_in_development": 0.00021,
+        "flagged": false
+      },
+      {
+        "gutenberg_id": 2680,
+        "distinct_8grams": 72087,
+        "containment_in_development": 0.0,
+        "flagged": false
+      },
+      {
+        "gutenberg_id": 4300,
+        "distinct_8grams": 269397,
+        "containment_in_development": 6e-05,
+        "flagged": false
+      },
+      {
+        "gutenberg_id": 4363,
+        "distinct_8grams": 64376,
+        "containment_in_development": 2e-05,
+        "flagged": false
+      },
+      {
+        "gutenberg_id": 5200,
+        "distinct_8grams": 22365,
+        "containment_in_development": 0.00018,
+        "flagged": false
+      },
+      {
+        "gutenberg_id": 6130,
+        "distinct_8grams": 194748,
+        "containment_in_development": 1e-05,
+        "flagged": false
+      },
+      {
+        "gutenberg_id": 8800,
+        "distinct_8grams": 114073,
+        "containment_in_development": 0.0,
+        "flagged": false
+      },
+      {
+        "gutenberg_id": 12242,
+        "distinct_8grams": 30812,
+        "containment_in_development": 0.0,
+        "flagged": false
+      },
+      {
+        "gutenberg_id": 18857,
+        "distinct_8grams": 86495,
+        "containment_in_development": 6e-05,
+        "flagged": false
+      },
+      {
+        "gutenberg_id": 28054,
+        "distinct_8grams": 360007,
+        "containment_in_development": 0.00012,
+        "flagged": false
+      },
+      {
+        "gutenberg_id": 64317,
+        "distinct_8grams": 50000,
+        "containment_in_development": 0.0002,
+        "flagged": false
+      }
+    ]
+  },
+  "excluded": [
+    {
+      "gutenberg_id": 11,
+      "reason": "same Gutenberg ID as development corpus"
+    },
+    {
+      "gutenberg_id": 35,
+      "reason": "same Gutenberg ID as development corpus"
+    },
+    {
+      "gutenberg_id": 36,
+      "reason": "same Gutenberg ID as development corpus"
+    },
+    {
+      "gutenberg_id": 46,
+      "reason": "same Gutenberg ID as development corpus"
+    },
+    {
+      "gutenberg_id": 74,
+      "reason": "same Gutenberg ID as development corpus"
+    },
+    {
+      "gutenberg_id": 76,
+      "reason": "same Gutenberg ID as development corpus"
+    },
+    {
+      "gutenberg_id": 84,
+      "reason": "same Gutenberg ID as development corpus"
+    },
+    {
+      "gutenberg_id": 98,
+      "reason": "same Gutenberg ID as development corpus"
+    },
+    {
+      "gutenberg_id": 120,
+      "reason": "same Gutenberg ID as development corpus"
+    },
+    {
+      "gutenberg_id": 158,
+      "reason": "same Gutenberg ID as development corpus"
+    },
+    {
+      "gutenberg_id": 161,
+      "reason": "same Gutenberg ID as development corpus"
+    },
+    {
+      "gutenberg_id": 174,
+      "reason": "same Gutenberg ID as development corpus"
+    },
+    {
+      "gutenberg_id": 219,
+      "reason": "same Gutenberg ID as development corpus"
+    },
+    {
+      "gutenberg_id": 244,
+      "reason": "same Gutenberg ID as development corpus"
+    },
+    {
+      "gutenberg_id": 345,
+      "reason": "same Gutenberg ID as development corpus"
+    },
+    {
+      "gutenberg_id": 730,
+      "reason": "same Gutenberg ID as development corpus"
+    },
+    {
+      "gutenberg_id": 768,
+      "reason": "same Gutenberg ID as development corpus"
+    },
+    {
+      "gutenberg_id": 1260,
+      "reason": "same Gutenberg ID as development corpus"
+    },
+    {
+      "gutenberg_id": 1342,
+      "reason": "same Gutenberg ID as development corpus"
+    },
+    {
+      "gutenberg_id": 1400,
+      "reason": "same Gutenberg ID as development corpus"
+    },
+    {
+      "gutenberg_id": 1661,
+      "reason": "same Gutenberg ID as development corpus"
+    },
+    {
+      "gutenberg_id": 2701,
+      "reason": "same Gutenberg ID as development corpus"
+    },
+    {
+      "gutenberg_id": 2852,
+      "reason": "same Gutenberg ID as development corpus"
+    },
+    {
+      "gutenberg_id": 5230,
+      "reason": "same Gutenberg ID as development corpus"
+    },
+    {
+      "gutenberg_id": 105,
+      "listed_author": "Jane Austen",
+      "reason": "listed author surname matches a development author (conservative)"
+    },
+    {
+      "gutenberg_id": 159,
+      "listed_author": "H. G. Wells",
+      "reason": "listed author surname matches a development author (conservative)"
+    },
+    {
+      "gutenberg_id": 564,
+      "listed_author": "Charles Dickens",
+      "reason": "listed author surname matches a development author (conservative)"
+    },
+    {
+      "gutenberg_id": 580,
+      "listed_author": "Charles Dickens",
+      "reason": "listed author surname matches a development author (conservative)"
+    },
+    {
+      "gutenberg_id": 700,
+      "listed_author": "Charles Dickens",
+      "reason": "listed author surname matches a development author (conservative)"
+    },
+    {
+      "gutenberg_id": 766,
+      "listed_author": "Charles Dickens",
+      "reason": "listed author surname matches a development author (conservative)"
+    },
+    {
+      "gutenberg_id": 786,
+      "listed_author": "Charles Dickens",
+      "reason": "listed author surname matches a development author (conservative)"
+    },
+    {
+      "gutenberg_id": 821,
+      "listed_author": "Charles Dickens",
+      "reason": "listed author surname matches a development author (conservative)"
+    },
+    {
+      "gutenberg_id": 883,
+      "listed_author": "Charles Dickens",
+      "reason": "listed author surname matches a development author (conservative)"
+    },
+    {
+      "gutenberg_id": 917,
+      "listed_author": "Charles Dickens",
+      "reason": "listed author surname matches a development author (conservative)"
+    },
+    {
+      "gutenberg_id": 963,
+      "listed_author": "Charles Dickens",
+      "reason": "listed author surname matches a development author (conservative)"
+    },
+    {
+      "gutenberg_id": 967,
+      "listed_author": "Charles Dickens",
+      "reason": "listed author surname matches a development author (conservative)"
+    },
+    {
+      "gutenberg_id": 968,
+      "listed_author": "Charles Dickens",
+      "reason": "listed author surname matches a development author (conservative)"
+    },
+    {
+      "gutenberg_id": 1013,
+      "listed_author": "H. G. Wells",
+      "reason": "listed author surname matches a development author (conservative)"
+    },
+    {
+      "gutenberg_id": 2097,
+      "listed_author": "Arthur Conan Doyle",
+      "reason": "listed author surname matches a development author (conservative)"
+    },
+    {
+      "gutenberg_id": 16328,
+      "listed_author": "Unknown",
+      "reason": "fetch/clean failed: no Author line in Gutenberg header"
+    },
+    {
+      "gutenberg_id": 25344,
+      "listed_author": "Nathaniel Hawthorne",
+      "reason": "listed author surname matches a development author (conservative)"
+    }
+  ],
+  "documents": [
+    {
+      "gutenberg_id": 19,
+      "title": "The Song of Hiawatha",
+      "author": "Henry Wadsworth Longfellow",
+      "translator": null,
+      "listed_author_in_lisa_manifest": "Henry Wadsworth Longfellow",
+      "source_url": "https://www.gutenberg.org/cache/epub/19/pg19.txt",
+      "raw_bytes": 215771,
+      "raw_sha256": "d3f9f0ce63af1c4dc56f80ab32c1c544a20ae879247e137e7619e392ff87975f",
+      "bytes": 189538,
+      "sha256": "a29b95d579f9046aecc9a9e8b10a07d6cf8de6becd4e291e2f06dfcdbeea1e16",
+      "path": "confirm/pg19_the-song-of-hiawatha.txt"
+    },
+    {
+      "gutenberg_id": 26,
+      "title": "Paradise Lost",
+      "author": "John Milton",
+      "translator": null,
+      "listed_author_in_lisa_manifest": "John Milton",
+      "source_url": "https://www.gutenberg.org/cache/epub/26/pg26.txt",
+      "raw_bytes": 491461,
+      "raw_sha256": "aeedc9f33e0c2a6422d2f557462fb87cd2430974c6aed30a26803be5394a741a",
+      "bytes": 460988,
+      "sha256": "672d4eee7feaf0a794b06bc3b46bc105841e40d17236548a0f9a3b85b9870378",
+      "path": "confirm/pg26_paradise-lost.txt"
+    },
+    {
+      "gutenberg_id": 47,
+      "title": "Anne of Avonlea",
+      "author": "L. M. Montgomery",
+      "translator": null,
+      "listed_author_in_lisa_manifest": "L. M. Montgomery",
+      "source_url": "https://www.gutenberg.org/cache/epub/47/pg47.txt",
+      "raw_bytes": 532050,
+      "raw_sha256": "e9a12333e4e6e047d5de8fca150ff66e45ab5e4f2bc85de3c9cdccd125512e81",
+      "bytes": 502516,
+      "sha256": "e582d45610335d079e2cf1b3acf2f9f1438ff2825b9108ca041ca0bfec898d0f",
+      "path": "confirm/pg47_anne-of-avonlea.txt"
+    },
+    {
+      "gutenberg_id": 62,
+      "title": "A princess of Mars",
+      "author": "Edgar Rice Burroughs",
+      "translator": null,
+      "listed_author_in_lisa_manifest": "Edgar Rice Burroughs",
+      "source_url": "https://www.gutenberg.org/cache/epub/62/pg62.txt",
+      "raw_bytes": 399822,
+      "raw_sha256": "d35d09d2b9b7691822909636085c6a01903bae375e51ee10b45377021b122b66",
+      "bytes": 372969,
+      "sha256": "72437d3cb13c716574578d92e422f00b65bbcea4d3277aeb755ef4d9ac708fe0",
+      "path": "confirm/pg62_a-princess-of-mars.txt"
+    },
+    {
+      "gutenberg_id": 78,
+      "title": "Tarzan of the Apes",
+      "author": "Edgar Rice Burroughs",
+      "translator": null,
+      "listed_author_in_lisa_manifest": "Edgar Rice Burroughs",
+      "source_url": "https://www.gutenberg.org/cache/epub/78/pg78.txt",
+      "raw_bytes": 517223,
+      "raw_sha256": "9fac1bdb66c2a3e955baaf1ce4601ba18145921679041779c2403e49b6bf4260",
+      "bytes": 486423,
+      "sha256": "b67bf354c59ed77477fe4a8b56401e1594b18f66aab5d4ea8959ba6cb917614e",
+      "path": "confirm/pg78_tarzan-of-the-apes.txt"
+    },
+    {
+      "gutenberg_id": 83,
+      "title": "From the Earth to the moon; and, round the moon",
+      "author": "Jules Verne",
+      "translator": null,
+      "listed_author_in_lisa_manifest": "Jules Verne",
+      "source_url": "https://www.gutenberg.org/cache/epub/83/pg83.txt",
+      "raw_bytes": 585402,
+      "raw_sha256": "6d87062870643bf9364d09f5c6b37ce53dab524501041d87e7d83a2e1b2f744d",
+      "bytes": 553978,
+      "sha256": "32d779f2415d10353c612be904d7effaac808196923dfbe7055fc028ae191e12",
+      "path": "confirm/pg83_from-the-earth-to-the-moon-and-round-the.txt"
+    },
+    {
+      "gutenberg_id": 100,
+      "title": "The Complete Works of William Shakespeare",
+      "author": "William Shakespeare",
+      "translator": null,
+      "listed_author_in_lisa_manifest": "William Shakespeare",
+      "source_url": "https://www.gutenberg.org/cache/epub/100/pg100.txt",
+      "raw_bytes": 5638481,
+      "raw_sha256": "eb61e33cab23dbe712ad57091ded6c7292ba91ac3bb2764f51a3223ec0068fe5",
+      "bytes": 5422620,
+      "sha256": "bfb5a5764506115cbae33bfdf66014697ef69d06339f001db209d3f2a56c83fc",
+      "path": "confirm/pg100_the-complete-works-of-william-shakespear.txt"
+    },
+    {
+      "gutenberg_id": 103,
+      "title": "Around the World in Eighty Days",
+      "author": "Jules Verne",
+      "translator": "George M. Towle",
+      "listed_author_in_lisa_manifest": "Jules Verne",
+      "source_url": "https://www.gutenberg.org/cache/epub/103/pg103.txt",
+      "raw_bytes": 403712,
+      "raw_sha256": "6f608ea2da50caf73245ad2996e4ee3c02ef1aa2152f7fcfe209df9aa39e7512",
+      "bytes": 375959,
+      "sha256": "0745703db5e163fd3514bd89bc2323da2dde08729fb4fef7f557a805234cf9fd",
+      "path": "confirm/pg103_around-the-world-in-eighty-days.txt"
+    },
+    {
+      "gutenberg_id": 113,
+      "title": "The Secret Garden",
+      "author": "Frances Hodgson Burnett",
+      "translator": null,
+      "listed_author_in_lisa_manifest": "Frances Hodgson Burnett",
+      "source_url": "https://www.gutenberg.org/cache/epub/113/pg113.txt",
+      "raw_bytes": 475315,
+      "raw_sha256": "6b0bb5fbd0c4e873d2d22028da9d753cf3977d5f70ac58221556b28060badbf5",
+      "bytes": 446098,
+      "sha256": "ce9f6ca3aa4d658e54b68f666eff354b27a9006f017faa7537ef66765d5f7a1f",
+      "path": "confirm/pg113_the-secret-garden.txt"
+    },
+    {
+      "gutenberg_id": 135,
+      "title": "Les Mis\u00e9rables",
+      "author": "Victor Hugo",
+      "translator": "Isabel Florence Hapgood",
+      "listed_author_in_lisa_manifest": "Victor Hugo",
+      "source_url": "https://www.gutenberg.org/cache/epub/135/pg135.txt",
+      "raw_bytes": 3369207,
+      "raw_sha256": "6cf3b9d6fc5e6f733737425267d3af296d7f99f9b9fd1d255a3ab7689a6346ab",
+      "bytes": 3276195,
+      "sha256": "3790b506959d4d8e91083ade2d91092cf56e93ca9027418e6bedbe8b34386ed7",
+      "path": "confirm/pg135_les-miserables.txt"
+    },
+    {
+      "gutenberg_id": 164,
+      "title": "Twenty Thousand Leagues under the Sea",
+      "author": "Jules Verne",
+      "translator": null,
+      "listed_author_in_lisa_manifest": "Jules Verne",
+      "source_url": "https://www.gutenberg.org/cache/epub/164/pg164.txt",
+      "raw_bytes": 638511,
+      "raw_sha256": "3562e063ad9027725d1feb2f945e86a0a90804a8ab19f8cb272884c436ebc34f",
+      "bytes": 606202,
+      "sha256": "0c0e40524077497b77161d996dedc416348b9af80c3e138daf975f75926eeae2",
+      "path": "confirm/pg164_twenty-thousand-leagues-under-the-sea.txt"
+    },
+    {
+      "gutenberg_id": 201,
+      "title": "Flatland: A Romance of Many Dimensions",
+      "author": "Edwin Abbott Abbott",
+      "translator": null,
+      "listed_author_in_lisa_manifest": "Edwin A. Abbott",
+      "source_url": "https://www.gutenberg.org/cache/epub/201/pg201.txt",
+      "raw_bytes": 227452,
+      "raw_sha256": "03dd4508636e44ab9b37efda856745545f22ea5ace95e2eb16c3ef50307cd9f7",
+      "bytes": 203777,
+      "sha256": "261758fbef50ff699a8135fb3c67e95820b244885355192ddc9de2f794bdad45",
+      "path": "confirm/pg201_flatland-a-romance-of-many-dimensions.txt"
+    },
+    {
+      "gutenberg_id": 205,
+      "title": "Walden, and On The Duty Of Civil Disobedience",
+      "author": "Henry David Thoreau",
+      "translator": null,
+      "listed_author_in_lisa_manifest": "Henry David Thoreau",
+      "source_url": "https://www.gutenberg.org/cache/epub/205/pg205.txt",
+      "raw_bytes": 667957,
+      "raw_sha256": "2d9a76a2e3e8195c69430516ebd33c4d0757a53ad432ff6186b7b794e6fe99f9",
+      "bytes": 637838,
+      "sha256": "67c01b61970d6eecbccb372a6d5c2b644ae76f3c8fdac21eb238fea502306b05",
+      "path": "confirm/pg205_walden-and-on-the-duty-of-civil-disobedi.txt"
+    },
+    {
+      "gutenberg_id": 209,
+      "title": "The Turn of the Screw",
+      "author": "Henry James",
+      "translator": null,
+      "listed_author_in_lisa_manifest": "Henry James",
+      "source_url": "https://www.gutenberg.org/cache/epub/209/pg209.txt",
+      "raw_bytes": 259197,
+      "raw_sha256": "171afa184a54b6004194e02047f5d01cf216d8bc519ddfb671a1e41d80bbdf65",
+      "bytes": 234872,
+      "sha256": "e74de22bfcb3a3013b538614217d5bd4081ac03860ba348c1512774960378cfb",
+      "path": "confirm/pg209_the-turn-of-the-screw.txt"
+    },
+    {
+      "gutenberg_id": 236,
+      "title": "The Jungle Book",
+      "author": "Rudyard Kipling",
+      "translator": null,
+      "listed_author_in_lisa_manifest": "Rudyard Kipling",
+      "source_url": "https://www.gutenberg.org/cache/epub/236/pg236.txt",
+      "raw_bytes": 303640,
+      "raw_sha256": "571353c4c69d127020fb16cd6a566f1d80101bc0fc3cf2b0c2ea5678bf4c769f",
+      "bytes": 278523,
+      "sha256": "716d1b35047dd9bbbc0b22cb0f8371f3abecda01af748e70b5c7d4c658170ab7",
+      "path": "confirm/pg236_the-jungle-book.txt"
+    },
+    {
+      "gutenberg_id": 246,
+      "title": "The Rubaiyat of Omar Khayyam",
+      "author": "Omar Khayyam",
+      "translator": "Edward FitzGerald",
+      "listed_author_in_lisa_manifest": "Omar Khayyam",
+      "source_url": "https://www.gutenberg.org/cache/epub/246/pg246.txt",
+      "raw_bytes": 90380,
+      "raw_sha256": "711166b8e22f048a2fc79599d5db3520f78120f42b2473a431df07863ce769b0",
+      "bytes": 68365,
+      "sha256": "16b96bb2b7b7184286025df2cad564cc12bcc73758730d68c0260b7fbe132238",
+      "path": "confirm/pg246_the-rubaiyat-of-omar-khayyam.txt"
+    },
+    {
+      "gutenberg_id": 408,
+      "title": "The Souls of Black Folk",
+      "author": "W. E. B. Du Bois",
+      "translator": null,
+      "listed_author_in_lisa_manifest": "W. E. B. Du Bois",
+      "source_url": "https://www.gutenberg.org/cache/epub/408/pg408.txt",
+      "raw_bytes": 428742,
+      "raw_sha256": "87f8e832484792b761a510b953d67e3835fa46a9f4231a508bfeb914a98559ca",
+      "bytes": 402253,
+      "sha256": "41936d9530381ad80aeb3b14b0e6a4f5312632bf4c3592053c5f5589dd7ced3a",
+      "path": "confirm/pg408_the-souls-of-black-folk.txt"
+    },
+    {
+      "gutenberg_id": 514,
+      "title": "Little Women",
+      "author": "Louisa May Alcott",
+      "translator": null,
+      "listed_author_in_lisa_manifest": "Louisa May Alcott",
+      "source_url": "https://www.gutenberg.org/cache/epub/514/pg514.txt",
+      "raw_bytes": 1071398,
+      "raw_sha256": "36831477b339dbcd7e7206119d77e9e58b9727ef3c299d1a1dc4446e1db97850",
+      "bytes": 1030871,
+      "sha256": "c6308b76332136d22a5dfc45e7e4eb8aaa5a8d416ad032fd5544f96af46a0231",
+      "path": "confirm/pg514_little-women.txt"
+    },
+    {
+      "gutenberg_id": 600,
+      "title": "Notes from the Underground",
+      "author": "Fyodor Dostoyevsky",
+      "translator": "Constance Garnett",
+      "listed_author_in_lisa_manifest": "Fyodor Dostoevsky",
+      "source_url": "https://www.gutenberg.org/cache/epub/600/pg600.txt",
+      "raw_bytes": 266972,
+      "raw_sha256": "6ce7d6ff7288263f1fd07d7ecfc07e419735cbbb4dff5107964af1afd8b2079e",
+      "bytes": 242738,
+      "sha256": "0ed3fdada4fbbf8bdcec2b65324f63a0dd9eb98466a13d064208ff19a13898d3",
+      "path": "confirm/pg600_notes-from-the-underground.txt"
+    },
+    {
+      "gutenberg_id": 624,
+      "title": "Looking Backward, 2000 to 1887",
+      "author": "Edward Bellamy",
+      "translator": null,
+      "listed_author_in_lisa_manifest": "Edward Bellamy",
+      "source_url": "https://www.gutenberg.org/cache/epub/624/pg624.txt",
+      "raw_bytes": 467064,
+      "raw_sha256": "ddaf515e22749d71fe6068544e56beb8e8752a9f8d9b97451aa4a29143670894",
+      "bytes": 439429,
+      "sha256": "e4dbd43fa3ae7a2027ff53baf5ee477a1ea90a4b6a2de2263a3280d6558e1966",
+      "path": "confirm/pg624_looking-backward-2000-to-1887.txt"
+    },
+    {
+      "gutenberg_id": 1080,
+      "title": "A Modest Proposal",
+      "author": "Jonathan Swift",
+      "translator": null,
+      "listed_author_in_lisa_manifest": "Jonathan Swift",
+      "source_url": "https://www.gutenberg.org/cache/epub/1080/pg1080.txt",
+      "raw_bytes": 39645,
+      "raw_sha256": "331340f2ada84a7f79d756a344f6ce7d78026cd1d2359d33f79ca4a13d9f1519",
+      "bytes": 19512,
+      "sha256": "5ecfd997c88a5e7a8f05713cf98330ba8556447366b579a965ad7c76a311703c",
+      "path": "confirm/pg1080_a-modest-proposal.txt"
+    },
+    {
+      "gutenberg_id": 1184,
+      "title": "The Count of Monte Cristo",
+      "author": "Alexandre Dumas Auguste Maquet",
+      "translator": null,
+      "listed_author_in_lisa_manifest": "Alexandre Dumas",
+      "source_url": "https://www.gutenberg.org/cache/epub/1184/pg1184.txt",
+      "raw_bytes": 2787124,
+      "raw_sha256": "64f8d5cfa51fcecb904abf7312d395d512a71817e7359b91288beb50517c3836",
+      "bytes": 2705948,
+      "sha256": "a3176714cd94d01778f5022f3e2678b07a881e0149096bdeac6903f37a883389",
+      "path": "confirm/pg1184_the-count-of-monte-cristo.txt"
+    },
+    {
+      "gutenberg_id": 1232,
+      "title": "The Prince",
+      "author": "Niccol\u00f2 Machiavelli",
+      "translator": "W. K. Marriott",
+      "listed_author_in_lisa_manifest": "Niccol\u00f2 Machiavelli",
+      "source_url": "https://www.gutenberg.org/cache/epub/1232/pg1232.txt",
+      "raw_bytes": 308019,
+      "raw_sha256": "33496a305f7a4b933784fb5aec95f920fbc3d4687794817e4cc444aa6578d2e4",
+      "bytes": 283426,
+      "sha256": "33e616c68ed77837dd40d587a30b97988783c76126c8fbb7ae220c53780648d0",
+      "path": "confirm/pg1232_the-prince.txt"
+    },
+    {
+      "gutenberg_id": 1268,
+      "title": "The Mysterious Island",
+      "author": "Jules Verne",
+      "translator": "Agnes Kinloch Kingston",
+      "listed_author_in_lisa_manifest": "Jules Verne",
+      "source_url": "https://www.gutenberg.org/cache/epub/1268/pg1268.txt",
+      "raw_bytes": 1171510,
+      "raw_sha256": "7133452f63b49690043b6c9af5516bd30f76b39ac6526dacfdc322ae4600a689",
+      "bytes": 1128584,
+      "sha256": "dd58ca1db31abfa3acbc592d8feb70e082167ed0c406a030535ee8bbd464445e",
+      "path": "confirm/pg1268_the-mysterious-island.txt"
+    },
+    {
+      "gutenberg_id": 1322,
+      "title": "Leaves of Grass",
+      "author": "Walt Whitman",
+      "translator": null,
+      "listed_author_in_lisa_manifest": "Walt Whitman",
+      "source_url": "https://www.gutenberg.org/cache/epub/1322/pg1322.txt",
+      "raw_bytes": 780492,
+      "raw_sha256": "77c066a8774e2b04d8bfbc570d9aa5131410355cd6062ab5962ac773240f3140",
+      "bytes": 742866,
+      "sha256": "3f5f33ac7360adca35cf142f7fc399a8f045ce56d4c4733733c0fde09d94b7ec",
+      "path": "confirm/pg1322_leaves-of-grass.txt"
+    },
+    {
+      "gutenberg_id": 1399,
+      "title": "Anna Karenina",
+      "author": "graf Leo Tolstoy",
+      "translator": "Constance Garnett",
+      "listed_author_in_lisa_manifest": "Leo Tolstoy",
+      "source_url": "https://www.gutenberg.org/cache/epub/1399/pg1399.txt",
+      "raw_bytes": 2067952,
+      "raw_sha256": "a3e29e08c15c63bb22069f4256316c2ebebd422ecb5c33462ddc00ae00b27571",
+      "bytes": 2008297,
+      "sha256": "8c17942439a37d85838cea7f079a8eaec081e43e91b60334d18ec3cc70cccef9",
+      "path": "confirm/pg1399_anna-karenina.txt"
+    },
+    {
+      "gutenberg_id": 1497,
+      "title": "The Republic",
+      "author": "Plato",
+      "translator": "Benjamin Jowett",
+      "listed_author_in_lisa_manifest": "Plato",
+      "source_url": "https://www.gutenberg.org/cache/epub/1497/pg1497.txt",
+      "raw_bytes": 1244165,
+      "raw_sha256": "3d2e397122881d7737a48fb80e71cddf4c78cda54ceac7e0905fe945dfab48fd",
+      "bytes": 1199840,
+      "sha256": "30e5b674ac9f72c4906cfb5cf5d3f1e0df3b8459a1211d3a36879b6abad6515f",
+      "path": "confirm/pg1497_the-republic.txt"
+    },
+    {
+      "gutenberg_id": 1727,
+      "title": "The Odyssey",
+      "author": "Homer",
+      "translator": "Samuel Butler",
+      "listed_author_in_lisa_manifest": "Homer",
+      "source_url": "https://www.gutenberg.org/cache/epub/1727/pg1727.txt",
+      "raw_bytes": 717784,
+      "raw_sha256": "ffbdb29c3dda284b65c11243db1a98167826a70c81bca2ed4b6232f86c905fb9",
+      "bytes": 686140,
+      "sha256": "83b5ab26a6c80445db52fd5bc64ba0679041a7b54edc4155a4b42e858b5462d1",
+      "path": "confirm/pg1727_the-odyssey.txt"
+    },
+    {
+      "gutenberg_id": 1906,
+      "title": "Erewhon; Or, Over the Range",
+      "author": "Samuel Butler",
+      "translator": null,
+      "listed_author_in_lisa_manifest": "Samuel Butler",
+      "source_url": "https://www.gutenberg.org/cache/epub/1906/pg1906.txt",
+      "raw_bytes": 492581,
+      "raw_sha256": "9b034d0990931fa4dfc510a1adf4a3f256e35ba1ec9dbedcba9a382397727682",
+      "bytes": 464926,
+      "sha256": "827f61b1e878b44af9eb5f46085727733f453990194709700d64339abcc240cf",
+      "path": "confirm/pg1906_erewhon-or-over-the-range.txt"
+    },
+    {
+      "gutenberg_id": 1934,
+      "title": "Songs of Innocence and of Experience",
+      "author": "William Blake",
+      "translator": null,
+      "listed_author_in_lisa_manifest": "William Blake",
+      "source_url": "https://www.gutenberg.org/cache/epub/1934/pg1934.txt",
+      "raw_bytes": 52815,
+      "raw_sha256": "a5b76d4de22f42e1bf40f08256a329728f4cb7ad18d6581709aa7a9683c5e455",
+      "bytes": 31478,
+      "sha256": "0d9fa44aa2c767c48085d9fd681edf1dba6970b0188ba2e4963977cee2ecc7ec",
+      "path": "confirm/pg1934_songs-of-innocence-and-of-experience.txt"
+    },
+    {
+      "gutenberg_id": 1952,
+      "title": "The Yellow Wallpaper",
+      "author": "Charlotte Perkins Gilman",
+      "translator": null,
+      "listed_author_in_lisa_manifest": "Charlotte Perkins Gilman",
+      "source_url": "https://www.gutenberg.org/cache/epub/1952/pg1952.txt",
+      "raw_bytes": 52571,
+      "raw_sha256": "20c7788eeae2fe3a0efd51a1f08b6723366a4be0778d65db219149a3522651d4",
+      "bytes": 31904,
+      "sha256": "bfb16b1ebb0bef2051490e1599934607e7aa06fe6805275cfd3e554bf0c186d2",
+      "path": "confirm/pg1952_the-yellow-wallpaper.txt"
+    },
+    {
+      "gutenberg_id": 2002,
+      "title": "Sonnets from the Portuguese",
+      "author": "Elizabeth Barrett Browning",
+      "translator": null,
+      "listed_author_in_lisa_manifest": "Elizabeth Barrett Browning",
+      "source_url": "https://www.gutenberg.org/cache/epub/2002/pg2002.txt",
+      "raw_bytes": 53488,
+      "raw_sha256": "b193a12e83b20378cb0d25e97468ef0ed915b760732b8c1deeb3d6fe5d7ed65d",
+      "bytes": 32580,
+      "sha256": "49c35f332bb05cbae6f12f4a8cd0ca187ac3c488bcc2a15f265a63d514a7b881",
+      "path": "confirm/pg2002_sonnets-from-the-portuguese.txt"
+    },
+    {
+      "gutenberg_id": 2148,
+      "title": "The Works of Edgar Allan Poe \u2014 Volume 2",
+      "author": "Edgar Allan Poe",
+      "translator": null,
+      "listed_author_in_lisa_manifest": "Edgar Allan Poe",
+      "source_url": "https://www.gutenberg.org/cache/epub/2148/pg2148.txt",
+      "raw_bytes": 638474,
+      "raw_sha256": "159989d413c3240447627d0964a15ad10e4535ba1d25e0468c02f9ecdab9e12e",
+      "bytes": 608299,
+      "sha256": "d7d86f5cb2278b9cb5f1773cd715077747572fd480dfd9544c0411ae3be4d43b",
+      "path": "confirm/pg2148_the-works-of-edgar-allan-poe-volume-2.txt"
+    },
+    {
+      "gutenberg_id": 2554,
+      "title": "Crime and Punishment",
+      "author": "Fyodor Dostoyevsky",
+      "translator": "Constance Garnett",
+      "listed_author_in_lisa_manifest": "Fyodor Dostoevsky",
+      "source_url": "https://www.gutenberg.org/cache/epub/2554/pg2554.txt",
+      "raw_bytes": 1202773,
+      "raw_sha256": "4a84a709a6e355f5fa555c7276c8a90125eb9d06f63bc8663410c3d1297eb688",
+      "bytes": 1160565,
+      "sha256": "ca13494d1b2b07cb5fe47146a1e5cccffd9667e4fd29c8aaecd4fd0ed981e7ff",
+      "path": "confirm/pg2554_crime-and-punishment.txt"
+    },
+    {
+      "gutenberg_id": 2600,
+      "title": "War and Peace",
+      "author": "graf Leo Tolstoy",
+      "translator": "Aylmer Maude Louise Maude",
+      "listed_author_in_lisa_manifest": "Leo Tolstoy",
+      "source_url": "https://www.gutenberg.org/cache/epub/2600/pg2600.txt",
+      "raw_bytes": 3359610,
+      "raw_sha256": "2d5bb2ad5f422765e714617e21fa31bbaf8958aa79682c86fca6660fcc5d1b2b",
+      "bytes": 3274124,
+      "sha256": "c7156148ecaa12b6416cf816540d8dede2014982554a835e61076f0dd8bf0c2d",
+      "path": "confirm/pg2600_war-and-peace.txt"
+    },
+    {
+      "gutenberg_id": 2680,
+      "title": "Meditations",
+      "author": "Emperor of Rome Marcus Aurelius",
+      "translator": null,
+      "listed_author_in_lisa_manifest": "Marcus Aurelius",
+      "source_url": "https://www.gutenberg.org/cache/epub/2680/pg2680.txt",
+      "raw_bytes": 425304,
+      "raw_sha256": "6977474f82a39dd88a4af31a59504821658174d33c177732c54357e4d680b96c",
+      "bytes": 398683,
+      "sha256": "95bcfa55d3a6bba03c42af3f32cff2dd5a7e3822962c8f267d3249f769adbfba",
+      "path": "confirm/pg2680_meditations.txt"
+    },
+    {
+      "gutenberg_id": 4300,
+      "title": "Ulysses",
+      "author": "James Joyce",
+      "translator": null,
+      "listed_author_in_lisa_manifest": "James Joyce",
+      "source_url": "https://www.gutenberg.org/cache/epub/4300/pg4300.txt",
+      "raw_bytes": 1586344,
+      "raw_sha256": "e03094626f9528cf3fc287a49d6edbdbf47cd40483cb13ceb301e74e15ebbf9e",
+      "bytes": 1533770,
+      "sha256": "bff261b23c123680ecdb4ee5ea5d20184a27ab0aec6615de378155d483f47e90",
+      "path": "confirm/pg4300_ulysses.txt"
+    },
+    {
+      "gutenberg_id": 4363,
+      "title": "Beyond Good and Evil",
+      "author": "Friedrich Wilhelm Nietzsche",
+      "translator": "Helen Zimmern",
+      "listed_author_in_lisa_manifest": "Friedrich Nietzsche",
+      "source_url": "https://www.gutenberg.org/cache/epub/4363/pg4363.txt",
+      "raw_bytes": 408794,
+      "raw_sha256": "6ee088f717d3760036086f108c03d57588036c9d344b7d71edbef4e631bd374a",
+      "bytes": 382769,
+      "sha256": "afbe1ac297926978bcbdd50bcc60931c66972a3121098cbd94fd3b21ac1b858e",
+      "path": "confirm/pg4363_beyond-good-and-evil.txt"
+    },
+    {
+      "gutenberg_id": 5200,
+      "title": "Metamorphosis",
+      "author": "Franz Kafka",
+      "translator": "David Wyllie",
+      "listed_author_in_lisa_manifest": "Franz Kafka",
+      "source_url": "https://www.gutenberg.org/cache/epub/5200/pg5200.txt",
+      "raw_bytes": 141933,
+      "raw_sha256": "0933283a19a4daaef0d412e8f69c74fae126b0a946cb74b8f3c783a8e869830d",
+      "bytes": 119757,
+      "sha256": "966b9c1c7e0cb17f8d5330fa724bdd5e55dfd76ddf80cfbcaa45b881f31b185f",
+      "path": "confirm/pg5200_metamorphosis.txt"
+    },
+    {
+      "gutenberg_id": 6130,
+      "title": "The Iliad",
+      "author": "Homer",
+      "translator": "Alexander Pope",
+      "listed_author_in_lisa_manifest": "Homer",
+      "source_url": "https://www.gutenberg.org/cache/epub/6130/pg6130.txt",
+      "raw_bytes": 1161373,
+      "raw_sha256": "ca4f23115b384b0219427ef208e875f0351820b8f80f28259272997ea581c36b",
+      "bytes": 1115825,
+      "sha256": "f7672c513b22d4cdf25aa187048fd41c206bb2388c459a70a82a86bd2844fdb3",
+      "path": "confirm/pg6130_the-iliad.txt"
+    },
+    {
+      "gutenberg_id": 8800,
+      "title": "The divine comedy",
+      "author": "Dante Alighieri",
+      "translator": "Henry Francis Cary",
+      "listed_author_in_lisa_manifest": "Dante Alighieri",
+      "source_url": "https://www.gutenberg.org/cache/epub/8800/pg8800.txt",
+      "raw_bytes": 656728,
+      "raw_sha256": "3a7dd97b5fec82456c58237b33383a593480c2bfe088aeaaa4a519de2a10d39c",
+      "bytes": 621280,
+      "sha256": "f90acf43052b94654d58591574bbab3f333f8fb8eb09a8499d4121fabecbb62d",
+      "path": "confirm/pg8800_the-divine-comedy.txt"
+    },
+    {
+      "gutenberg_id": 12242,
+      "title": "Poems by Emily Dickinson, Three Series, Complete",
+      "author": "Emily Dickinson",
+      "translator": null,
+      "listed_author_in_lisa_manifest": "Emily Dickinson",
+      "source_url": "https://www.gutenberg.org/cache/epub/12242/pg12242.txt",
+      "raw_bytes": 206765,
+      "raw_sha256": "f4421418353de2737c9bfe3db1e4657534b6b8ae2a8603f31de2d77678d18791",
+      "bytes": 176535,
+      "sha256": "fce8edd840e9407755399807d627e42cbde20eb6960a7a6f1b5da3cfc1e3e8b4",
+      "path": "confirm/pg12242_poems-by-emily-dickinson-three-series-co.txt"
+    },
+    {
+      "gutenberg_id": 18857,
+      "title": "A Journey to the Centre of the Earth",
+      "author": "Jules Verne",
+      "translator": null,
+      "listed_author_in_lisa_manifest": "Jules Verne",
+      "source_url": "https://www.gutenberg.org/cache/epub/18857/pg18857.txt",
+      "raw_bytes": 517824,
+      "raw_sha256": "e2dc4c7b2ead7e8ec30c597fc2db175ffb7ade2d0915c7f4f91b64e33307929f",
+      "bytes": 486976,
+      "sha256": "d342d87920f4d6053f3030ca69cef0981664a4fdefa2e7a9c4544e5617964481",
+      "path": "confirm/pg18857_a-journey-to-the-centre-of-the-earth.txt"
+    },
+    {
+      "gutenberg_id": 28054,
+      "title": "The Brothers Karamazov",
+      "author": "Fyodor Dostoyevsky",
+      "translator": "Constance Garnett",
+      "listed_author_in_lisa_manifest": "Fyodor Dostoevsky",
+      "source_url": "https://www.gutenberg.org/cache/epub/28054/pg28054.txt",
+      "raw_bytes": 2039141,
+      "raw_sha256": "2e75c187cb750df3f7c910fa90970b264b9a4fee212be2a73c6bb507d9ad22fe",
+      "bytes": 1982079,
+      "sha256": "a8da4f61494ed71b2f3b598a17b511cea3e07dae88d757b7dd4b3ab5b2dcd40d",
+      "path": "confirm/pg28054_the-brothers-karamazov.txt"
+    },
+    {
+      "gutenberg_id": 64317,
+      "title": "The Great Gatsby",
+      "author": "F. Scott Fitzgerald",
+      "translator": null,
+      "listed_author_in_lisa_manifest": "F. Scott Fitzgerald",
+      "source_url": "https://www.gutenberg.org/cache/epub/64317/pg64317.txt",
+      "raw_bytes": 306553,
+      "raw_sha256": "ce760ec377accd352b41bb8f64504a72d7aa18ab3afb42ded2b56cecacf29e35",
+      "bytes": 280241,
+      "sha256": "b85487b89c4b5f13efc6a59bc97b5c81ec4371768e6c1106b388153fb764f36b",
+      "path": "confirm/pg64317_the-great-gatsby.txt"
+    }
+  ]
+}

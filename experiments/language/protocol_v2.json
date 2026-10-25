@@ -1,0 +1,94 @@
+{
+  "name": "Artemis 567885 language benchmark, protocol v2",
+  "frozen_utc": "2026-10-23T07:07:57.914756+00:00",
+  "benchmark_status": "development benchmark (test scores of this corpus have already been viewed); a separate untouched set is needed for confirmation",
+  "code_repo": "lpittman-blip/artemis-567885",
+  "code_branch": "stage-3-causal-positions-lm",
+  "code_commit": "96672bea9a38f7582d1deeba901f6cc59730cc75",
+  "harness_sha256_at_commit": "8fbf17dc99920e31a73a589ea475fe83fb9f1f4f9b001369335ea479a87c841e",
+  "corpus_dir": "/home/claude/language-benchmark/corpus (read-only)",
+  "corpus_manifest_sha256": "ab94040953aeb890566c3f89fa11b54ed068ac12106aa41b4bcf93c2773c8397",
+  "seeds": [
+    42,
+    1,
+    2
+  ],
+  "parallel_workers": 2,
+  "common_args": [
+    "--epochs",
+    "1",
+    "--steps",
+    "5000",
+    "--batch-size",
+    "16",
+    "--context",
+    "128",
+    "--lr",
+    "0.001",
+    "--threads",
+    "1",
+    "--device",
+    "cpu",
+    "--shuffle-windows",
+    "--eval-every",
+    "1000"
+  ],
+  "arm_args": {
+    "dense": [
+      "--model",
+      "dense"
+    ],
+    "moe-learned": [
+      "--model",
+      "moe",
+      "--experts",
+      "4",
+      "--capacity-mode",
+      "none",
+      "--capacity-factor",
+      "1.25",
+      "--aux-weight",
+      "0.01",
+      "--position",
+      "learned"
+    ],
+    "moe-sinusoidal": [
+      "--model",
+      "moe",
+      "--experts",
+      "4",
+      "--capacity-mode",
+      "none",
+      "--capacity-factor",
+      "1.25",
+      "--aux-weight",
+      "0.01",
+      "--position",
+      "sinusoidal"
+    ],
+    "moe-fourier": [
+      "--model",
+      "moe",
+      "--experts",
+      "4",
+      "--capacity-mode",
+      "none",
+      "--capacity-factor",
+      "1.25",
+      "--aux-weight",
+      "0.01",
+      "--position",
+      "fourier"
+    ]
+  },
+  "matched": "same corpus, seed-determined window shuffle and batch order, 5000 optimizer steps, batch 16 x 128, Adam lr 1e-3, clip 1.0, validation every 1000 steps plus untrained model; checkpoint selected on validation bpb only; test scored once after selection",
+  "routing": "dropless (capacity_mode=none) in training and evaluation; dropped assignments expected 0 in both",
+  "aux_loss": "added to training loss with weight 0.01 (MoE arms); excluded from all reported bpb",
+  "reporting": "per-seed val/test bpb, selected checkpoint step, training seconds, bytes processed, total and active parameters, routing load/entropy/aux/drops kept separate from bpb; paired differences by seed; three seeds = preliminary evidence",
+  "rule": "protocol unchanged once runs start; failed or interrupted runs stay in runs_v2/ledger.jsonl and on disk",
+  "separate_from": [
+    "runs/original_protocol_dense",
+    "runs/exploratory_causal_capacity_doc_order",
+    "physics study (not touched)"
+  ]
+}

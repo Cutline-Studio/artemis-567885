@@ -1,0 +1,49 @@
+{
+  "timestamp_utc": "2026-10-23T06:53:26.544462+00:00",
+  "configuration": {
+    "data": "/home/claude/language-benchmark/corpus",
+    "output": "/home/claude/language-benchmark/runs/moe-learned/seed1",
+    "seed": 1,
+    "context": 128,
+    "batch_size": 16,
+    "epochs": 1,
+    "steps": 5000,
+    "lr": 0.001,
+    "threads": 1,
+    "device": "cpu",
+    "model": "moe",
+    "position": "learned",
+    "experts": 4,
+    "capacity_factor": 1.25,
+    "capacity_mode": "causal",
+    "aux_weight": 0.01,
+    "parameters": 63296,
+    "layers": 2,
+    "width": 32,
+    "heads": 2,
+    "feedforward_width": 64,
+    "model_class": "ArtemisByteLM",
+    "evaluation": "chunk-reset; skip first byte of each file"
+  },
+  "torch_version": "2.14.1+cpu",
+  "device": "cpu",
+  "optimizer_steps": 5000,
+  "training_target_bytes": 10238795,
+  "total_elapsed_seconds": 372.5498139440001,
+  "best_validation": {
+    "epoch": 1,
+    "optimizer_steps": 5000,
+    "training_target_bytes": 10238795,
+    "neural_bpb": 2.837611921150755,
+    "unigram_bpb": 4.529093263884435,
+    "scored_bytes": 1901322,
+    "dropped_assignment_fraction": 0.012618210271252608
+  },
+  "test": {
+    "neural_bpb": 2.925820753884653,
+    "unigram_bpb": 4.544862930318707,
+    "scored_bytes": 2172602,
+    "dropped_assignment_fraction": 0.013456944955817379
+  },
+  "checkpoint_sha256": "41ceabde4e04792a885e8ef50fe5ac2a52c88aa63dff2ccc85f01e21cd305f5e"
+}

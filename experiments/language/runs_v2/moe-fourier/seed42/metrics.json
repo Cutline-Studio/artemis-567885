@@ -1,0 +1,142 @@
+{
+  "timestamp_utc": "2026-10-23T07:23:26.596202+00:00",
+  "configuration": {
+    "data": "/home/claude/language-benchmark/corpus",
+    "output": "/home/claude/language-benchmark/runs_v2/moe-fourier/seed42",
+    "seed": 42,
+    "context": 128,
+    "batch_size": 16,
+    "epochs": 1,
+    "steps": 5000,
+    "lr": 0.001,
+    "threads": 1,
+    "device": "cpu",
+    "model": "moe",
+    "position": "fourier",
+    "experts": 4,
+    "capacity_factor": 1.25,
+    "capacity_mode": "none",
+    "shuffle_windows": true,
+    "eval_every": 1000,
+    "aux_weight": 0.01,
+    "parameters": 59744,
+    "parameter_counts": {
+      "total": 59744,
+      "active_per_byte": 42976,
+      "active_definition": "active_per_byte = total parameters minus the parameters of the (num_experts - top_k) experts not selected for a byte, in every MoE layer. All shared parameters count as active: the full 256-row byte-embedding table, the position module, attention, layer norms, router gates, and the output head. Dense model: active_per_byte = total."
+    },
+    "layers": 2,
+    "width": 32,
+    "heads": 2,
+    "feedforward_width": 64,
+    "model_class": "ArtemisByteLM",
+    "evaluation": "chunk-reset; skip first byte of each file"
+  },
+  "torch_version": "2.14.1+cpu",
+  "device": "cpu",
+  "optimizer_steps": 5000,
+  "training_target_bytes": 10238605,
+  "total_elapsed_seconds": 457.38612972100054,
+  "training_seconds": 282.6189105820299,
+  "best_validation": {
+    "epoch": 1,
+    "optimizer_steps": 5000,
+    "training_target_bytes": 10238605,
+    "training_seconds": 282.6189105820299,
+    "neural_bpb": 2.700910333634415,
+    "unigram_bpb": 4.529093263884435,
+    "scored_bytes": 1901322,
+    "dropped_assignment_fraction": 0.0,
+    "dropped_assignments": 0,
+    "routing": {
+      "per_layer": [
+        {
+          "load_fraction": [
+            0.27945,
+            0.19523,
+            0.23229,
+            0.29303
+          ],
+          "normalized_entropy": 0.99112,
+          "max_load": 0.29303
+        },
+        {
+          "load_fraction": [
+            0.26754,
+            0.21156,
+            0.2641,
+            0.25679
+          ],
+          "normalized_entropy": 0.99697,
+          "max_load": 0.26754
+        }
+      ],
+      "mean_aux_loss_summed_over_layers": 2.022144680387622,
+      "dropped_assignments": 0
+    },
+    "train_since_last_validation": {
+      "batches": 1000,
+      "mean_train_ce_bpb": 2.6462891498348653,
+      "routing": {
+        "per_layer": [
+          {
+            "load_fraction": [
+              0.28156,
+              0.19567,
+              0.23959,
+              0.28317
+            ],
+            "normalized_entropy": 0.99233,
+            "max_load": 0.28317
+          },
+          {
+            "load_fraction": [
+              0.27649,
+              0.2272,
+              0.25874,
+              0.23756
+            ],
+            "normalized_entropy": 0.99791,
+            "max_load": 0.27649
+          }
+        ],
+        "mean_aux_loss_summed_over_layers": 2.0145964533090592,
+        "dropped_assignments": 0
+      }
+    }
+  },
+  "test": {
+    "neural_bpb": 2.781599979775397,
+    "unigram_bpb": 4.544862930318707,
+    "scored_bytes": 2172602,
+    "dropped_assignment_fraction": 0.0,
+    "dropped_assignments": 0,
+    "routing": {
+      "per_layer": [
+        {
+          "load_fraction": [
+            0.27961,
+            0.19167,
+            0.23229,
+            0.29644
+          ],
+          "normalized_entropy": 0.99004,
+          "max_load": 0.29644
+        },
+        {
+          "load_fraction": [
+            0.26544,
+            0.21019,
+            0.26569,
+            0.25867
+          ],
+          "normalized_entropy": 0.99679,
+          "max_load": 0.26569
+        }
+      ],
+      "mean_aux_loss_summed_over_layers": 2.0254979608870136,
+      "dropped_assignments": 0
+    }
+  },
+  "checkpoint_sha256": "b5668b827d73bedbb2c8af6f427226b8742c6d0e16ffe8d4cdb8967aee6c9725"
+}
