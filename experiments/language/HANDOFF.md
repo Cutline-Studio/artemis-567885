@@ -1,4 +1,4 @@
-# Language benchmark: handoff (state as of 2026-10-25)
+# Language benchmark: state and reproduction (2026-10-25)
 
 Moved out of an ephemeral cloud workspace so the work can continue in Claude Code. The corpus
 text, raw downloads, and model checkpoints are NOT committed. Both corpora can be rebuilt
@@ -11,29 +11,11 @@ refuse to overwrite.
 - Arms: dense, moe-learned, moe-sinusoidal, moe-fourier; seeds 42, 1, 2; 5,000 steps; shuffled
   windows; validation every 1,000 steps; dropless routing in training and evaluation; aux in training loss only.
 
-## Status (append-only ledger: `runs_v2/ledger.jsonl`)
-| arm | seed 42 | seed 1 | seed 2 |
-|---|---|---|---|
-| dense | completed | completed | interrupted (6 validations, no metrics) |
-| moe-learned | completed | completed | not launched |
-| moe-sinusoidal | completed | completed | not launched |
-| moe-fourier | completed | interrupted (5 validations, no metrics) | not launched |
-
-The two interrupted runs were stopped when the workspace went idle, not by an error. Their
-partial `validation.jsonl` files are kept here and must not be counted as results.
-
-## To finish the batch without changing the protocol
-1. Rebuild the corpus: `python -I experiments/language/build_gutenberg_corpus.py --raw raw --out corpus`,
-   then check that `sha256sum corpus/corpus_manifest.json` matches the value above. If the manifest
-   differs only in `created_utc`, compare per-document `sha256` values instead. Every one must match.
-2. Check out `96672be` in a separate worktree. `run_protocol_v2.py` refuses to launch unless HEAD
-   equals the frozen commit and tracked files are clean.
-3. `run_protocol_v2.py` uses absolute paths from the old workspace (`/home/claude/...`). Edit only
-   `ROOT`/`CODE` for the new machine, and record that edit in the ledger.
-4. Rerun the 5 incomplete runs into fresh output directories (the originals are kept). Log new
-   launches to the same ledger.
-5. `python -I summarize_v2.py` writes the report: bpb and routing tables kept separate, per-seed
-   paired differences, selected checkpoints, and drop totals.
+## Status
+All 12 runs complete (2026-10-25). The 5 runs interrupted or never launched on 2026-10-23 were run
+from a detached worktree at the frozen commit with `resume_protocol_v2.py`; the reruns reproduce the
+interrupted partial validation records bit-for-bit. Report: `results_v2.md` (data: `results_v2.json`).
+Append-only ledger: `runs_v2/ledger.jsonl`; interrupted outputs kept in `runs_v2/_interrupted/`.
 
 Reporting labels agreed with the user and Codex:
 - Active parameters = "shared parameters plus selected-expert parameters per byte" (an accounting

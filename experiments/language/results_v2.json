@@ -1,0 +1,2093 @@
+{
+  "protocol_sha256_file": "6ac83f9287fea26bc2b72780eed97ee5896a2e4077514e2719eaf94f2646f4e5",
+  "code_commit": "96672bea9a38f7582d1deeba901f6cc59730cc75",
+  "corpus_manifest_sha256": "ab94040953aeb890566c3f89fa11b54ed068ac12106aa41b4bcf93c2773c8397",
+  "per_run": {
+    "dense/seed42": {
+      "val_bpb": 2.9727747042727883,
+      "test_bpb": 3.037756649520707,
+      "unigram_val_bpb": 4.529093263884435,
+      "unigram_test_bpb": 4.544862930318707,
+      "selected_step": 5000,
+      "selected_train_bytes": 10238605,
+      "train_bytes_total": 10238605,
+      "optimizer_steps": 5000,
+      "training_seconds": 143.9297051009935,
+      "total_seconds": 278.17952399800015,
+      "params_total": 37888,
+      "params_active": 37888,
+      "val_curve": [
+        [
+          0,
+          8.37064444375226
+        ],
+        [
+          1000,
+          3.5678779695250658
+        ],
+        [
+          2000,
+          3.4705464509716384
+        ],
+        [
+          3000,
+          3.2198236173176973
+        ],
+        [
+          4000,
+          3.0586219312018668
+        ],
+        [
+          5000,
+          2.9727747042727883
+        ]
+      ],
+      "routing_selected_val": null,
+      "routing_test": null,
+      "routing_train_last_window": null,
+      "dropped_train": 0,
+      "dropped_eval": 0,
+      "checkpoint_sha256": "d6e0f67e710e5f71b9732d6256ee4d018f7265ef7cad7394fa12f2149edae6d5"
+    },
+    "dense/seed1": {
+      "val_bpb": 2.9146638868104517,
+      "test_bpb": 2.980514042030109,
+      "unigram_val_bpb": 4.529093263884435,
+      "unigram_test_bpb": 4.544862930318707,
+      "selected_step": 5000,
+      "selected_train_bytes": 10238465,
+      "train_bytes_total": 10238465,
+      "optimizer_steps": 5000,
+      "training_seconds": 142.17837446395515,
+      "total_seconds": 280.17157311400024,
+      "params_total": 37888,
+      "params_active": 37888,
+      "val_curve": [
+        [
+          0,
+          8.473970736451466
+        ],
+        [
+          1000,
+          3.571313449843017
+        ],
+        [
+          2000,
+          3.456240723749377
+        ],
+        [
+          3000,
+          3.212624966872169
+        ],
+        [
+          4000,
+          3.02419637389366
+        ],
+        [
+          5000,
+          2.9146638868104517
+        ]
+      ],
+      "routing_selected_val": null,
+      "routing_test": null,
+      "routing_train_last_window": null,
+      "dropped_train": 0,
+      "dropped_eval": 0,
+      "checkpoint_sha256": "7eff542e619643dd7594d30018e1e21c989e154e01bfdc688a4ad9f9a36a94ed"
+    },
+    "dense/seed2": {
+      "val_bpb": 3.0252532450038996,
+      "test_bpb": 3.092953992318379,
+      "unigram_val_bpb": 4.529093263884435,
+      "unigram_test_bpb": 4.544862930318707,
+      "selected_step": 5000,
+      "selected_train_bytes": 10239077,
+      "train_bytes_total": 10239077,
+      "optimizer_steps": 5000,
+      "training_seconds": 89.37285312399717,
+      "total_seconds": 172.078480688,
+      "params_total": 37888,
+      "params_active": 37888,
+      "val_curve": [
+        [
+          0,
+          8.185843107758721
+        ],
+        [
+          1000,
+          3.56091236339991
+        ],
+        [
+          2000,
+          3.3953562576710037
+        ],
+        [
+          3000,
+          3.2301884964046175
+        ],
+        [
+          4000,
+          3.112210055089542
+        ],
+        [
+          5000,
+          3.0252532450038996
+        ]
+      ],
+      "routing_selected_val": null,
+      "routing_test": null,
+      "routing_train_last_window": null,
+      "dropped_train": 0,
+      "dropped_eval": 0,
+      "checkpoint_sha256": "6154d444ef32de38f01b1c8f298e275b45bbb186a9f9b49af970bf9536cc8ee6"
+    },
+    "moe-learned/seed42": {
+      "val_bpb": 2.821795189490805,
+      "test_bpb": 2.8976281955658356,
+      "unigram_val_bpb": 4.529093263884435,
+      "unigram_test_bpb": 4.544862930318707,
+      "selected_step": 5000,
+      "selected_train_bytes": 10238605,
+      "train_bytes_total": 10238605,
+      "optimizer_steps": 5000,
+      "training_seconds": 285.0920093579921,
+      "total_seconds": 450.0652533570001,
+      "params_total": 63296,
+      "params_active": 46528,
+      "val_curve": [
+        [
+          0,
+          8.280013897937383
+        ],
+        [
+          1000,
+          3.526384395095166
+        ],
+        [
+          2000,
+          3.3013231482933016
+        ],
+        [
+          3000,
+          3.031982658109351
+        ],
+        [
+          4000,
+          2.8950726880891917
+        ],
+        [
+          5000,
+          2.821795189490805
+        ]
+      ],
+      "routing_selected_val": {
+        "per_layer": [
+          {
+            "load_fraction": [
+              0.23536,
+              0.301,
+              0.24191,
+              0.22173
+            ],
+            "normalized_entropy": 0.99487,
+            "max_load": 0.301
+          },
+          {
+            "load_fraction": [
+              0.28967,
+              0.24333,
+              0.24452,
+              0.22249
+            ],
+            "normalized_entropy": 0.9966,
+            "max_load": 0.28967
+          }
+        ],
+        "mean_aux_loss_summed_over_layers": 2.0521733216756894,
+        "dropped_assignments": 0
+      },
+      "routing_test": {
+        "per_layer": [
+          {
+            "load_fraction": [
+              0.23903,
+              0.30039,
+              0.2393,
+              0.22128
+            ],
+            "normalized_entropy": 0.99498,
+            "max_load": 0.30039
+          },
+          {
+            "load_fraction": [
+              0.29114,
+              0.24338,
+              0.24491,
+              0.22057
+            ],
+            "normalized_entropy": 0.99628,
+            "max_load": 0.29114
+          }
+        ],
+        "mean_aux_loss_summed_over_layers": 2.052658929564164,
+        "dropped_assignments": 0
+      },
+      "routing_train_last_window": {
+        "per_layer": [
+          {
+            "load_fraction": [
+              0.24002,
+              0.30645,
+              0.23841,
+              0.21512
+            ],
+            "normalized_entropy": 0.99353,
+            "max_load": 0.30645
+          },
+          {
+            "load_fraction": [
+              0.28057,
+              0.24771,
+              0.22219,
+              0.24953
+            ],
+            "normalized_entropy": 0.99754,
+            "max_load": 0.28057
+          }
+        ],
+        "mean_aux_loss_summed_over_layers": 2.0469177215099337,
+        "dropped_assignments": 0
+      },
+      "dropped_train": 0,
+      "dropped_eval": 0,
+      "checkpoint_sha256": "d87731a86b544728672eba6d84dc0c8e9a1166c9aaa2ed2a6c66c0ab4f55cd1a"
+    },
+    "moe-learned/seed1": {
+      "val_bpb": 2.73041745419375,
+      "test_bpb": 2.8041502829687377,
+      "unigram_val_bpb": 4.529093263884435,
+      "unigram_test_bpb": 4.544862930318707,
+      "selected_step": 5000,
+      "selected_train_bytes": 10238465,
+      "train_bytes_total": 10238465,
+      "optimizer_steps": 5000,
+      "training_seconds": 273.71004209798866,
+      "total_seconds": 437.77113535599983,
+      "params_total": 63296,
+      "params_active": 46528,
+      "val_curve": [
+        [
+          0,
+          8.192197728757776
+        ],
+        [
+          1000,
+          3.5270232896608116
+        ],
+        [
+          2000,
+          3.3055929552028163
+        ],
+        [
+          3000,
+          2.992683098003736
+        ],
+        [
+          4000,
+          2.8260050571840805
+        ],
+        [
+          5000,
+          2.73041745419375
+        ]
+      ],
+      "routing_selected_val": {
+        "per_layer": [
+          {
+            "load_fraction": [
+              0.24377,
+              0.23633,
+              0.26453,
+              0.25537
+            ],
+            "normalized_entropy": 0.99933,
+            "max_load": 0.26453
+          },
+          {
+            "load_fraction": [
+              0.28488,
+              0.29486,
+              0.23162,
+              0.18864
+            ],
+            "normalized_entropy": 0.98914,
+            "max_load": 0.29486
+          }
+        ],
+        "mean_aux_loss_summed_over_layers": 2.02997038490164,
+        "dropped_assignments": 0
+      },
+      "routing_test": {
+        "per_layer": [
+          {
+            "load_fraction": [
+              0.2409,
+              0.23651,
+              0.2652,
+              0.25739
+            ],
+            "normalized_entropy": 0.99921,
+            "max_load": 0.2652
+          },
+          {
+            "load_fraction": [
+              0.28472,
+              0.29706,
+              0.23127,
+              0.18694
+            ],
+            "normalized_entropy": 0.98851,
+            "max_load": 0.29706
+          }
+        ],
+        "mean_aux_loss_summed_over_layers": 2.0304745171679066,
+        "dropped_assignments": 0
+      },
+      "routing_train_last_window": {
+        "per_layer": [
+          {
+            "load_fraction": [
+              0.24965,
+              0.23338,
+              0.26714,
+              0.24983
+            ],
+            "normalized_entropy": 0.99918,
+            "max_load": 0.26714
+          },
+          {
+            "load_fraction": [
+              0.28156,
+              0.29978,
+              0.22864,
+              0.19002
+            ],
+            "normalized_entropy": 0.98892,
+            "max_load": 0.29978
+          }
+        ],
+        "mean_aux_loss_summed_over_layers": 2.0266456835269926,
+        "dropped_assignments": 0
+      },
+      "dropped_train": 0,
+      "dropped_eval": 0,
+      "checkpoint_sha256": "6a43b428204cdc4f963459685d14a36dcda639d8b7a02573566329fc024c35b7"
+    },
+    "moe-learned/seed2": {
+      "val_bpb": 2.6950750974166224,
+      "test_bpb": 2.7763657540003854,
+      "unigram_val_bpb": 4.529093263884435,
+      "unigram_test_bpb": 4.544862930318707,
+      "selected_step": 5000,
+      "selected_train_bytes": 10239077,
+      "train_bytes_total": 10239077,
+      "optimizer_steps": 5000,
+      "training_seconds": 177.8175167949995,
+      "total_seconds": 284.261277724,
+      "params_total": 63296,
+      "params_active": 46528,
+      "val_curve": [
+        [
+          0,
+          8.161203780221522
+        ],
+        [
+          1000,
+          3.5192292393820863
+        ],
+        [
+          2000,
+          3.319631044649123
+        ],
+        [
+          3000,
+          2.979572825602632
+        ],
+        [
+          4000,
+          2.8069041144870703
+        ],
+        [
+          5000,
+          2.6950750974166224
+        ]
+      ],
+      "routing_selected_val": {
+        "per_layer": [
+          {
+            "load_fraction": [
+              0.18102,
+              0.25765,
+              0.22739,
+              0.33394
+            ],
+            "normalized_entropy": 0.98237,
+            "max_load": 0.33394
+          },
+          {
+            "load_fraction": [
+              0.20766,
+              0.27346,
+              0.25005,
+              0.26883
+            ],
+            "normalized_entropy": 0.99598,
+            "max_load": 0.27346
+          }
+        ],
+        "mean_aux_loss_summed_over_layers": 2.072473534213457,
+        "dropped_assignments": 0
+      },
+      "routing_test": {
+        "per_layer": [
+          {
+            "load_fraction": [
+              0.17804,
+              0.25917,
+              0.22525,
+              0.33755
+            ],
+            "normalized_entropy": 0.9807,
+            "max_load": 0.33755
+          },
+          {
+            "load_fraction": [
+              0.20921,
+              0.27438,
+              0.24778,
+              0.26863
+            ],
+            "normalized_entropy": 0.99613,
+            "max_load": 0.27438
+          }
+        ],
+        "mean_aux_loss_summed_over_layers": 2.078003377761625,
+        "dropped_assignments": 0
+      },
+      "routing_train_last_window": {
+        "per_layer": [
+          {
+            "load_fraction": [
+              0.19009,
+              0.25402,
+              0.23065,
+              0.32524
+            ],
+            "normalized_entropy": 0.98632,
+            "max_load": 0.32524
+          },
+          {
+            "load_fraction": [
+              0.201,
+              0.27107,
+              0.25487,
+              0.27306
+            ],
+            "normalized_entropy": 0.99488,
+            "max_load": 0.27306
+          }
+        ],
+        "mean_aux_loss_summed_over_layers": 2.0593409266471863,
+        "dropped_assignments": 0
+      },
+      "dropped_train": 0,
+      "dropped_eval": 0,
+      "checkpoint_sha256": "3270b3cac69bc9823fa08d4e4b246d7be64c349e2ca808ca01977b984102fb35"
+    },
+    "moe-sinusoidal/seed42": {
+      "val_bpb": 2.6534008744904147,
+      "test_bpb": 2.7334645112949145,
+      "unigram_val_bpb": 4.529093263884435,
+      "unigram_test_bpb": 4.544862930318707,
+      "selected_step": 5000,
+      "selected_train_bytes": 10238605,
+      "train_bytes_total": 10238605,
+      "optimizer_steps": 5000,
+      "training_seconds": 287.1406641620174,
+      "total_seconds": 451.06448156000033,
+      "params_total": 59744,
+      "params_active": 42976,
+      "val_curve": [
+        [
+          0,
+          8.167797232204538
+        ],
+        [
+          1000,
+          3.3249437694311075
+        ],
+        [
+          2000,
+          2.9201819272775555
+        ],
+        [
+          3000,
+          2.782351049677845
+        ],
+        [
+          4000,
+          2.7009665745136853
+        ],
+        [
+          5000,
+          2.6534008744904147
+        ]
+      ],
+      "routing_selected_val": {
+        "per_layer": [
+          {
+            "load_fraction": [
+              0.22664,
+              0.29477,
+              0.23496,
+              0.24363
+            ],
+            "normalized_entropy": 0.99606,
+            "max_load": 0.29477
+          },
+          {
+            "load_fraction": [
+              0.28993,
+              0.2301,
+              0.25343,
+              0.22653
+            ],
+            "normalized_entropy": 0.99639,
+            "max_load": 0.28993
+          }
+        ],
+        "mean_aux_loss_summed_over_layers": 2.0111893358990245,
+        "dropped_assignments": 0
+      },
+      "routing_test": {
+        "per_layer": [
+          {
+            "load_fraction": [
+              0.22727,
+              0.2914,
+              0.23756,
+              0.24378
+            ],
+            "normalized_entropy": 0.9966,
+            "max_load": 0.2914
+          },
+          {
+            "load_fraction": [
+              0.29014,
+              0.22642,
+              0.2576,
+              0.22583
+            ],
+            "normalized_entropy": 0.99601,
+            "max_load": 0.29014
+          }
+        ],
+        "mean_aux_loss_summed_over_layers": 2.0155999140285523,
+        "dropped_assignments": 0
+      },
+      "routing_train_last_window": {
+        "per_layer": [
+          {
+            "load_fraction": [
+              0.22577,
+              0.28201,
+              0.25041,
+              0.24181
+            ],
+            "normalized_entropy": 0.99761,
+            "max_load": 0.28201
+          },
+          {
+            "load_fraction": [
+              0.28063,
+              0.23842,
+              0.24883,
+              0.23212
+            ],
+            "normalized_entropy": 0.99803,
+            "max_load": 0.28063
+          }
+        ],
+        "mean_aux_loss_summed_over_layers": 2.006611606001854,
+        "dropped_assignments": 0
+      },
+      "dropped_train": 0,
+      "dropped_eval": 0,
+      "checkpoint_sha256": "1b223ad5e5bee9995531f788aed44125101985bfe443498f8e0def249e4f07de"
+    },
+    "moe-sinusoidal/seed1": {
+      "val_bpb": 2.6033116298715138,
+      "test_bpb": 2.6954904039861676,
+      "unigram_val_bpb": 4.529093263884435,
+      "unigram_test_bpb": 4.544862930318707,
+      "selected_step": 5000,
+      "selected_train_bytes": 10238465,
+      "train_bytes_total": 10238465,
+      "optimizer_steps": 5000,
+      "training_seconds": 277.1518973430366,
+      "total_seconds": 440.81389224800023,
+      "params_total": 59744,
+      "params_active": 42976,
+      "val_curve": [
+        [
+          0,
+          8.198361476740772
+        ],
+        [
+          1000,
+          3.31615608878921
+        ],
+        [
+          2000,
+          2.862701173128611
+        ],
+        [
+          3000,
+          2.7065153735699323
+        ],
+        [
+          4000,
+          2.6397636389035672
+        ],
+        [
+          5000,
+          2.6033116298715138
+        ]
+      ],
+      "routing_selected_val": {
+        "per_layer": [
+          {
+            "load_fraction": [
+              0.20883,
+              0.23946,
+              0.28412,
+              0.2676
+            ],
+            "normalized_entropy": 0.9952,
+            "max_load": 0.28412
+          },
+          {
+            "load_fraction": [
+              0.21896,
+              0.24658,
+              0.25127,
+              0.28319
+            ],
+            "normalized_entropy": 0.99701,
+            "max_load": 0.28319
+          }
+        ],
+        "mean_aux_loss_summed_over_layers": 2.0192060978728295,
+        "dropped_assignments": 0
+      },
+      "routing_test": {
+        "per_layer": [
+          {
+            "load_fraction": [
+              0.20825,
+              0.24165,
+              0.28406,
+              0.26604
+            ],
+            "normalized_entropy": 0.99526,
+            "max_load": 0.28406
+          },
+          {
+            "load_fraction": [
+              0.21916,
+              0.24869,
+              0.25175,
+              0.2804
+            ],
+            "normalized_entropy": 0.99728,
+            "max_load": 0.2804
+          }
+        ],
+        "mean_aux_loss_summed_over_layers": 2.0207638266398926,
+        "dropped_assignments": 0
+      },
+      "routing_train_last_window": {
+        "per_layer": [
+          {
+            "load_fraction": [
+              0.22516,
+              0.24935,
+              0.27218,
+              0.25331
+            ],
+            "normalized_entropy": 0.99837,
+            "max_load": 0.27218
+          },
+          {
+            "load_fraction": [
+              0.2195,
+              0.25621,
+              0.25199,
+              0.2723
+            ],
+            "normalized_entropy": 0.99784,
+            "max_load": 0.2723
+          }
+        ],
+        "mean_aux_loss_summed_over_layers": 2.015265395998955,
+        "dropped_assignments": 0
+      },
+      "dropped_train": 0,
+      "dropped_eval": 0,
+      "checkpoint_sha256": "cec316c273651237ed98e11cb6119d939c49ae07f3faccab733c13fd04fe8101"
+    },
+    "moe-sinusoidal/seed2": {
+      "val_bpb": 2.661877203102305,
+      "test_bpb": 2.7596415377417416,
+      "unigram_val_bpb": 4.529093263884435,
+      "unigram_test_bpb": 4.544862930318707,
+      "selected_step": 5000,
+      "selected_train_bytes": 10239077,
+      "train_bytes_total": 10239077,
+      "optimizer_steps": 5000,
+      "training_seconds": 180.5800209780042,
+      "total_seconds": 286.80586054,
+      "params_total": 59744,
+      "params_active": 42976,
+      "val_curve": [
+        [
+          0,
+          8.242531950039307
+        ],
+        [
+          1000,
+          3.3389504591369863
+        ],
+        [
+          2000,
+          2.959085090275405
+        ],
+        [
+          3000,
+          2.8131584759865613
+        ],
+        [
+          4000,
+          2.726998674746003
+        ],
+        [
+          5000,
+          2.661877203102305
+        ]
+      ],
+      "routing_selected_val": {
+        "per_layer": [
+          {
+            "load_fraction": [
+              0.27703,
+              0.20528,
+              0.2568,
+              0.26089
+            ],
+            "normalized_entropy": 0.99567,
+            "max_load": 0.27703
+          },
+          {
+            "load_fraction": [
+              0.24106,
+              0.21925,
+              0.23978,
+              0.29991
+            ],
+            "normalized_entropy": 0.99493,
+            "max_load": 0.29991
+          }
+        ],
+        "mean_aux_loss_summed_over_layers": 1.978685137658381,
+        "dropped_assignments": 0
+      },
+      "routing_test": {
+        "per_layer": [
+          {
+            "load_fraction": [
+              0.27547,
+              0.20832,
+              0.25298,
+              0.26323
+            ],
+            "normalized_entropy": 0.99618,
+            "max_load": 0.27547
+          },
+          {
+            "load_fraction": [
+              0.24538,
+              0.21963,
+              0.24236,
+              0.29263
+            ],
+            "normalized_entropy": 0.99601,
+            "max_load": 0.29263
+          }
+        ],
+        "mean_aux_loss_summed_over_layers": 1.9805395268360249,
+        "dropped_assignments": 0
+      },
+      "routing_train_last_window": {
+        "per_layer": [
+          {
+            "load_fraction": [
+              0.28035,
+              0.21014,
+              0.25493,
+              0.25458
+            ],
+            "normalized_entropy": 0.99623,
+            "max_load": 0.28035
+          },
+          {
+            "load_fraction": [
+              0.23706,
+              0.23345,
+              0.24559,
+              0.2839
+            ],
+            "normalized_entropy": 0.99773,
+            "max_load": 0.2839
+          }
+        ],
+        "mean_aux_loss_summed_over_layers": 1.9814177539348603,
+        "dropped_assignments": 0
+      },
+      "dropped_train": 0,
+      "dropped_eval": 0,
+      "checkpoint_sha256": "1c7ba59578715904fca9ed20270e62a46994cb22d7a396e69b58720f0a86d92e"
+    },
+    "moe-fourier/seed42": {
+      "val_bpb": 2.700910333634415,
+      "test_bpb": 2.781599979775397,
+      "unigram_val_bpb": 4.529093263884435,
+      "unigram_test_bpb": 4.544862930318707,
+      "selected_step": 5000,
+      "selected_train_bytes": 10238605,
+      "train_bytes_total": 10238605,
+      "optimizer_steps": 5000,
+      "training_seconds": 282.6189105820299,
+      "total_seconds": 457.38612972100054,
+      "params_total": 59744,
+      "params_active": 42976,
+      "val_curve": [
+        [
+          0,
+          8.164388495916501
+        ],
+        [
+          1000,
+          3.3457974437529425
+        ],
+        [
+          2000,
+          2.9969174985793567
+        ],
+        [
+          3000,
+          2.8251894158639246
+        ],
+        [
+          4000,
+          2.743932415135502
+        ],
+        [
+          5000,
+          2.700910333634415
+        ]
+      ],
+      "routing_selected_val": {
+        "per_layer": [
+          {
+            "load_fraction": [
+              0.27945,
+              0.19523,
+              0.23229,
+              0.29303
+            ],
+            "normalized_entropy": 0.99112,
+            "max_load": 0.29303
+          },
+          {
+            "load_fraction": [
+              0.26754,
+              0.21156,
+              0.2641,
+              0.25679
+            ],
+            "normalized_entropy": 0.99697,
+            "max_load": 0.26754
+          }
+        ],
+        "mean_aux_loss_summed_over_layers": 2.022144680387622,
+        "dropped_assignments": 0
+      },
+      "routing_test": {
+        "per_layer": [
+          {
+            "load_fraction": [
+              0.27961,
+              0.19167,
+              0.23229,
+              0.29644
+            ],
+            "normalized_entropy": 0.99004,
+            "max_load": 0.29644
+          },
+          {
+            "load_fraction": [
+              0.26544,
+              0.21019,
+              0.26569,
+              0.25867
+            ],
+            "normalized_entropy": 0.99679,
+            "max_load": 0.26569
+          }
+        ],
+        "mean_aux_loss_summed_over_layers": 2.0254979608870136,
+        "dropped_assignments": 0
+      },
+      "routing_train_last_window": {
+        "per_layer": [
+          {
+            "load_fraction": [
+              0.28156,
+              0.19567,
+              0.23959,
+              0.28317
+            ],
+            "normalized_entropy": 0.99233,
+            "max_load": 0.28317
+          },
+          {
+            "load_fraction": [
+              0.27649,
+              0.2272,
+              0.25874,
+              0.23756
+            ],
+            "normalized_entropy": 0.99791,
+            "max_load": 0.27649
+          }
+        ],
+        "mean_aux_loss_summed_over_layers": 2.0145964533090592,
+        "dropped_assignments": 0
+      },
+      "dropped_train": 0,
+      "dropped_eval": 0,
+      "checkpoint_sha256": "b5668b827d73bedbb2c8af6f427226b8742c6d0e16ffe8d4cdb8967aee6c9725"
+    },
+    "moe-fourier/seed1": {
+      "val_bpb": 2.6677887641105325,
+      "test_bpb": 2.7500084696618057,
+      "unigram_val_bpb": 4.529093263884435,
+      "unigram_test_bpb": 4.544862930318707,
+      "selected_step": 5000,
+      "selected_train_bytes": 10238465,
+      "train_bytes_total": 10238465,
+      "optimizer_steps": 5000,
+      "training_seconds": 180.01144025700248,
+      "total_seconds": 284.163795185,
+      "params_total": 59744,
+      "params_active": 42976,
+      "val_curve": [
+        [
+          0,
+          8.09473093450802
+        ],
+        [
+          1000,
+          3.350610927500676
+        ],
+        [
+          2000,
+          2.917777197962937
+        ],
+        [
+          3000,
+          2.7774118419244496
+        ],
+        [
+          4000,
+          2.7064478559492122
+        ],
+        [
+          5000,
+          2.6677887641105325
+        ]
+      ],
+      "routing_selected_val": {
+        "per_layer": [
+          {
+            "load_fraction": [
+              0.22351,
+              0.24015,
+              0.26896,
+              0.26739
+            ],
+            "normalized_entropy": 0.99788,
+            "max_load": 0.26896
+          },
+          {
+            "load_fraction": [
+              0.23284,
+              0.24078,
+              0.23562,
+              0.29076
+            ],
+            "normalized_entropy": 0.99686,
+            "max_load": 0.29076
+          }
+        ],
+        "mean_aux_loss_summed_over_layers": 2.0031350904953364,
+        "dropped_assignments": 0
+      },
+      "routing_test": {
+        "per_layer": [
+          {
+            "load_fraction": [
+              0.21692,
+              0.24338,
+              0.27103,
+              0.26867
+            ],
+            "normalized_entropy": 0.99717,
+            "max_load": 0.27103
+          },
+          {
+            "load_fraction": [
+              0.229,
+              0.24509,
+              0.23597,
+              0.28995
+            ],
+            "normalized_entropy": 0.99683,
+            "max_load": 0.28995
+          }
+        ],
+        "mean_aux_loss_summed_over_layers": 2.0061293250541437,
+        "dropped_assignments": 0
+      },
+      "routing_train_last_window": {
+        "per_layer": [
+          {
+            "load_fraction": [
+              0.22422,
+              0.24843,
+              0.26223,
+              0.26513
+            ],
+            "normalized_entropy": 0.99847,
+            "max_load": 0.26513
+          },
+          {
+            "load_fraction": [
+              0.23719,
+              0.24298,
+              0.23451,
+              0.28531
+            ],
+            "normalized_entropy": 0.99761,
+            "max_load": 0.28531
+          }
+        ],
+        "mean_aux_loss_summed_over_layers": 2.0017975687980654,
+        "dropped_assignments": 0
+      },
+      "dropped_train": 0,
+      "dropped_eval": 0,
+      "checkpoint_sha256": "60347a3bdc0da2f912b3996dc28a7cf5e83fd4efcc564ce572b40e4517e5ef76"
+    },
+    "moe-fourier/seed2": {
+      "val_bpb": 2.641060465837584,
+      "test_bpb": 2.7302604763708613,
+      "unigram_val_bpb": 4.529093263884435,
+      "unigram_test_bpb": 4.544862930318707,
+      "selected_step": 5000,
+      "selected_train_bytes": 10239077,
+      "train_bytes_total": 10239077,
+      "optimizer_steps": 5000,
+      "training_seconds": 185.83359113899724,
+      "total_seconds": 288.8697352500001,
+      "params_total": 59744,
+      "params_active": 42976,
+      "val_curve": [
+        [
+          0,
+          8.207772772874154
+        ],
+        [
+          1000,
+          3.353854488694129
+        ],
+        [
+          2000,
+          2.926760756528222
+        ],
+        [
+          3000,
+          2.7774313876834955
+        ],
+        [
+          4000,
+          2.6976927452738813
+        ],
+        [
+          5000,
+          2.641060465837584
+        ]
+      ],
+      "routing_selected_val": {
+        "per_layer": [
+          {
+            "load_fraction": [
+              0.19032,
+              0.27723,
+              0.28422,
+              0.24823
+            ],
+            "normalized_entropy": 0.99174,
+            "max_load": 0.28422
+          },
+          {
+            "load_fraction": [
+              0.28816,
+              0.21941,
+              0.22086,
+              0.27158
+            ],
+            "normalized_entropy": 0.99466,
+            "max_load": 0.28816
+          }
+        ],
+        "mean_aux_loss_summed_over_layers": 2.0552368518225728,
+        "dropped_assignments": 0
+      },
+      "routing_test": {
+        "per_layer": [
+          {
+            "load_fraction": [
+              0.18846,
+              0.28046,
+              0.28145,
+              0.24963
+            ],
+            "normalized_entropy": 0.99136,
+            "max_load": 0.28145
+          },
+          {
+            "load_fraction": [
+              0.28916,
+              0.21497,
+              0.22386,
+              0.27201
+            ],
+            "normalized_entropy": 0.99433,
+            "max_load": 0.28916
+          }
+        ],
+        "mean_aux_loss_summed_over_layers": 2.0541808805187056,
+        "dropped_assignments": 0
+      },
+      "routing_train_last_window": {
+        "per_layer": [
+          {
+            "load_fraction": [
+              0.20364,
+              0.26931,
+              0.27528,
+              0.25177
+            ],
+            "normalized_entropy": 0.99527,
+            "max_load": 0.27528
+          },
+          {
+            "load_fraction": [
+              0.28466,
+              0.22329,
+              0.22054,
+              0.27151
+            ],
+            "normalized_entropy": 0.99532,
+            "max_load": 0.28466
+          }
+        ],
+        "mean_aux_loss_summed_over_layers": 2.0411940512657165,
+        "dropped_assignments": 0
+      },
+      "dropped_train": 0,
+      "dropped_eval": 0,
+      "checkpoint_sha256": "50cc13d0a8505a5be2989694ea79b8d60e11df377467ff4f42bb2ca86dc128d6"
+    }
+  },
+  "paired_differences": {
+    "moe-fourier - moe-sinusoidal (val)": {
+      "42": 0.0475094591440004,
+      "1": 0.06447713423901869,
+      "2": -0.020816737264720775
+    },
+    "moe-fourier - moe-sinusoidal (test)": {
+      "42": 0.04813546848048267,
+      "1": 0.054518065675638105,
+      "2": -0.029381061370880257
+    },
+    "moe-fourier - moe-learned (val)": {
+      "42": -0.12088485585638997,
+      "1": -0.06262869008321736,
+      "2": -0.05401463157903841
+    },
+    "moe-fourier - moe-learned (test)": {
+      "42": -0.11602821579043843,
+      "1": -0.05414181330693202,
+      "2": -0.0461052776295241
+    },
+    "moe-sinusoidal - moe-learned (val)": {
+      "42": -0.16839431500039037,
+      "1": -0.12710582432223605,
+      "2": -0.03319789431431763
+    },
+    "moe-sinusoidal - moe-learned (test)": {
+      "42": -0.1641636842709211,
+      "1": -0.10865987898257012,
+      "2": -0.016724216258643843
+    },
+    "moe-learned - dense (val)": {
+      "42": -0.15097951478198324,
+      "1": -0.18424643261670193,
+      "2": -0.33017814758727715
+    },
+    "moe-learned - dense (test)": {
+      "42": -0.14012845395487128,
+      "1": -0.17636375906137136,
+      "2": -0.31658823831799365
+    },
+    "moe-sinusoidal - dense (val)": {
+      "42": -0.3193738297823736,
+      "1": -0.311352256938938,
+      "2": -0.3633760419015948
+    },
+    "moe-sinusoidal - dense (test)": {
+      "42": -0.3042921382257924,
+      "1": -0.2850236380439415,
+      "2": -0.3333124545766375
+    },
+    "moe-fourier - dense (val)": {
+      "42": -0.2718643706383732,
+      "1": -0.2468751226999193,
+      "2": -0.38419277916631556
+    },
+    "moe-fourier - dense (test)": {
+      "42": -0.2561566697453097,
+      "1": -0.23050557236830338,
+      "2": -0.36269351594751775
+    }
+  },
+  "dropped_assignments": {
+    "training": 0,
+    "evaluation": 0
+  },
+  "ledger": [
+    {
+      "utc": "2026-10-23T07:08:12.136785+00:00",
+      "status": "batch_started",
+      "protocol_sha256": "6ac83f9287fea26bc2b72780eed97ee5896a2e4077514e2719eaf94f2646f4e5"
+    },
+    {
+      "utc": "2026-10-23T07:08:12.144982+00:00",
+      "arm": "dense",
+      "seed": 42,
+      "status": "launched",
+      "commit": "96672bea9a38f7582d1deeba901f6cc59730cc75",
+      "command": [
+        "/usr/bin/python",
+        "-I",
+        "/home/claude/wt-stage2/experiments/corpus_benchmark.py",
+        "--data",
+        "/home/claude/language-benchmark/corpus",
+        "--output",
+        "/home/claude/language-benchmark/runs_v2/dense/seed42",
+        "--seed",
+        "42",
+        "--epochs",
+        "1",
+        "--steps",
+        "5000",
+        "--batch-size",
+        "16",
+        "--context",
+        "128",
+        "--lr",
+        "0.001",
+        "--threads",
+        "1",
+        "--device",
+        "cpu",
+        "--shuffle-windows",
+        "--eval-every",
+        "1000",
+        "--model",
+        "dense"
+      ]
+    },
+    {
+      "utc": "2026-10-23T07:08:12.145677+00:00",
+      "arm": "moe-learned",
+      "seed": 42,
+      "status": "launched",
+      "commit": "96672bea9a38f7582d1deeba901f6cc59730cc75",
+      "command": [
+        "/usr/bin/python",
+        "-I",
+        "/home/claude/wt-stage2/experiments/corpus_benchmark.py",
+        "--data",
+        "/home/claude/language-benchmark/corpus",
+        "--output",
+        "/home/claude/language-benchmark/runs_v2/moe-learned/seed42",
+        "--seed",
+        "42",
+        "--epochs",
+        "1",
+        "--steps",
+        "5000",
+        "--batch-size",
+        "16",
+        "--context",
+        "128",
+        "--lr",
+        "0.001",
+        "--threads",
+        "1",
+        "--device",
+        "cpu",
+        "--shuffle-windows",
+        "--eval-every",
+        "1000",
+        "--model",
+        "moe",
+        "--experts",
+        "4",
+        "--capacity-mode",
+        "none",
+        "--capacity-factor",
+        "1.25",
+        "--aux-weight",
+        "0.01",
+        "--position",
+        "learned"
+      ]
+    },
+    {
+      "utc": "2026-10-23T07:12:54.027675+00:00",
+      "arm": "dense",
+      "seed": 42,
+      "status": "completed",
+      "exit_code": 0,
+      "wall_seconds": 281.9
+    },
+    {
+      "utc": "2026-10-23T07:12:54.032932+00:00",
+      "arm": "moe-sinusoidal",
+      "seed": 42,
+      "status": "launched",
+      "commit": "96672bea9a38f7582d1deeba901f6cc59730cc75",
+      "command": [
+        "/usr/bin/python",
+        "-I",
+        "/home/claude/wt-stage2/experiments/corpus_benchmark.py",
+        "--data",
+        "/home/claude/language-benchmark/corpus",
+        "--output",
+        "/home/claude/language-benchmark/runs_v2/moe-sinusoidal/seed42",
+        "--seed",
+        "42",
+        "--epochs",
+        "1",
+        "--steps",
+        "5000",
+        "--batch-size",
+        "16",
+        "--context",
+        "128",
+        "--lr",
+        "0.001",
+        "--threads",
+        "1",
+        "--device",
+        "cpu",
+        "--shuffle-windows",
+        "--eval-every",
+        "1000",
+        "--model",
+        "moe",
+        "--experts",
+        "4",
+        "--capacity-mode",
+        "none",
+        "--capacity-factor",
+        "1.25",
+        "--aux-weight",
+        "0.01",
+        "--position",
+        "sinusoidal"
+      ]
+    },
+    {
+      "utc": "2026-10-23T07:15:46.269928+00:00",
+      "arm": "moe-learned",
+      "seed": 42,
+      "status": "completed",
+      "exit_code": 0,
+      "wall_seconds": 454.1
+    },
+    {
+      "utc": "2026-10-23T07:15:46.275448+00:00",
+      "arm": "moe-fourier",
+      "seed": 42,
+      "status": "launched",
+      "commit": "96672bea9a38f7582d1deeba901f6cc59730cc75",
+      "command": [
+        "/usr/bin/python",
+        "-I",
+        "/home/claude/wt-stage2/experiments/corpus_benchmark.py",
+        "--data",
+        "/home/claude/language-benchmark/corpus",
+        "--output",
+        "/home/claude/language-benchmark/runs_v2/moe-fourier/seed42",
+        "--seed",
+        "42",
+        "--epochs",
+        "1",
+        "--steps",
+        "5000",
+        "--batch-size",
+        "16",
+        "--context",
+        "128",
+        "--lr",
+        "0.001",
+        "--threads",
+        "1",
+        "--device",
+        "cpu",
+        "--shuffle-windows",
+        "--eval-every",
+        "1000",
+        "--model",
+        "moe",
+        "--experts",
+        "4",
+        "--capacity-mode",
+        "none",
+        "--capacity-factor",
+        "1.25",
+        "--aux-weight",
+        "0.01",
+        "--position",
+        "fourier"
+      ]
+    },
+    {
+      "utc": "2026-10-23T07:20:28.880341+00:00",
+      "arm": "moe-sinusoidal",
+      "seed": 42,
+      "status": "completed",
+      "exit_code": 0,
+      "wall_seconds": 454.8
+    },
+    {
+      "utc": "2026-10-23T07:20:28.888237+00:00",
+      "arm": "dense",
+      "seed": 1,
+      "status": "launched",
+      "commit": "96672bea9a38f7582d1deeba901f6cc59730cc75",
+      "command": [
+        "/usr/bin/python",
+        "-I",
+        "/home/claude/wt-stage2/experiments/corpus_benchmark.py",
+        "--data",
+        "/home/claude/language-benchmark/corpus",
+        "--output",
+        "/home/claude/language-benchmark/runs_v2/dense/seed1",
+        "--seed",
+        "1",
+        "--epochs",
+        "1",
+        "--steps",
+        "5000",
+        "--batch-size",
+        "16",
+        "--context",
+        "128",
+        "--lr",
+        "0.001",
+        "--threads",
+        "1",
+        "--device",
+        "cpu",
+        "--shuffle-windows",
+        "--eval-every",
+        "1000",
+        "--model",
+        "dense"
+      ]
+    },
+    {
+      "utc": "2026-10-23T07:23:27.464346+00:00",
+      "arm": "moe-fourier",
+      "seed": 42,
+      "status": "completed",
+      "exit_code": 0,
+      "wall_seconds": 461.2
+    },
+    {
+      "utc": "2026-10-23T07:23:27.473397+00:00",
+      "arm": "moe-learned",
+      "seed": 1,
+      "status": "launched",
+      "commit": "96672bea9a38f7582d1deeba901f6cc59730cc75",
+      "command": [
+        "/usr/bin/python",
+        "-I",
+        "/home/claude/wt-stage2/experiments/corpus_benchmark.py",
+        "--data",
+        "/home/claude/language-benchmark/corpus",
+        "--output",
+        "/home/claude/language-benchmark/runs_v2/moe-learned/seed1",
+        "--seed",
+        "1",
+        "--epochs",
+        "1",
+        "--steps",
+        "5000",
+        "--batch-size",
+        "16",
+        "--context",
+        "128",
+        "--lr",
+        "0.001",
+        "--threads",
+        "1",
+        "--device",
+        "cpu",
+        "--shuffle-windows",
+        "--eval-every",
+        "1000",
+        "--model",
+        "moe",
+        "--experts",
+        "4",
+        "--capacity-mode",
+        "none",
+        "--capacity-factor",
+        "1.25",
+        "--aux-weight",
+        "0.01",
+        "--position",
+        "learned"
+      ]
+    },
+    {
+      "utc": "2026-10-23T07:25:13.258786+00:00",
+      "arm": "dense",
+      "seed": 1,
+      "status": "completed",
+      "exit_code": 0,
+      "wall_seconds": 284.4
+    },
+    {
+      "utc": "2026-10-23T07:25:13.266423+00:00",
+      "arm": "moe-sinusoidal",
+      "seed": 1,
+      "status": "launched",
+      "commit": "96672bea9a38f7582d1deeba901f6cc59730cc75",
+      "command": [
+        "/usr/bin/python",
+        "-I",
+        "/home/claude/wt-stage2/experiments/corpus_benchmark.py",
+        "--data",
+        "/home/claude/language-benchmark/corpus",
+        "--output",
+        "/home/claude/language-benchmark/runs_v2/moe-sinusoidal/seed1",
+        "--seed",
+        "1",
+        "--epochs",
+        "1",
+        "--steps",
+        "5000",
+        "--batch-size",
+        "16",
+        "--context",
+        "128",
+        "--lr",
+        "0.001",
+        "--threads",
+        "1",
+        "--device",
+        "cpu",
+        "--shuffle-windows",
+        "--eval-every",
+        "1000",
+        "--model",
+        "moe",
+        "--experts",
+        "4",
+        "--capacity-mode",
+        "none",
+        "--capacity-factor",
+        "1.25",
+        "--aux-weight",
+        "0.01",
+        "--position",
+        "sinusoidal"
+      ]
+    },
+    {
+      "utc": "2026-10-23T07:30:49.302213+00:00",
+      "arm": "moe-learned",
+      "seed": 1,
+      "status": "completed",
+      "exit_code": 0,
+      "wall_seconds": 441.8
+    },
+    {
+      "utc": "2026-10-23T07:30:49.307807+00:00",
+      "arm": "moe-fourier",
+      "seed": 1,
+      "status": "launched",
+      "commit": "96672bea9a38f7582d1deeba901f6cc59730cc75",
+      "command": [
+        "/usr/bin/python",
+        "-I",
+        "/home/claude/wt-stage2/experiments/corpus_benchmark.py",
+        "--data",
+        "/home/claude/language-benchmark/corpus",
+        "--output",
+        "/home/claude/language-benchmark/runs_v2/moe-fourier/seed1",
+        "--seed",
+        "1",
+        "--epochs",
+        "1",
+        "--steps",
+        "5000",
+        "--batch-size",
+        "16",
+        "--context",
+        "128",
+        "--lr",
+        "0.001",
+        "--threads",
+        "1",
+        "--device",
+        "cpu",
+        "--shuffle-windows",
+        "--eval-every",
+        "1000",
+        "--model",
+        "moe",
+        "--experts",
+        "4",
+        "--capacity-mode",
+        "none",
+        "--capacity-factor",
+        "1.25",
+        "--aux-weight",
+        "0.01",
+        "--position",
+        "fourier"
+      ]
+    },
+    {
+      "utc": "2026-10-23T07:32:38.402507+00:00",
+      "arm": "moe-sinusoidal",
+      "seed": 1,
+      "status": "completed",
+      "exit_code": 0,
+      "wall_seconds": 445.1
+    },
+    {
+      "utc": "2026-10-23T07:32:38.415165+00:00",
+      "arm": "dense",
+      "seed": 2,
+      "status": "launched",
+      "commit": "96672bea9a38f7582d1deeba901f6cc59730cc75",
+      "command": [
+        "/usr/bin/python",
+        "-I",
+        "/home/claude/wt-stage2/experiments/corpus_benchmark.py",
+        "--data",
+        "/home/claude/language-benchmark/corpus",
+        "--output",
+        "/home/claude/language-benchmark/runs_v2/dense/seed2",
+        "--seed",
+        "2",
+        "--epochs",
+        "1",
+        "--steps",
+        "5000",
+        "--batch-size",
+        "16",
+        "--context",
+        "128",
+        "--lr",
+        "0.001",
+        "--threads",
+        "1",
+        "--device",
+        "cpu",
+        "--shuffle-windows",
+        "--eval-every",
+        "1000",
+        "--model",
+        "dense"
+      ]
+    },
+    {
+      "utc": "2026-10-25T04:39:04.772742+00:00",
+      "arm": "dense",
+      "seed": 2,
+      "status": "interrupted",
+      "detail": "process stopped during workspace inactivity after last ledger write 2026-10-23T07:32Z; 6 validation records, no metrics.json; outputs kept on disk"
+    },
+    {
+      "utc": "2026-10-25T04:39:04.772742+00:00",
+      "arm": "moe-fourier",
+      "seed": 1,
+      "status": "interrupted",
+      "detail": "process stopped during workspace inactivity; 5 validation records, no metrics.json; outputs kept on disk"
+    },
+    {
+      "utc": "2026-10-25T04:39:04.772742+00:00",
+      "arm": "moe-learned",
+      "seed": 2,
+      "status": "not_launched",
+      "detail": "batch driver stopped before launch"
+    },
+    {
+      "utc": "2026-10-25T04:39:04.772742+00:00",
+      "arm": "moe-sinusoidal",
+      "seed": 2,
+      "status": "not_launched",
+      "detail": "batch driver stopped before launch"
+    },
+    {
+      "utc": "2026-10-25T04:39:04.772742+00:00",
+      "arm": "moe-fourier",
+      "seed": 2,
+      "status": "not_launched",
+      "detail": "batch driver stopped before launch"
+    },
+    {
+      "utc": "2026-10-25T04:39:04.772742+00:00",
+      "status": "batch_interrupted",
+      "detail": "7 of 12 completed; recorded on 2026-10-25 after the session resumed"
+    },
+    {
+      "utc": "2026-10-25T04:40:41.522648+00:00",
+      "status": "resume_started",
+      "code_worktree": "/home/claude/wt-frozen",
+      "jobs": [
+        [
+          "dense",
+          2
+        ],
+        [
+          "moe-fourier",
+          1
+        ],
+        [
+          "moe-learned",
+          2
+        ],
+        [
+          "moe-sinusoidal",
+          2
+        ],
+        [
+          "moe-fourier",
+          2
+        ]
+      ],
+      "interrupted_outputs_moved_to": "runs_v2/_interrupted/"
+    },
+    {
+      "utc": "2026-10-25T04:40:41.532665+00:00",
+      "arm": "dense",
+      "seed": 2,
+      "status": "launched",
+      "commit": "96672bea9a38f7582d1deeba901f6cc59730cc75",
+      "command": [
+        "/usr/bin/python",
+        "-I",
+        "/home/claude/wt-frozen/experiments/corpus_benchmark.py",
+        "--data",
+        "/home/claude/language-benchmark/corpus",
+        "--output",
+        "/home/claude/language-benchmark/runs_v2/dense/seed2",
+        "--seed",
+        "2",
+        "--epochs",
+        "1",
+        "--steps",
+        "5000",
+        "--batch-size",
+        "16",
+        "--context",
+        "128",
+        "--lr",
+        "0.001",
+        "--threads",
+        "1",
+        "--device",
+        "cpu",
+        "--shuffle-windows",
+        "--eval-every",
+        "1000",
+        "--model",
+        "dense"
+      ]
+    },
+    {
+      "utc": "2026-10-25T04:40:41.535259+00:00",
+      "arm": "moe-fourier",
+      "seed": 1,
+      "status": "launched",
+      "commit": "96672bea9a38f7582d1deeba901f6cc59730cc75",
+      "command": [
+        "/usr/bin/python",
+        "-I",
+        "/home/claude/wt-frozen/experiments/corpus_benchmark.py",
+        "--data",
+        "/home/claude/language-benchmark/corpus",
+        "--output",
+        "/home/claude/language-benchmark/runs_v2/moe-fourier/seed1",
+        "--seed",
+        "1",
+        "--epochs",
+        "1",
+        "--steps",
+        "5000",
+        "--batch-size",
+        "16",
+        "--context",
+        "128",
+        "--lr",
+        "0.001",
+        "--threads",
+        "1",
+        "--device",
+        "cpu",
+        "--shuffle-windows",
+        "--eval-every",
+        "1000",
+        "--model",
+        "moe",
+        "--experts",
+        "4",
+        "--capacity-mode",
+        "none",
+        "--capacity-factor",
+        "1.25",
+        "--aux-weight",
+        "0.01",
+        "--position",
+        "fourier"
+      ]
+    },
+    {
+      "utc": "2026-10-25T04:43:45.259116+00:00",
+      "arm": "dense",
+      "seed": 2,
+      "status": "completed",
+      "exit_code": 0,
+      "wall_seconds": 183.7
+    },
+    {
+      "utc": "2026-10-25T04:43:45.264598+00:00",
+      "arm": "moe-learned",
+      "seed": 2,
+      "status": "launched",
+      "commit": "96672bea9a38f7582d1deeba901f6cc59730cc75",
+      "command": [
+        "/usr/bin/python",
+        "-I",
+        "/home/claude/wt-frozen/experiments/corpus_benchmark.py",
+        "--data",
+        "/home/claude/language-benchmark/corpus",
+        "--output",
+        "/home/claude/language-benchmark/runs_v2/moe-learned/seed2",
+        "--seed",
+        "2",
+        "--epochs",
+        "1",
+        "--steps",
+        "5000",
+        "--batch-size",
+        "16",
+        "--context",
+        "128",
+        "--lr",
+        "0.001",
+        "--threads",
+        "1",
+        "--device",
+        "cpu",
+        "--shuffle-windows",
+        "--eval-every",
+        "1000",
+        "--model",
+        "moe",
+        "--experts",
+        "4",
+        "--capacity-mode",
+        "none",
+        "--capacity-factor",
+        "1.25",
+        "--aux-weight",
+        "0.01",
+        "--position",
+        "learned"
+      ]
+    },
+    {
+      "utc": "2026-10-25T04:45:37.047542+00:00",
+      "arm": "moe-fourier",
+      "seed": 1,
+      "status": "completed",
+      "exit_code": 0,
+      "wall_seconds": 295.5
+    },
+    {
+      "utc": "2026-10-25T04:45:37.058155+00:00",
+      "arm": "moe-sinusoidal",
+      "seed": 2,
+      "status": "launched",
+      "commit": "96672bea9a38f7582d1deeba901f6cc59730cc75",
+      "command": [
+        "/usr/bin/python",
+        "-I",
+        "/home/claude/wt-frozen/experiments/corpus_benchmark.py",
+        "--data",
+        "/home/claude/language-benchmark/corpus",
+        "--output",
+        "/home/claude/language-benchmark/runs_v2/moe-sinusoidal/seed2",
+        "--seed",
+        "2",
+        "--epochs",
+        "1",
+        "--steps",
+        "5000",
+        "--batch-size",
+        "16",
+        "--context",
+        "128",
+        "--lr",
+        "0.001",
+        "--threads",
+        "1",
+        "--device",
+        "cpu",
+        "--shuffle-windows",
+        "--eval-every",
+        "1000",
+        "--model",
+        "moe",
+        "--experts",
+        "4",
+        "--capacity-mode",
+        "none",
+        "--capacity-factor",
+        "1.25",
+        "--aux-weight",
+        "0.01",
+        "--position",
+        "sinusoidal"
+      ]
+    },
+    {
+      "utc": "2026-10-25T04:48:32.450456+00:00",
+      "arm": "moe-learned",
+      "seed": 2,
+      "status": "completed",
+      "exit_code": 0,
+      "wall_seconds": 287.2
+    },
+    {
+      "utc": "2026-10-25T04:48:32.458421+00:00",
+      "arm": "moe-fourier",
+      "seed": 2,
+      "status": "launched",
+      "commit": "96672bea9a38f7582d1deeba901f6cc59730cc75",
+      "command": [
+        "/usr/bin/python",
+        "-I",
+        "/home/claude/wt-frozen/experiments/corpus_benchmark.py",
+        "--data",
+        "/home/claude/language-benchmark/corpus",
+        "--output",
+        "/home/claude/language-benchmark/runs_v2/moe-fourier/seed2",
+        "--seed",
+        "2",
+        "--epochs",
+        "1",
+        "--steps",
+        "5000",
+        "--batch-size",
+        "16",
+        "--context",
+        "128",
+        "--lr",
+        "0.001",
+        "--threads",
+        "1",
+        "--device",
+        "cpu",
+        "--shuffle-windows",
+        "--eval-every",
+        "1000",
+        "--model",
+        "moe",
+        "--experts",
+        "4",
+        "--capacity-mode",
+        "none",
+        "--capacity-factor",
+        "1.25",
+        "--aux-weight",
+        "0.01",
+        "--position",
+        "fourier"
+      ]
+    },
+    {
+      "utc": "2026-10-25T04:50:26.753441+00:00",
+      "arm": "moe-sinusoidal",
+      "seed": 2,
+      "status": "completed",
+      "exit_code": 0,
+      "wall_seconds": 289.7
+    },
+    {
+      "utc": "2026-10-25T04:53:24.146934+00:00",
+      "arm": "moe-fourier",
+      "seed": 2,
+      "status": "completed",
+      "exit_code": 0,
+      "wall_seconds": 291.7
+    },
+    {
+      "utc": "2026-10-25T04:53:24.147402+00:00",
+      "status": "resume_finished"
+    }
+  ]
+}

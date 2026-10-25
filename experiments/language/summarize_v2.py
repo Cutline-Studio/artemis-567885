@@ -59,6 +59,12 @@ for arm in ARMS:
         }
 
 L = []
+L.append("# Artemis 567885 language benchmark, protocol v2 (development benchmark)\n")
+L.append(f"Code commit `{PROTO['code_commit']}` · corpus manifest sha256 `{PROTO['corpus_manifest_sha256']}` · "
+         f"protocol sha256 `{(ROOT / 'protocol_v2.sha256').read_text().split()[0]}`\n")
+L.append("Budgets are matched in optimizer steps (5,000) and byte positions processed, not in compute; "
+         "wall time is reported next to every result. This corpus is a development benchmark: its test scores "
+         "have been viewed, so confirmation belongs to the untouched confirmation set.\n")
 L.append("## Bits per byte (cross-entropy only; aux loss excluded)\n")
 L.append("| arm | seed | val bpb | test bpb | selected step | train bytes (selected / total) | train s | total s |")
 L.append("|---|---|---|---|---|---|---|---|")
@@ -73,8 +79,11 @@ for arm in ARMS:
 any_p = next(iter(per.values()))
 L.append(f"\nUnigram (train counts, add-one): val {fmt(any_p['unigram_val_bpb'])}, test {fmt(any_p['unigram_test_bpb'])}.\n")
 
-L.append("| arm | params total | params active per byte | val bpb mean (sd) | test bpb mean (sd) |")
-L.append("|---|---|---|---|---|")
+L.append("Active = shared parameters plus selected-expert parameters per byte (embedding table, position module, "
+         "attention, norms, router gates and head all counted; 2 of 4 experts per MoE layer). An accounting "
+         "convention, not measured FLOPs or memory traffic. Dense: active = total.\n")
+L.append("| arm | params total | shared + selected-expert params per byte | val bpb mean (sd) | test bpb mean (sd) | mean train s |")
+L.append("|---|---|---|---|---|---|")
 for arm in ARMS:
     ps = [per[(arm, s)] for s in SEEDS if (arm, s) in per]
     if not ps:
@@ -82,7 +91,8 @@ for arm in ARMS:
     v = [p["val_bpb"] for p in ps]; t = [p["test_bpb"] for p in ps]
     sd = lambda xs: st.stdev(xs) if len(xs) > 1 else float("nan")
     L.append(f"| {arm} | {ps[0]['params_total']:,} | {ps[0]['params_active']:,} | "
-             f"{st.mean(v):.3f} ({sd(v):.3f}) | {st.mean(t):.3f} ({sd(t):.3f}) |")
+             f"{st.mean(v):.3f} ({sd(v):.3f}) | {st.mean(t):.3f} ({sd(t):.3f}) | "
+             f"{st.mean(p['training_seconds'] for p in ps):.0f} |")
 
 L.append("\n## Paired differences by seed (first arm minus second; negative = first arm lower bpb)\n")
 pairs = [("moe-fourier", "moe-sinusoidal"), ("moe-fourier", "moe-learned"), ("moe-sinusoidal", "moe-learned"),
@@ -100,6 +110,9 @@ for a, b in pairs:
         vals = list(d.values())
         cells = " | ".join(f"{d[s]:+.3f}" if s in d else "—" for s in SEEDS)
         L.append(f"| {a} − {b} | {split} | {cells} | {st.mean(vals):+.3f} | {min(vals):+.3f} | {max(vals):+.3f} |")
+L.append("\nOnly moe-fourier − moe-sinusoidal is a parameter-matched comparison (same feature width, same projection, "
+         "identical parameter counts). Comparisons with moe-learned (larger: 128-row position table) and with dense "
+         "(different architecture and parameter count) are qualified accordingly.")
 L.append("\nThree seeds: preliminary evidence. The sign agreement across seeds and the range are reported, not a "
          "confidence interval. Development benchmark: test scores of this corpus have been viewed.")
 
@@ -133,7 +146,9 @@ led = ledger()
 status = [e for e in led if "arm" in e and e["status"] != "launched"]
 L.append("\n## Run ledger\n")
 for e in status:
-    L.append(f"- {e['arm']} seed {e['seed']}: {e['status']}" + (f" (exit {e.get('exit_code')}, {e.get('wall_seconds')} s)" if "exit_code" in e else f" {e.get('reasons', '')}"))
+    extra = (f" (exit {e.get('exit_code')}, {e.get('wall_seconds')} s)" if "exit_code" in e
+             else f" — {e.get('detail') or e.get('reasons', '')}")
+    L.append(f"- {e['utc'][:16]}Z {e['arm']} seed {e['seed']}: {e['status']}{extra}")
 
 out = {"protocol_sha256_file": (ROOT / "protocol_v2.sha256").read_text().split()[0],
        "code_commit": PROTO["code_commit"], "corpus_manifest_sha256": PROTO["corpus_manifest_sha256"],
