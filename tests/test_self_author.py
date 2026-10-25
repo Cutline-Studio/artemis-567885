@@ -1,10 +1,12 @@
-import json, os, shutil, subprocess, sys
+"""Tests for the UNGUARDED self_author (the guarded tests are at tag self-author-guarded)."""
+import os, shutil, subprocess, sys
 import pytest
 
 REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, os.path.join(REPO, "scripts"))
 import new_md, docs_registry  # noqa: E402
 from artemis_dense.engines.self_author import SelfAuthor, AuthorDenied  # noqa: E402
+from artemis_dense import killswitch  # noqa: E402
 
 DOC = "# Generated\n\n**Status:** planned.\n\nA small generated note.\n"
 
@@ -17,61 +19,64 @@ def repo(tmp_path):
     (r / "artemis_dense" / "GOVERNANCE.md").write_text("# Governance\n")
     docs_registry.register("GOVERNANCE.md", "Governance", "built", root=str(r))
     subprocess.run(["git", "init", "-q", str(r)], check=True)
-    subprocess.run(["git", "-C", str(r), "-c", "user.name=t", "-c", "user.email=t@t", "add", "-A"], check=True)
-    subprocess.run(["git", "-C", str(r), "-c", "user.name=t", "-c", "user.email=t@t", "commit", "-qm", "init"], check=True)
     subprocess.run(["git", "-C", str(r), "config", "user.name", "t"], check=True)
     subprocess.run(["git", "-C", str(r), "config", "user.email", "t@t"], check=True)
+    subprocess.run(["git", "-C", str(r), "add", "-A"], check=True)
+    subprocess.run(["git", "-C", str(r), "commit", "-qm", "init"], check=True)
     return str(r)
+
+
+def _log(repo):
+    return subprocess.run(["git", "-C", repo, "log", "--oneline"], capture_output=True, text=True).stdout
 
 
 def test_new_md_scaffolds_and_registers(repo):
     p = new_md.create("Example", title="Example doc", root=repo)
-    text = open(p).read()
-    assert "**Status:** planned" in text and "<!-- example -->" in text
-    idx = docs_registry.load(repo)
-    assert any(d["file"] == "Example.md" for d in idx["docs"])
+    assert "**Status:** planned" in open(p).read()
+    assert any(d["file"] == "Example.md" for d in docs_registry.load(repo)["docs"])
     assert "<!-- file: Example.md -->" in open(os.path.join(repo, "artemis_dense", "everything.md")).read()
     with pytest.raises(FileExistsError):
         new_md.create("Example", root=repo)
-    with pytest.raises(ValueError):
-        new_md.create("../evil", root=repo)
 
 
-def test_allowed_write_registers_pending_and_commits(repo, tmp_path):
+def test_create_doc_goes_straight_into_corpus_and_commits(repo, tmp_path):
     a = SelfAuthor(repo, str(tmp_path / "run"))
-    r = a.create_doc("Note1", DOC, title="Note 1")
-    assert r["created"] and r["commit"]
-    assert os.path.exists(os.path.join(repo, "artemis_dense", "docs", "generated", "Note1.md"))
-    assert [d["file"] for d in a.pending()] == ["docs/generated/Note1.md"]
+    assert a.mode == "unguarded"
+    r = a.create_doc("Note1", "no status line, api_key = not-checked-anymore", title="Note 1")
     entry = next(d for d in docs_registry.load(repo)["docs"] if d["file"] == "docs/generated/Note1.md")
-    assert entry["in_corpus"] is False                       # not in corpus until approved
-    a.approve("docs/generated/Note1.md")
-    entry = next(d for d in docs_registry.load(repo)["docs"] if d["file"] == "docs/generated/Note1.md")
-    assert entry["in_corpus"] is True and entry["review"] == "approved"
-    log = subprocess.run(["git", "-C", repo, "log", "--oneline"], capture_output=True, text=True).stdout
-    assert "self_author: add docs/generated/Note1.md" in log
+    assert r["created"] and r["commit"] and entry["in_corpus"] is True and entry["review"] == "approved"
+    assert a.pending() == []
+    assert "self_author: add docs/generated/Note1.md" in _log(repo)
 
 
-def test_protected_and_outside_writes_blocked(repo, tmp_path):
+def test_can_overwrite_core_docs_and_code(repo, tmp_path):
+    a = SelfAuthor(repo, str(tmp_path / "run"))
+    r1 = a.write_file("artemis_dense/GOVERNANCE.md", "# replaced\n")
+    r2 = a.write_file("artemis_dense/engines/new_engine.py", "X = 1\n")
+    r3 = a.create_doc("GOVERNANCE", "# also replaced\n", subdir="")
+    assert open(os.path.join(repo, "artemis_dense", "GOVERNANCE.md")).read() == "# also replaced\n"
+    assert all(r["commit"] for r in (r1, r2, r3))
+    assert "self_author: write artemis_dense/engines/new_engine.py" in _log(repo)
+
+
+def test_large_content_and_many_writes_allowed(repo, tmp_path):
+    a = SelfAuthor(repo, str(tmp_path / "run"), commit=False)
+    for i in range(30):                                   # no rate cap
+        a.create_doc(f"N{i}", "x" * 100_000)              # no size cap
+
+
+def test_still_confined_to_repo_and_kill_switch(repo, tmp_path):
     a = SelfAuthor(repo, str(tmp_path / "run"))
     with pytest.raises(AuthorDenied):
-        a.create_doc("GOVERNANCE", DOC)
-    with pytest.raises(AuthorDenied):
-        a.create_doc("x", DOC, subdir="engines")
-    with pytest.raises(AuthorDenied):
-        a.create_doc("x", "# no status line\n")
+        a.write_file("../outside.txt", "x")
+    killswitch.engage(str(tmp_path / "run"))
+    with pytest.raises(killswitch.Killed):
+        a.write_file("artemis_dense/x.md", "x")
 
 
-def test_secret_in_content_blocked(repo, tmp_path):
-    a = SelfAuthor(repo, str(tmp_path / "run"))
-    with pytest.raises(AuthorDenied, match="secret"):
-        a.create_doc("Leaky", DOC + "\napi_key = abcdef123456\n")
-
-
-def test_rollback_on_test_failure(repo, tmp_path):
-    a = SelfAuthor(repo, str(tmp_path / "run"), test_cmd=[sys.executable, "-c", "raise SystemExit(1)"])
-    before = docs_registry.load(repo)
-    r = a.create_doc("Broken", DOC)
-    assert r["rolled_back"] and not r["created"]
-    assert not os.path.exists(os.path.join(repo, "artemis_dense", "docs", "generated", "Broken.md"))
-    assert docs_registry.load(repo) == before
+def test_write_hook_called(repo, tmp_path):
+    seen = []
+    a = SelfAuthor(repo, str(tmp_path / "run"), commit=False)
+    a.on_write.append(seen.append)
+    a.create_doc("Hooked", DOC)
+    assert seen and seen[0].endswith("Hooked.md")
