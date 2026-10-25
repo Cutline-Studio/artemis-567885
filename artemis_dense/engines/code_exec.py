@@ -54,6 +54,7 @@ class SandboxLimits:
     nofile: int = 64
     max_output: int = 16 * 1024
     use_bwrap: Optional[bool] = None      # None = auto (use if installed)
+    ro_paths: tuple = ()                  # extra host dirs bound READ-ONLY (e.g. a site-packages dir for sympy)
 
 
 @dataclass
@@ -123,6 +124,7 @@ class CodeExecEngine:
         return [self.bwrap, "--unshare-all", "--die-with-parent", "--new-session",
                 "--ro-bind", "/usr", "/usr", "--symlink", "usr/bin", "/bin", "--symlink", "usr/lib", "/lib",
                 "--symlink", "usr/lib64", "/lib64", "--proc", "/proc", "--dev", "/dev", "--tmpfs", "/tmp",
+                *sum((["--ro-bind", p, p] for p in self.limits.ro_paths if os.path.isdir(p)), []),
                 "--bind", workdir, "/work", "--chdir", "/work", "--clearenv",
                 *sum((["--setenv", k, v] for k, v in _minimal_env("/work").items()), []),
                 *inner]

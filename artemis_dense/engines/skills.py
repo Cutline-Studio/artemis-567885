@@ -31,7 +31,7 @@ class SkillStore:
                 source: str = "manual", overwrite: bool = False) -> dict:
         if not _NAME.match(name):
             raise ValueError(f"bad skill name {name!r}")
-        if kind not in ("steps", "code", "callable"):
+        if kind not in ("steps", "code", "callable", "rule"):
             raise ValueError(f"bad kind {kind!r}")
         if name in self.skills and not overwrite:
             raise KeyError(f"skill {name!r} exists")
@@ -42,6 +42,31 @@ class SkillStore:
         return self.skills[name]
 
     store = acquire
+
+    # ---- standing rules (instruction learning) -------------------------------
+    def add_rule(self, name: str, description: str, applies_to: List[str], effect: str = "require_confirmation",
+                 overwrite: bool = False) -> dict:
+        """A standing instruction the orchestrator checks before EVERY action.
+        applies_to: glob patterns over action names; effect: "block" | "require_confirmation"."""
+        if effect not in ("block", "require_confirmation"):
+            raise ValueError(effect)
+        return self.acquire(name, description, " ".join(applies_to), "rule",
+                            {"applies_to": list(applies_to), "effect": effect}, source="instruction",
+                            overwrite=overwrite)
+
+    def rules(self) -> List[dict]:
+        return [s for s in self.skills.values() if s["kind"] == "rule"]
+
+    def check_rules(self, action: str, confirmed: bool = False) -> Optional[str]:
+        """Return the reason an action is blocked by a standing rule, or None if allowed."""
+        import fnmatch
+        for r in self.rules():
+            if any(fnmatch.fnmatchcase(action, p) for p in r["body"]["applies_to"]):
+                if r["body"]["effect"] == "block":
+                    return f"blocked by rule {r['name']}: {r['description']}"
+                if not confirmed:
+                    return f"needs human confirmation (rule {r['name']}: {r['description']})"
+        return None
 
     def register_callable(self, name: str, fn: Callable):
         self._callables[name] = fn
@@ -84,3 +109,51 @@ class SkillStore:
         st["score"] = round((st["successes"] + 1) / (st["uses"] + 2), 4)   # Laplace-smoothed
         st["last_used"] = time.time()
         self._save()
+
+
+# ---------------------------------------------------------------- dictionary lookup tool
+DEFAULT_DICTIONARY = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+                                  "data", "dictionary", "dictionary.jsonl")
+
+
+class Dictionary:
+    """Exact-meaning lookup over dictionary.jsonl (built by data/build_dictionary.py).
+    Builds an in-memory {word: [byte offsets]} index on first use; records are read on demand."""
+
+    def __init__(self, path: str = DEFAULT_DICTIONARY):
+        self.path = path
+        self._index: Optional[Dict[str, List[int]]] = None
+
+    def _build(self):
+        idx: Dict[str, List[int]] = {}
+        with open(self.path, "rb") as f:
+            off = 0
+            for line in f:
+                w = json.loads(line)["word"]
+                idx.setdefault(w, []).append(off)
+                off += len(line)
+        self._index = idx
+
+    def define(self, word: str) -> List[dict]:
+        if self._index is None:
+            self._build()
+        key = re.sub(r"\s+", " ", word.replace("_", " ")).strip().lower()
+        out = []
+        with open(self.path, "rb") as f:
+            for off in self._index.get(key, []):
+                f.seek(off)
+                out.append(json.loads(f.readline()))
+        return out
+
+
+_DICT: Optional[Dictionary] = None
+
+
+def define(word: str, path: Optional[str] = None) -> List[dict]:
+    """Return every dictionary record for `word` (all parts of speech, all sources); [] if unknown."""
+    global _DICT
+    if path is not None:
+        return Dictionary(path).define(word)
+    if _DICT is None:
+        _DICT = Dictionary()
+    return _DICT.define(word)

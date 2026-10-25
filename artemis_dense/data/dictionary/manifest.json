@@ -1,0 +1,24 @@
+{
+  "file": "dictionary.jsonl",
+  "entries": 292125,
+  "entries_per_source": {
+    "gcide-0.54": 136681,
+    "wordnet-3.1": 155444
+  },
+  "unique_headwords": 206674,
+  "definition_text_bytes": 31134801,
+  "byte_tokens": 31134801,
+  "whitespace_words": 5228093,
+  "file_bytes": 70140343,
+  "file_sha256": "7b6e947e06d25cc0bb4a32e603a71ccc7a52a97b4d8a7781795f3c0e9a766266",
+  "sources": [
+    {
+      "name": "wn3.1.dict.tar.gz",
+      "sha256": "3f7d8be8ef6ecc7167d39b10d66954ec734280b5bdcd57f7d9eafe429d11c22a"
+    },
+    {
+      "name": "gcide-0.54.tar.xz",
+      "sha256": "22416f6f36175b160dc388b7547512514d464473cf7d7c898d738efb26c51d42"
+    }
+  ]
+}

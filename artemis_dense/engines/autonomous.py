@@ -9,6 +9,9 @@ SAFETY BOUNDS (required; enforced in code, not just documented):
      only an explicit human-supplied handler may run them (none is shipped).
   4. No file deletion outside its own run_dir: the orchestrator deletes nothing; every engine
      writes only under run_dir (asserted at construction).
+  6. Standing rules: before every action the orchestrator checks rule-skills in the skills store
+     (instruction learning); a matching "block" rule or an unconfirmed "require_confirmation"
+     rule stops the action.
   5. Kill switch: a KILL file in run_dir (or any parent dir) stops the loop before the next step.
 """
 import json, os, time
@@ -29,7 +32,7 @@ class Action:
 
 ACTIONS: Dict[str, Action] = {a.name: a for a in [
     Action("train_cycle"), Action("evaluate"), Action("force_grow"), Action("code_task"),
-    Action("use_skill"), Action("record_skill"), Action("stop"),
+    Action("use_skill"), Action("record_skill"), Action("stop"), Action("author_doc"),
     Action("request_gpu", costs_money=True),     # placeholder: always refused without approval
 ]}
 
@@ -37,7 +40,7 @@ ACTIONS: Dict[str, Action] = {a.name: a for a in [
 class Orchestrator:
     def __init__(self, run_dir: str, trainer: SelfTrainer, skills: SkillStore, code: CodeExecEngine,
                  max_steps: int = 10, max_seconds: float = 60.0, approve_spend: bool = False,
-                 spend_handlers: Optional[Dict[str, Callable]] = None):
+                 spend_handlers: Optional[Dict[str, Callable]] = None, author=None):
         self.run_dir = os.path.abspath(run_dir)
         for eng_dir in (trainer.run_dir, os.path.dirname(skills.path), code.run_dir):
             if not os.path.abspath(eng_dir).startswith(self.run_dir):
@@ -46,7 +49,10 @@ class Orchestrator:
         self.max_steps, self.max_seconds = max_steps, max_seconds
         self.approve_spend = approve_spend
         self.spend_handlers = spend_handlers or {}
+        self.confirmed: set = set()          # action names a human confirmed for this run
         self.code_tasks: List[dict] = []     # {"task", "propose", "tests", "skill_name"}
+        self.author = author                 # optional SelfAuthor
+        self.author_tasks: List[dict] = []   # {"name", "content", "title"}
         self.log_path = os.path.join(self.run_dir, "decisions.jsonl")
         self.steps = 0
         self.ok_cycles_since_skill = 0
@@ -56,6 +62,8 @@ class Orchestrator:
         hist = self.trainer.state["history"]
         if self.code_tasks:
             return "code_task", f"{len(self.code_tasks)} code task(s) queued"
+        if self.author_tasks and self.author is not None:
+            return "author_doc", f"{len(self.author_tasks)} doc(s) queued for self_author"
         if len(hist) >= 2 and all(h["status"] == "rolled_back" for h in hist[-2:]):
             return "stop", "two consecutive rollbacks; stopping for human review"
         if self.ok_cycles_since_skill >= 2 and not self.skills.get("train-and-evaluate"):
@@ -78,6 +86,9 @@ class Orchestrator:
         if name not in ACTIONS:
             return {"ok": False, "detail": f"unknown action {name!r} refused"}
         a = ACTIONS[name]
+        blocked = self.skills.check_rules(name, confirmed=name in self.confirmed)   # standing rules first
+        if blocked:
+            return {"ok": False, "detail": blocked}
         if a.costs_money:
             if not self.approve_spend or name not in self.spend_handlers:
                 return {"ok": False, "detail": f"{name} costs money: refused (approve_spend={self.approve_spend})"}
@@ -101,6 +112,10 @@ class Orchestrator:
                                   skills=self.skills, trainer=self.trainer, skill_name=t.get("skill_name"))
             return {"ok": r["passed"], "detail": {k: r[k] for k in ("task", "passed", "iterations")}
                     | ({"skill_saved": r["skill_saved"]} if "skill_saved" in r else {})}
+        if name == "author_doc":
+            t = self.author_tasks.pop(0)
+            r = self.author.create_doc(t["name"], t["content"], t.get("title"))
+            return {"ok": bool(r.get("created")), "detail": r}
         if name == "record_skill":
             self.skills.acquire("train-and-evaluate", "Train one dense cycle, then evaluate",
                                 "train evaluate cycle when loss is still improving", "steps",

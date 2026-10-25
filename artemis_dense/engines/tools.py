@@ -8,6 +8,7 @@ its own checks:
   env.read/write/execute -> EnvironmentManager         (signed grant, scope, path, rate, audit; execute -> sandbox)
   a2a.send_task          -> A2AClient.send_task        (remote node: signature, nonce, token, policy gate)
   skills.lookup          -> SkillStore.lookup          (read-only)
+  skills.define          -> skills.define(word)        (read-only dictionary lookup)
   skills.acquire         -> SkillStore.acquire         (write)
 On top of that, the router itself is default-deny: a tool runs only if its name is in
 `permissions` (set locally by the operator). Every decision is appended to tool_calls.jsonl.
@@ -40,12 +41,13 @@ def parse_tool_call(text: str) -> Optional[dict]:
 
 class ToolRouter:
     def __init__(self, run_dir: str, permissions=(), code_exec=None, skills=None, envs=None,
-                 a2a_client=None, principal: str = "local/artemis"):
+                 a2a_client=None, principal: str = "local/artemis", author=None, math=None, physics=None):
         self.run_dir = os.path.abspath(run_dir)
         os.makedirs(self.run_dir, exist_ok=True)
         self.permissions = set(permissions)
         self.code_exec, self.skills, self.envs, self.a2a = code_exec, skills, envs, a2a_client
         self.principal = principal
+        self.author, self.math, self.physics = author, math, physics
         self.log_path = os.path.join(self.run_dir, "tool_calls.jsonl")
 
     def _log(self, name, allowed, reason):
@@ -65,6 +67,15 @@ class ToolRouter:
                 out = self.code_exec.run(a["code"]).to_dict()            # always sandboxed
             elif name == "skills.lookup":
                 out = [{k: s[k] for k in ("name", "description", "trigger")} for s in self.skills.lookup(a["query"])]
+            elif name == "skills.define":
+                from .skills import define
+                out = define(a["word"], a.get("path"))
+            elif name == "self_author.create_doc":
+                out = self.author.create_doc(a["name"], a["content"], a.get("title"))
+            elif name == "math.compute":
+                out = self.math.compute(a["op"], a.get("args", {}), sandboxed=True)
+            elif name == "physics.compute":
+                out = self.physics.compute(a["op"], a.get("args", {}))
             elif name == "skills.acquire":
                 out = self.skills.acquire(a["name"], a["description"], a["trigger"], a.get("kind", "steps"),
                                           a.get("body", []), source="tool_call")["name"]
