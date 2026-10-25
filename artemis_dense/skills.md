@@ -1,0 +1,34 @@
+# Artemis skills (top level)
+
+What Artemis 567885 (dense) can do, which engine does it, and who may invoke it. "Local" means
+the autonomous orchestrator or a human on the box; "external" means an A2A agent from another org.
+Approvals follow [GOVERNANCE.md](GOVERNANCE.md).
+
+| skill | engine | local | external |
+|---|---|---|---|
+| Train one cycle (train → eval → checkpoint/rollback → plan growth) | self_train | yes, within caps | never |
+| Grow (add layer / widen d_ff), function-preserving, within caps | self_train | yes, within caps; raising caps = human edit | never |
+| Record / look up / reuse a procedure, with success scoring | skills | yes | lookup only (read-only facade) |
+| Write → run → observe → revise code in the sandbox | code_exec | yes, sandboxed | only via an environment `execute` grant |
+| Choose the next action, bounded by steps, time and the kill switch | autonomous | yes | never |
+| Signed handshake, scoped token, task delegation | a2a | yes | allowlisted orgs only |
+| **Environment capability**: enter a defined environment ("world") and read / write / execute inside it | a2a.environments | yes | only with a signed per-agent, per-environment grant |
+
+## Environment capability (summary; details in [worlds.md](worlds.md))
+- An environment has an id, a type (`workspace`, `sandbox`, `runtime`, `model_weights` or
+  `self_train`), a root dir, resources, and default-deny.
+- A grant is a signed token tied to one agent principal and one environment. Its scopes are a
+  subset of `read`, `write` and `execute`. It has an expiry, optional path prefixes, a
+  per-minute rate limit, and a `jti` that can be revoked.
+- Every `enter`/`read`/`write`/`execute`/`leave` is checked in this order: kill switch, session,
+  token signature, audience, subject, expiry and revocation, environment, scope, path containment
+  (realpath inside root, blocking `..`, absolute paths and symlink escape), path prefix, then rate
+  limit. Each decision goes to the hash-chained audit log.
+- `execute` runs only through the code_exec sandbox.
+- `model_weights` and `self_train` environments are protected. A grant needs `human_approved=True`
+  and `allow_protected=True`, set by the operator in code. An external request can never set
+  them.
+
+## Not skills (refused by design)
+Spending money, renting GPUs, network access from sandboxed code, pushing or merging code, deleting
+files outside a run dir, and changing caps or policies. See [GOVERNANCE.md](GOVERNANCE.md).
