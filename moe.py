@@ -70,12 +70,45 @@ class CapacitySparseMoELayer(nn.Module):
     Cost of the causal ordering: late positions are the ones that get dropped
     when an expert overflows. Only valid with legacy=False; works with both
     dispatch paths (same keep mask).
+
+    Stage 8 options (all off by default, so default and legacy outputs are unchanged):
+      * gate_weighting="renorm" (default): the chosen experts are weighted by a
+        softmax over the K chosen logits. With top_k=1 that weight is always
+        1.0, so the task loss sends NO gradient to the gate (review #6).
+        gate_weighting="switch": weight = full router probability
+        softmax(logits)[e] of each chosen expert (Switch Transformer), not
+        renormalised over the K picks; the gate gets task gradient at top_k=1.
+      * router z-loss: every non-legacy forward stores
+        self.last_z_loss = mean_tokens(logsumexp(clean_logits)^2) (ST-MoE),
+        graph-attached; it only affects training when a caller adds
+        coef * last_z_loss to its loss (ArtemisModel z_loss_coef / train_bytes
+        --z-loss). The return signature is unchanged.
+      * routing="expert_choice": each expert picks its top-C tokens by router
+        probability (Zhou et al. 2022), C = ceil(n / E * CF * top_k) with CF =
+        capacity_factor (None -> 1.0) and n = tokens per routing group (the whole
+        flattened batch for capacity_mode="global", one sequence for "sequence").
+        A token is weighted by softmax(logits)[e] for every expert that picked it
+        and may get 0..E experts. NOT CAUSAL: whether position t is picked depends
+        on the scores of every other token in its group, including future
+        positions, so it leaks future bytes in a causal LM (results must be
+        labelled leaky). dropped_count = tokens that no expert picked (tokens, not
+        (token, slot) assignments); aux is still the token-choice formula (it is
+        exactly 1.0, no gradient, because every expert gets exactly C tokens).
     """
 
     def __init__(self, d_model: int, d_ff: int, num_experts: int, top_k: int = 2,
                  capacity_factor: float = 1.0, legacy: bool = False, dispatch: str = "loop",
-                 capacity_mode: str = "global"):
+                 capacity_mode: str = "global", gate_weighting: str = "renorm",
+                 routing: str = "token_choice"):
         super().__init__()
+        if gate_weighting not in ("renorm", "switch"):
+            raise ValueError(f"gate_weighting must be 'renorm' or 'switch', got {gate_weighting!r}")
+        if routing not in ("token_choice", "expert_choice"):
+            raise ValueError(f"routing must be 'token_choice' or 'expert_choice', got {routing!r}")
+        if legacy and (gate_weighting != "renorm" or routing != "token_choice"):
+            raise ValueError("gate_weighting/routing options implement the fixed (legacy=False) semantics only")
+        self.gate_weighting, self.routing = gate_weighting, routing
+        self.last_z_loss = None
         if capacity_mode not in ("global", "sequence"):
             raise ValueError(f"capacity_mode must be 'global' or 'sequence', got {capacity_mode!r}")
         if capacity_mode == "sequence" and legacy:
@@ -120,9 +153,22 @@ class CapacitySparseMoELayer(nn.Module):
         rank = (onehot.cumsum(dim=1) * onehot).sum(dim=-1) - 1                  # 0-based rank in its expert
         return (rank < cap).reshape(b * t, K), cap
 
+    def _gate_weights(self, logits: torch.Tensor, topk_logits: torch.Tensor, topk_indices: torch.Tensor):
+        """[N, K] combine weights for the chosen experts (see gate_weighting)."""
+        if getattr(self, "gate_weighting", "renorm") == "switch":
+            return F.softmax(logits, dim=-1).gather(1, topk_indices)
+        return F.softmax(topk_logits, dim=-1)
+
+    @staticmethod
+    def router_z_loss(logits: torch.Tensor) -> torch.Tensor:
+        """ST-MoE router z-loss: mean over tokens of logsumexp(logits)^2."""
+        return torch.logsumexp(logits, dim=-1).pow(2).mean()
+
     def forward(self, x: torch.Tensor):
         if self.legacy:
             return self._forward_legacy(x)
+        if getattr(self, "routing", "token_choice") == "expert_choice":
+            return self._forward_expert_choice(x)
         if self.dispatch == "vectorized":
             return self._forward_vectorized(x)
         return self._forward_fixed(x)
@@ -134,6 +180,7 @@ class CapacitySparseMoELayer(nn.Module):
         num_tokens = flat_tokens.size(0)
 
         logits = self.gate(flat_tokens)
+        self.last_z_loss = self.router_z_loss(logits)  # stage 8 diagnostic only; no RNG, outputs unchanged
         if self.training:
             logits = logits + torch.randn_like(logits) * (1.0 / self.num_experts)
 
@@ -183,7 +230,8 @@ class CapacitySparseMoELayer(nn.Module):
             logits = clean_logits + torch.randn_like(clean_logits) * (1.0 / self.num_experts)
 
         topk_logits, topk_indices = torch.topk(logits, self.top_k, dim=-1)
-        topk_softmax_weights = F.softmax(topk_logits, dim=-1)
+        topk_softmax_weights = self._gate_weights(logits, topk_logits, topk_indices)
+        self.last_z_loss = self.router_z_loss(clean_logits)
 
         # Aux load-balancing loss over all top-k assignments (uniform optimum = 1.0).
         gate_prob = F.softmax(clean_logits, dim=-1)
@@ -246,7 +294,8 @@ class CapacitySparseMoELayer(nn.Module):
         if self.training:
             logits = clean_logits + torch.randn_like(clean_logits) * (1.0 / self.num_experts)
         topk_logits, topk_indices = torch.topk(logits, K, dim=-1)
-        topk_softmax_weights = F.softmax(topk_logits, dim=-1)
+        topk_softmax_weights = self._gate_weights(logits, topk_logits, topk_indices)
+        self.last_z_loss = self.router_z_loss(clean_logits)
 
         gate_prob = F.softmax(clean_logits, dim=-1)
         assign = F.one_hot(topk_indices, num_classes=E).float().sum(dim=1)
@@ -332,6 +381,61 @@ class CapacitySparseMoELayer(nn.Module):
                            "dropped_tokens": dropped_tokens, "num_tokens": num_tokens,
                            "topk_indices": topk_indices.detach(), "kept_slots": processed_slots}
         return output_workspace.view(orig_shape), aux_loss, dropped_count
+
+    # ---- stage 8: expert-choice routing (NOT causal, see class docstring) ----
+    def expert_choice_capacity(self, group_tokens: int) -> int:
+        cf = 1.0 if self.capacity_factor is None else self.capacity_factor
+        return max(1, min(int(group_tokens), int(math.ceil(group_tokens / self.num_experts * cf * self.top_k))))
+
+    def _forward_expert_choice(self, x: torch.Tensor):
+        orig_shape = x.shape
+        flat_tokens = x.reshape(-1, orig_shape[-1])
+        num_tokens, d = flat_tokens.shape
+        E = self.num_experts
+        if self.capacity_mode == "sequence":
+            if x.dim() == 3:
+                groups, n = orig_shape[0], orig_shape[1]
+            elif x.dim() == 2:
+                groups, n = 1, orig_shape[0]
+            else:
+                raise ValueError(f"capacity_mode='sequence' needs x of shape [B, T, d] or [T, d], got {tuple(orig_shape)}")
+        else:
+            groups, n = 1, num_tokens
+        clean_logits = self.gate(flat_tokens)
+        logits = clean_logits
+        if self.training:
+            logits = clean_logits + torch.randn_like(clean_logits) * (1.0 / E)
+        probs = F.softmax(logits, dim=-1)                                     # [N, E]
+        self.last_z_loss = self.router_z_loss(clean_logits)
+        C = self.expert_choice_capacity(n)
+        # each expert picks its top-C tokens inside each group (ties -> lower index, torch.topk)
+        sel = torch.topk(probs.detach().reshape(groups, n, E), C, dim=1).indices  # [G, C, E]
+        offs = (torch.arange(groups, device=x.device) * n).view(groups, 1, 1)
+        tok = (sel + offs).permute(2, 0, 1).reshape(E, groups * C)               # [E, G*C] flat token ids
+        w = probs[tok, torch.arange(E, device=x.device)[:, None]]                                       # [E, G*C] probs[tok, e]
+        if self.dispatch == "vectorized":
+            out = self._expert_batch(flat_tokens[tok])                           # [E, G*C, d]
+            contrib = (out * w.unsqueeze(-1)).reshape(-1, d)
+            output_workspace = torch.zeros_like(flat_tokens).index_add(0, tok.reshape(-1), contrib)
+        else:
+            output_workspace = torch.zeros_like(flat_tokens)
+            for e in range(E):
+                y = self.experts[e](flat_tokens[tok[e]]) * w[e].unsqueeze(-1)
+                output_workspace = output_workspace.index_add(0, tok[e], y)
+        # aux in the token-choice form, for comparability (== 1.0 here: every expert gets G*C tokens)
+        n_per_expert = torch.full((E,), float(groups * C), device=x.device)
+        me = n_per_expert / n_per_expert.sum()
+        aux_loss = E * torch.sum(me * F.softmax(clean_logits, dim=-1).mean(dim=0))
+        experts_per_token = torch.bincount(tok.reshape(-1), minlength=num_tokens)
+        dropped_tokens = int((experts_per_token == 0).sum().item())
+        topk_indices = torch.topk(logits.detach(), self.top_k, dim=-1).indices   # what token choice would pick
+        self.last_stats = {"capacity": C, "dropped_assignments": dropped_tokens, "dropped_tokens": dropped_tokens,
+                           "num_tokens": num_tokens, "assignments": num_tokens, "routing": "expert_choice",
+                           "topk_indices": topk_indices,
+                           "kept_slots": torch.ones_like(topk_indices, dtype=torch.bool),
+                           "routed_load": n_per_expert.detach(), "kept_load": n_per_expert.detach(),
+                           "expert_choice_tokens": tok.detach(), "experts_per_token": experts_per_token}
+        return output_workspace.view(orig_shape), aux_loss, dropped_tokens
 
     @torch.no_grad()
     def add_expert(self, source_idx: int = None, noise_std: float = 1e-2, generator: torch.Generator = None) -> int:

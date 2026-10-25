@@ -103,7 +103,9 @@ def evaluate(model: ArtemisModel, windows: torch.Tensor, batch: int = 64) -> dic
     """Held-out metrics over `windows` in eval mode (no routing noise).
 
     bpb / loss_nats: mean next-byte cross-entropy over every predicted position.
-    drop_rate: dropped (token, slot) assignments / all assignments, over all layers.
+    drop_rate: dropped (token, slot) assignments / all assignments, over all layers
+    (expert-choice routing: tokens no expert picked / tokens).
+    z_loss: router z-loss summed over layers, mean over eval batches (window-weighted).
     entropy_routed[l]: normalised expert-load entropy (expert_load_entropy) of the
     router's top-k choices in layer l before capacity; entropy_kept[l]: same for
     the assignments that were actually processed. *_mean: mean over layers.
@@ -114,7 +116,7 @@ def evaluate(model: ArtemisModel, windows: torch.Tensor, batch: int = 64) -> dic
     blocks = list(model.blocks)
     routed = [torch.zeros(b.moe.num_experts, dtype=torch.float64) for b in blocks]
     kept = [torch.zeros(b.moe.num_experts, dtype=torch.float64) for b in blocks]
-    dropped, assigns = 0, 0
+    dropped, assigns, ztot = 0, 0, 0.0
     for i in range(0, windows.size(0), batch):
         w = windows[i:i + batch]
         logits, _, d = model(w)
@@ -126,9 +128,14 @@ def evaluate(model: ArtemisModel, windows: torch.Tensor, batch: int = 64) -> dic
             st = b.moe.last_stats
             idx = st["topk_indices"]
             E = b.moe.num_experts
-            routed[li] += torch.bincount(idx.reshape(-1), minlength=E).double()
-            kept[li] += torch.bincount(idx[st["kept_slots"]].reshape(-1), minlength=E).double()
-            assigns += idx.numel()
+            if "kept_load" in st:   # expert choice: each expert's picked-token count
+                routed[li] += st["routed_load"].double().cpu()
+                kept[li] += st["kept_load"].double().cpu()
+            else:
+                routed[li] += torch.bincount(idx.reshape(-1), minlength=E).double()
+                kept[li] += torch.bincount(idx[st["kept_slots"]].reshape(-1), minlength=E).double()
+            assigns += st.get("assignments", idx.numel())
+            ztot += float(b.moe.last_z_loss.detach()) * w.size(0) if b.moe.last_z_loss is not None else 0.0
     model.train(was)
     loss = tot / n
     er = [expert_load_entropy(c) for c in routed]
@@ -137,7 +144,8 @@ def evaluate(model: ArtemisModel, windows: torch.Tensor, batch: int = 64) -> dic
                 dropped=dropped, assignments=assigns,
                 entropy_routed=er, entropy_kept=ek,
                 entropy_routed_mean=sum(er) / len(er), entropy_kept_mean=sum(ek) / len(ek),
-                load_routed=[c.tolist() for c in routed])
+                load_routed=[c.tolist() for c in routed],
+                z_loss=ztot / windows.size(0) if windows.size(0) else 0.0)
 
 
 def evaluate_bpb(model: ArtemisModel, windows: torch.Tensor, batch: int = 64) -> float:
@@ -198,21 +206,27 @@ def train(args, train_b: bytes, held_b: bytes, data_desc: str = "", log=print) -
     uni_full = unigram_bpb(tr, ho)              # whole held-out split
     cf = getattr(args, "capacity_factor", None)
     cmode = getattr(args, "capacity_mode", "sequence")
+    gw = getattr(args, "gate_weighting", "renorm")
+    routing = getattr(args, "routing", "token_choice")
+    zc = float(getattr(args, "z_loss", 0.0) or 0.0)
     model = ArtemisModel(args.d_model, args.n_heads, args.d_ff, args.experts, args.layers,
                          top_k=args.top_k, capacity_factor=cf, causal=True,
                          pos_encoding=args.pos, max_len=L, dispatch=args.dispatch,
-                         capacity_mode=cmode)
-    leaky = cf is not None and cmode == "global"
-    if leaky:
+                         capacity_mode=cmode, gate_weighting=gw, routing=routing, z_loss_coef=zc)
+    leaky = not model.causal_safe
+    if cf is not None and cmode == "global":
         log("[stage6] WARNING: capacity_mode=global with a finite capacity factor ranks tokens over the "
             "flattened batch and leaks future bytes (check 5); results are labelled leaky")
+    if routing == "expert_choice":
+        log("[stage8] WARNING: routing=expert_choice is not causal (each expert picks its top-C tokens "
+            "using future positions of the group); results are labelled leaky")
     n_params = sum(p.numel() for p in model.parameters())
     opt = torch.optim.AdamW(model.parameters(), lr=args.lr, weight_decay=args.weight_decay)
     out_dir = Path(args.out_dir) / args.run_name
     out_dir.mkdir(parents=True, exist_ok=True)
     fields = ["step", "elapsed_s", "lr", "train_loss_nats", "train_bpb", "aux", "dropped",
-              "train_aux_mean", "train_drop_rate", "heldout_bpb", "heldout_drop_rate", "heldout_entropy_routed",
-              "unigram_bpb"]
+              "train_aux_mean", "train_z_mean", "train_drop_rate", "heldout_bpb", "heldout_drop_rate",
+              "heldout_entropy_routed", "heldout_z_loss", "unigram_bpb"]
     fcsv = open(out_dir / "curve.csv", "w", newline="")
     wcsv = csv.DictWriter(fcsv, fieldnames=fields); wcsv.writeheader()
     fjl = open(out_dir / "curve.jsonl", "w")
@@ -225,12 +239,14 @@ def train(args, train_b: bytes, held_b: bytes, data_desc: str = "", log=print) -
     rows, t0, step, run_loss, run_n = [], time.time(), 0, 0.0, 0
     first_loss = None
     # assignments per training step = batch * L tokens * top_k * layers
-    assign_per_step = args.batch * L * args.top_k * args.layers
+    # (expert choice: tokens per step * layers; its drop count is in tokens)
+    assign_per_step = args.batch * L * (1 if routing == "expert_choice" else args.top_k) * args.layers
+    run_z, total_z = 0.0, 0.0
     run_drop, total_drop, run_aux = 0, 0, 0.0
     last_ev = {}
 
     def do_eval(step, lr):
-        nonlocal run_loss, run_n, run_drop, run_aux, last_ev
+        nonlocal run_loss, run_n, run_drop, run_aux, run_z, last_ev
         evr = evaluate(model, ev, args.eval_batch)
         last_ev = evr
         hb = evr["bpb"]
@@ -241,16 +257,18 @@ def train(args, train_b: bytes, held_b: bytes, data_desc: str = "", log=print) -
                    train_bpb=round(bits_per_byte(tl), 5) if tl is not None else None,
                    aux=round(last_aux, 5), dropped=last_drop,
                    train_aux_mean=round(run_aux / run_n, 5) if run_n else None,
+                   train_z_mean=round(run_z / run_n, 5) if run_n else None,
                    train_drop_rate=round(tdr, 6) if tdr is not None else None,
                    heldout_bpb=round(hb, 5), heldout_drop_rate=round(evr["drop_rate"], 6),
                    heldout_entropy_routed=round(evr["entropy_routed_mean"], 5),
+                   heldout_z_loss=round(evr["z_loss"], 5),
                    unigram_bpb=round(uni_eval, 5))
         rows.append(row); wcsv.writerow(row); fcsv.flush()
         fjl.write(json.dumps(row) + "\n"); fjl.flush()
         trs = f"{row['train_bpb']:.4f}" if tl is not None else "  -   "
         log(f"step {step:6d} t={row['elapsed_s']:7.1f}s lr={lr:.2e} train {trs} bpb "
             f"| held-out {hb:.4f} bpb (unigram {uni_eval:.4f})")
-        run_loss, run_n, run_drop, run_aux = 0.0, 0, 0, 0.0
+        run_loss, run_n, run_drop, run_aux, run_z = 0.0, 0, 0, 0.0, 0.0
         return hb
 
     model.train()
@@ -270,6 +288,8 @@ def train(args, train_b: bytes, held_b: bytes, data_desc: str = "", log=print) -
         logits, aux, dropped = model(x)
         loss = next_byte_loss(logits, x)
         total = loss + args.aux_alpha * aux
+        if zc:
+            total = total + model.regularizer()
         opt.zero_grad(set_to_none=True)
         total.backward()
         if args.grad_clip:
@@ -283,6 +303,8 @@ def train(args, train_b: bytes, held_b: bytes, data_desc: str = "", log=print) -
         run_loss += lv; run_n += 1
         last_aux, last_drop = aux.item(), int(dropped)
         run_drop += last_drop; total_drop += last_drop; run_aux += last_aux
+        zv = float(model.last_z_loss.detach()) if model.last_z_loss is not None else 0.0
+        run_z += zv; total_z += zv
         if step % args.eval_every == 0:
             do_eval(step, lr)
     train_time = time.time() - t0
@@ -309,6 +331,9 @@ def train(args, train_b: bytes, held_b: bytes, data_desc: str = "", log=print) -
                    best_heldout_bpb=min(r["heldout_bpb"] for r in rows),
                    final_heldout_loss_nats=round(last_ev["loss_nats"], 5),
                    capacity_factor=cf, capacity_mode=cmode, leaky=leaky,
+                   top_k=args.top_k, gate_weighting=gw, routing=routing, z_loss_coef=zc,
+                   train_z_mean=round(total_z / step, 5) if step else None,
+                   heldout_z_loss=round(last_ev["z_loss"], 5),
                    train_drop_rate=round(total_drop / (step * assign_per_step), 6) if step else None,
                    heldout_drop_rate=round(last_ev["drop_rate"], 6),
                    heldout_entropy_routed=[round(e, 5) for e in last_ev["entropy_routed"]],
@@ -363,6 +388,12 @@ def build_parser():
     p.add_argument("--capacity-mode", default="sequence", choices=["sequence", "global"],
                    help="sequence (default): per-sequence, position-ordered, causal-safe; "
                         "global: flattened-batch ranking (leaks future bytes, check 5)")
+    p.add_argument("--gate-weighting", default="renorm", choices=["renorm", "switch"],
+                   help="renorm (default): softmax over the top-k logits (dead gate grad at top-1); "
+                        "switch: full router probability of each chosen expert (Switch Transformer)")
+    p.add_argument("--routing", default="token_choice", choices=["token_choice", "expert_choice"],
+                   help="expert_choice is NOT causal (labelled leaky); groups follow --capacity-mode")
+    p.add_argument("--z-loss", type=float, default=0.0, help="router z-loss coefficient (ST-MoE), 0 = off")
     p.add_argument("--max-steps", type=int, default=0, help="0 = no step limit")
     p.add_argument("--time-budget", type=float, default=900.0, help="seconds of training, 0 = none")
     p.add_argument("--eval-every", type=int, default=200)
