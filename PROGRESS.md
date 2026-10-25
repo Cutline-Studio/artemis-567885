@@ -80,6 +80,7 @@
 - Stage 9(b) (PLAN.md): `webstream.py`, HTTP Range byte streaming with a local cache, polite rate limiting and no silent synthetic fallback, ported from `docs/reference/clf_stream_original.py` with the listed fixes.
 
 ## Iteration 9 — 2026-10-25 (scheduled loop)
+- Expand engine: cycles 90–99 on branch `expand-loop` (commit afa13f5). Eval loss 0.02522 (cycle 90) → 0.02638 at cycle 99 (best 0.02519 at cycle 92; one spike to 0.0368 at cycle 95, recovered next cycle); tokens dropped every cycle (75–477 per eval); CF 2.45 → 2.5 at cycle 90, **capacity_factor cap 2.5 reached** and drops persist; loss stalls grew layer 10 from 5 to 9 experts → experts [6, 9, 5, 8, 5, 5, 5, 19, 7, 9], 10 layers (cap 12); aux max ~1.001 so alpha stays 0.1. No failures or rollbacks.
 
 ### Stage 9(b) — webstream
 - New `webstream.py`, ported from `docs/reference/clf_stream_original.py`; no tokenizer, all torch. Nothing else imports it yet and no existing default changed.
