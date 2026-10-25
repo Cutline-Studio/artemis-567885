@@ -134,7 +134,10 @@ def test_bwrap_hides_host_fs(tmp_path):
 
 
 def test_iterate_fixes_failing_snippet(tmp_path):
-    ce = CodeExecEngine(str(tmp_path))
+    from artemis_dense.sandbox import SandboxEnv
+    sb = SandboxEnv.load(ARTEMIS_SANDBOX_ROOT=str(tmp_path / "sbx"))
+    sb.setup()
+    ce = CodeExecEngine(sb.work_dir("exec"), sandbox=sb)    # skill promotion needs sandbox.env + the gate
     skills = SkillStore(str(tmp_path / "skills.json"))
     trainer = SelfTrainer(str(tmp_path / "train"), DenseConfig(**TINY), TrainConfig(**TC))
     attempts = ["def add(a, b):\n    return a - b\n",            # deliberately wrong

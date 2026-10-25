@@ -1,0 +1,389 @@
+{
+  "docs": [
+    {
+      "file": "agents.md",
+      "title": "Artemis agents (top level)",
+      "status": "reference",
+      "review": "approved",
+      "in_corpus": true
+    },
+    {
+      "file": "Conversation.md",
+      "title": "Conversation: how Artemis chats",
+      "status": "mixed",
+      "review": "approved",
+      "in_corpus": true
+    },
+    {
+      "file": "CustomConstitutionalAI.md",
+      "title": "Custom Constitutional AI: the promotion gate",
+      "status": "built",
+      "review": "approved",
+      "in_corpus": true
+    },
+    {
+      "file": "Dictionary.md",
+      "title": "Dictionary",
+      "status": "mixed",
+      "review": "approved",
+      "in_corpus": true
+    },
+    {
+      "file": "engines/a2a/agent.md",
+      "title": "agent: a2a",
+      "status": "reference",
+      "review": "approved",
+      "in_corpus": true
+    },
+    {
+      "file": "engines/a2a/docs/ARCHITECTURE.md",
+      "title": "Artemis A2A engine: architecture outline",
+      "status": "reference",
+      "review": "approved",
+      "in_corpus": true
+    },
+    {
+      "file": "engines/a2a/docs/PROTOTYPE_SPEC.md",
+      "title": "A2A prototype spec (v0.1, local only)",
+      "status": "reference",
+      "review": "approved",
+      "in_corpus": true
+    },
+    {
+      "file": "engines/a2a/skills.md",
+      "title": "A2A engine skills",
+      "status": "reference",
+      "review": "approved",
+      "in_corpus": true
+    },
+    {
+      "file": "engines/autonomous.agent.md",
+      "title": "agent: autonomous (orchestrator)",
+      "status": "reference",
+      "review": "approved",
+      "in_corpus": true
+    },
+    {
+      "file": "engines/code_exec.agent.md",
+      "title": "agent: code_exec",
+      "status": "reference",
+      "review": "approved",
+      "in_corpus": true
+    },
+    {
+      "file": "engines/conversation/agent.md",
+      "title": "Conversational engine: agent card",
+      "status": "reference",
+      "review": "approved",
+      "in_corpus": true
+    },
+    {
+      "file": "engines/conversation/agents.md",
+      "title": "Conversational engine: who may call it",
+      "status": "reference",
+      "review": "approved",
+      "in_corpus": true
+    },
+    {
+      "file": "engines/conversation/SKILL.md",
+      "title": "Conversational engine",
+      "status": "reference",
+      "review": "approved",
+      "in_corpus": true
+    },
+    {
+      "file": "engines/conversation/skills.md",
+      "title": "Conversational engine: skills",
+      "status": "reference",
+      "review": "approved",
+      "in_corpus": true
+    },
+    {
+      "file": "engines/custom_constitutional/agent.md",
+      "title": "Custom Constitutional AI engine (promotion gate): agent card",
+      "status": "reference",
+      "review": "approved",
+      "in_corpus": true
+    },
+    {
+      "file": "engines/custom_constitutional/agents.md",
+      "title": "Custom Constitutional AI engine (promotion gate): who may call it",
+      "status": "reference",
+      "review": "approved",
+      "in_corpus": true
+    },
+    {
+      "file": "engines/custom_constitutional/SKILL.md",
+      "title": "Custom Constitutional AI engine (promotion gate)",
+      "status": "reference",
+      "review": "approved",
+      "in_corpus": true
+    },
+    {
+      "file": "engines/custom_constitutional/skills.md",
+      "title": "Custom Constitutional AI engine (promotion gate): skills",
+      "status": "reference",
+      "review": "approved",
+      "in_corpus": true
+    },
+    {
+      "file": "engines/heart/agent.md",
+      "title": "Heart engine: agent card",
+      "status": "reference",
+      "review": "approved",
+      "in_corpus": true
+    },
+    {
+      "file": "engines/heart/agents.md",
+      "title": "Heart engine: who may call it",
+      "status": "reference",
+      "review": "approved",
+      "in_corpus": true
+    },
+    {
+      "file": "engines/heart/SKILL.md",
+      "title": "Heart engine",
+      "status": "reference",
+      "review": "approved",
+      "in_corpus": true
+    },
+    {
+      "file": "engines/heart/skills.md",
+      "title": "Heart engine: skills",
+      "status": "reference",
+      "review": "approved",
+      "in_corpus": true
+    },
+    {
+      "file": "engines/math/agent.md",
+      "title": "Mathematics engine: agent card",
+      "status": "reference",
+      "review": "approved",
+      "in_corpus": true
+    },
+    {
+      "file": "engines/math/agents.md",
+      "title": "Mathematics engine: who may call it",
+      "status": "reference",
+      "review": "approved",
+      "in_corpus": true
+    },
+    {
+      "file": "engines/math/SKILL.md",
+      "title": "Mathematics engine",
+      "status": "reference",
+      "review": "approved",
+      "in_corpus": true
+    },
+    {
+      "file": "engines/math/skills.md",
+      "title": "Mathematics engine: skills",
+      "status": "reference",
+      "review": "approved",
+      "in_corpus": true
+    },
+    {
+      "file": "engines/physics/agent.md",
+      "title": "Physics engine: agent card",
+      "status": "reference",
+      "review": "approved",
+      "in_corpus": true
+    },
+    {
+      "file": "engines/physics/agents.md",
+      "title": "Physics engine: who may call it",
+      "status": "reference",
+      "review": "approved",
+      "in_corpus": true
+    },
+    {
+      "file": "engines/physics/SKILL.md",
+      "title": "Physics engine",
+      "status": "reference",
+      "review": "approved",
+      "in_corpus": true
+    },
+    {
+      "file": "engines/physics/skills.md",
+      "title": "Physics engine: skills",
+      "status": "reference",
+      "review": "approved",
+      "in_corpus": true
+    },
+    {
+      "file": "engines/rag/agent.md",
+      "title": "RAG engine: agent card",
+      "status": "reference",
+      "review": "approved",
+      "in_corpus": true
+    },
+    {
+      "file": "engines/rag/agents.md",
+      "title": "RAG engine: who may call it",
+      "status": "reference",
+      "review": "approved",
+      "in_corpus": true
+    },
+    {
+      "file": "engines/rag/SKILL.md",
+      "title": "RAG engine",
+      "status": "reference",
+      "review": "approved",
+      "in_corpus": true
+    },
+    {
+      "file": "engines/rag/skills.md",
+      "title": "RAG engine: skills",
+      "status": "reference",
+      "review": "approved",
+      "in_corpus": true
+    },
+    {
+      "file": "engines/scaling/agent.md",
+      "title": "Neural scaling laws engine: agent card",
+      "status": "reference",
+      "review": "approved",
+      "in_corpus": true
+    },
+    {
+      "file": "engines/scaling/agents.md",
+      "title": "Neural scaling laws engine: who may call it",
+      "status": "reference",
+      "review": "approved",
+      "in_corpus": true
+    },
+    {
+      "file": "engines/scaling/SKILL.md",
+      "title": "Neural scaling laws engine",
+      "status": "reference",
+      "review": "approved",
+      "in_corpus": true
+    },
+    {
+      "file": "engines/scaling/skills.md",
+      "title": "Neural scaling laws engine: skills",
+      "status": "reference",
+      "review": "approved",
+      "in_corpus": true
+    },
+    {
+      "file": "engines/self_train.agent.md",
+      "title": "agent: self_train",
+      "status": "reference",
+      "review": "approved",
+      "in_corpus": true
+    },
+    {
+      "file": "engines/skills.agent.md",
+      "title": "agent: skills",
+      "status": "reference",
+      "review": "approved",
+      "in_corpus": true
+    },
+    {
+      "file": "engines/transformer/agent.md",
+      "title": "Transformer engine: agent card",
+      "status": "reference",
+      "review": "approved",
+      "in_corpus": true
+    },
+    {
+      "file": "engines/transformer/agents.md",
+      "title": "Transformer engine: who may call it",
+      "status": "reference",
+      "review": "approved",
+      "in_corpus": true
+    },
+    {
+      "file": "engines/transformer/SKILL.md",
+      "title": "Transformer engine",
+      "status": "reference",
+      "review": "approved",
+      "in_corpus": true
+    },
+    {
+      "file": "engines/transformer/skills.md",
+      "title": "Transformer engine: skills",
+      "status": "reference",
+      "review": "approved",
+      "in_corpus": true
+    },
+    {
+      "file": "GOVERNANCE.md",
+      "title": "Governance \u2014 Artemis 567885 dense rebuild",
+      "status": "reference",
+      "review": "approved",
+      "in_corpus": true
+    },
+    {
+      "file": "Heart.md",
+      "title": "Heart: Artemis's ranked values",
+      "status": "built",
+      "review": "approved",
+      "in_corpus": true
+    },
+    {
+      "file": "Mathematics.md",
+      "title": "Mathematics engine",
+      "status": "built",
+      "review": "approved",
+      "in_corpus": true
+    },
+    {
+      "file": "Physics.md",
+      "title": "Physics engine",
+      "status": "built",
+      "review": "approved",
+      "in_corpus": true
+    },
+    {
+      "file": "RAG.md",
+      "title": "RAG engine (retrieval-augmented generation)",
+      "status": "built",
+      "review": "approved",
+      "in_corpus": true
+    },
+    {
+      "file": "README.md",
+      "title": "artemis_dense \u2014 Artemis 567885 as one dense transformer",
+      "status": "reference",
+      "review": "approved",
+      "in_corpus": true
+    },
+    {
+      "file": "Sandbox.md",
+      "title": "Sandbox: where untrusted Artemis output is tested",
+      "status": "built",
+      "review": "approved",
+      "in_corpus": true
+    },
+    {
+      "file": "ScalingLaws.md",
+      "title": "Neural scaling laws engine",
+      "status": "built",
+      "review": "approved",
+      "in_corpus": true
+    },
+    {
+      "file": "skills.md",
+      "title": "Artemis skills (top level)",
+      "status": "reference",
+      "review": "approved",
+      "in_corpus": true
+    },
+    {
+      "file": "Transformer.md",
+      "title": "Transformer engine",
+      "status": "built",
+      "review": "approved",
+      "in_corpus": true
+    },
+    {
+      "file": "worlds.md",
+      "title": "Worlds (environments)",
+      "status": "reference",
+      "review": "approved",
+      "in_corpus": true
+    }
+  ]
+}

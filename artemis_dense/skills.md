@@ -12,6 +12,16 @@ Approvals follow [GOVERNANCE.md](GOVERNANCE.md).
 | Write → run → observe → revise code in the sandbox | code_exec | yes, sandboxed | only via an environment `execute` grant |
 | Choose the next action, bounded by steps, time and the kill switch | autonomous | yes | never |
 | Signed handshake, scoped token, task delegation | a2a | yes | allowlisted orgs only |
+| Load / build / generate / embed / score with the one model | transformer | yes | never |
+| Exact, symbolic and arbitrary-precision math with worked, verified answers; Z3 proofs | math | yes (tool calls sandboxed) | never |
+| Unit-checked physics: constants, kinematics, ODE simulation | physics | yes | never |
+| Score and choose replies by ranked values | heart | yes | never |
+| Retrieve from the docs with citations, or say "I don't know" | rag | yes | only scoped to a granted world (planned) |
+| Plan model size and tokens for a compute budget; fit our own scaling curve | scaling | yes (plans only) | never |
+| Multi-turn chat: template, state, clarifying questions, grounding, tools | conversation | yes (REPL; API planned on 127.0.0.1) | never |
+| Define any English word (WordNet + GCIDE, 292,125 records) | skills.define | yes | never |
+| Test untrusted output in an isolated environment | sandbox.env / sandbox.py | yes | never |
+| Constitution check before promotion (loose, strict on escalation) | custom_constitutional + promotion.py | yes | never |
 | **Environment capability**: enter a defined environment ("world") and read / write / execute inside it | a2a.environments | yes | only with a signed per-agent, per-environment grant |
 
 ## Environment capability (summary; details in [worlds.md](worlds.md))
@@ -28,6 +38,10 @@ Approvals follow [GOVERNANCE.md](GOVERNANCE.md).
 - `model_weights` and `self_train` environments are protected. A grant needs `human_approved=True`
   and `allow_protected=True`, set by the operator in code. An external request can never set
   them.
+
+## Promotion
+Everything Artemis generates is tested under [Sandbox.md](Sandbox.md) and promoted only through the
+constitution gate ([CustomConstitutionalAI.md](CustomConstitutionalAI.md)).
 
 ## Not skills (refused by design)
 Spending money, renting GPUs, network access from sandboxed code, pushing or merging code, deleting

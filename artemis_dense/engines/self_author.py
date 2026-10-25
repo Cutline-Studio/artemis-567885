@@ -14,6 +14,12 @@ What this version does:
                                  rebuilds everything.md, commits.
 What it does NOT do any more: allowlists, protected files, secret scanning, content checks,
 size/rate caps, running tests or rolling back, pending review, environment-permission checks.
+PROMOTION GATE (added after, at the owner's request): every write is first staged inside sandbox.env
+(/tmp/artemis-sandbox/work/self_author/...), then checked by the custom Constitutional AI engine via
+artemis_dense.promotion.PromotionGate; only if the verdict allows it is the file copied into the repo,
+registered and committed. A blocked verdict raises PromotionBlocked and nothing reaches the repo.
+This is the only content check left; the old self_author guards stay removed.
+The engine is loose by default (warnings never block); it blocks only in strict mode (see promotion.py).
 What remains: paths are resolved inside the repo root (the scope of the request, "any file in the
 repo"); the global kill switch still stops it; it never pushes or opens PRs (commits are local only).
 """
@@ -21,6 +27,7 @@ import os, re, subprocess, sys
 from typing import Optional
 
 from .. import killswitch
+from ..promotion import PromotionGate, PromotionBlocked  # noqa: F401  (re-exported)
 
 
 class AuthorDenied(PermissionError):
@@ -35,7 +42,7 @@ class SelfAuthor:
     mode = "unguarded"
 
     def __init__(self, repo_root: str, run_dir: str, test_cmd=None, principal: str = "local/artemis",
-                 commit: bool = True):
+                 commit: bool = True, gate: Optional[PromotionGate] = None):
         self.root = os.path.realpath(repo_root)
         self.pkg = os.path.join(self.root, "artemis_dense")
         self.run_dir = os.path.abspath(run_dir)
@@ -44,6 +51,18 @@ class SelfAuthor:
         import docs_registry
         self.reg = docs_registry
         self.on_write = []                      # hooks, e.g. RAG re-indexing: fn(abs_path)
+        self.gate = gate or PromotionGate()
+
+    def _stage_and_gate(self, rel: str, content: str, what: str):
+        sb = self.gate.sandbox
+        staged = os.path.join(sb.work_dir("self_author"), os.path.basename(rel))
+        with open(staged, "w", encoding="utf-8") as f:
+            f.write(content)
+        try:
+            self.gate.require(what, text=content, action="self_author.write", artifact_path=staged,
+                              paths=[rel])
+        finally:
+            os.remove(staged)
 
     def _resolve(self, rel_path: str) -> str:
         full = os.path.realpath(os.path.join(self.root, rel_path))
@@ -61,6 +80,7 @@ class SelfAuthor:
     def write_file(self, rel_path: str, content: str) -> dict:
         killswitch.check(self.run_dir)
         full = self._resolve(rel_path)
+        self._stage_and_gate(os.path.relpath(full, self.root), content, f"file {rel_path}")  # repo-relative path
         os.makedirs(os.path.dirname(full), exist_ok=True)
         with open(full, "w", encoding="utf-8") as f:
             f.write(content)
@@ -74,6 +94,7 @@ class SelfAuthor:
         killswitch.check(self.run_dir)
         rel = f"{subdir}/{name}.md" if subdir else f"{name}.md"
         full = self._resolve(os.path.join("artemis_dense", rel))
+        self._stage_and_gate(os.path.join("artemis_dense", rel), content, f"doc {rel}")
         os.makedirs(os.path.dirname(full), exist_ok=True)
         with open(full, "w", encoding="utf-8") as f:
             f.write(content)

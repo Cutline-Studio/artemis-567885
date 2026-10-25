@@ -41,13 +41,13 @@ def parse_tool_call(text: str) -> Optional[dict]:
 
 class ToolRouter:
     def __init__(self, run_dir: str, permissions=(), code_exec=None, skills=None, envs=None,
-                 a2a_client=None, principal: str = "local/artemis", author=None, math=None, physics=None):
+                 a2a_client=None, principal: str = "local/artemis", author=None, math=None, physics=None, rag=None):
         self.run_dir = os.path.abspath(run_dir)
         os.makedirs(self.run_dir, exist_ok=True)
         self.permissions = set(permissions)
         self.code_exec, self.skills, self.envs, self.a2a = code_exec, skills, envs, a2a_client
         self.principal = principal
-        self.author, self.math, self.physics = author, math, physics
+        self.author, self.math, self.physics, self.rag = author, math, physics, rag
         self.log_path = os.path.join(self.run_dir, "tool_calls.jsonl")
 
     def _log(self, name, allowed, reason):
@@ -79,6 +79,11 @@ class ToolRouter:
             elif name == "skills.acquire":
                 out = self.skills.acquire(a["name"], a["description"], a["trigger"], a.get("kind", "steps"),
                                           a.get("body", []), source="tool_call")["name"]
+            elif name == "rag.answer":
+                out = self.rag.answer(a["query"], allowed_prefixes=a.get("allowed_prefixes"))
+            elif name == "scaling.plan":
+                from . import scaling
+                out = scaling.plan_for_budget(a["usd"], a["peak_flops"], a["mfu"], a["usd_per_hour"])
             elif name == "env.read":
                 out = self.envs.read(a["session"], self.principal, a["path"])
             elif name == "env.write":

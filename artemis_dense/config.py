@@ -66,7 +66,7 @@ class DenseConfig:
 # tool ids for the optional tool head; index 0 = "no tool"
 TOOLS = ("none", "code_exec.run", "a2a.send_task", "skills.lookup", "skills.acquire", "env.read",
          "env.write", "env.execute", "skills.define", "self_author.create_doc", "math.compute",
-         "physics.compute")
+         "physics.compute", "rag.answer", "scaling.plan")
 
 # Scale ladder ("small" == the default DenseConfig()). Param counts are asserted in tests.
 SCALES = {

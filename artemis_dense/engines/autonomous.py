@@ -33,6 +33,7 @@ class Action:
 ACTIONS: Dict[str, Action] = {a.name: a for a in [
     Action("train_cycle"), Action("evaluate"), Action("force_grow"), Action("code_task"),
     Action("use_skill"), Action("record_skill"), Action("stop"), Action("author_doc"),
+    Action("solve_problem"),                     # math/physics problem via the ToolRouter (tool-head path)
     Action("request_gpu", costs_money=True),     # placeholder: always refused without approval
 ]}
 
@@ -40,7 +41,7 @@ ACTIONS: Dict[str, Action] = {a.name: a for a in [
 class Orchestrator:
     def __init__(self, run_dir: str, trainer: SelfTrainer, skills: SkillStore, code: CodeExecEngine,
                  max_steps: int = 10, max_seconds: float = 60.0, approve_spend: bool = False,
-                 spend_handlers: Optional[Dict[str, Callable]] = None, author=None):
+                 spend_handlers: Optional[Dict[str, Callable]] = None, author=None, router=None):
         self.run_dir = os.path.abspath(run_dir)
         for eng_dir in (trainer.run_dir, os.path.dirname(skills.path), code.run_dir):
             if not os.path.abspath(eng_dir).startswith(self.run_dir):
@@ -53,6 +54,8 @@ class Orchestrator:
         self.code_tasks: List[dict] = []     # {"task", "propose", "tests", "skill_name"}
         self.author = author                 # optional SelfAuthor
         self.author_tasks: List[dict] = []   # {"name", "content", "title"}
+        self.router = router                 # optional ToolRouter (math.compute / physics.compute / rag.answer)
+        self.problems: List[dict] = []       # tool calls, e.g. {"name": "math.compute", "args": {...}}
         self.log_path = os.path.join(self.run_dir, "decisions.jsonl")
         self.steps = 0
         self.ok_cycles_since_skill = 0
@@ -62,6 +65,8 @@ class Orchestrator:
         hist = self.trainer.state["history"]
         if self.code_tasks:
             return "code_task", f"{len(self.code_tasks)} code task(s) queued"
+        if self.problems and self.router is not None:
+            return "solve_problem", f"{len(self.problems)} math/physics problem(s) queued"
         if self.author_tasks and self.author is not None:
             return "author_doc", f"{len(self.author_tasks)} doc(s) queued for self_author"
         if len(hist) >= 2 and all(h["status"] == "rolled_back" for h in hist[-2:]):
@@ -112,6 +117,16 @@ class Orchestrator:
                                   skills=self.skills, trainer=self.trainer, skill_name=t.get("skill_name"))
             return {"ok": r["passed"], "detail": {k: r[k] for k in ("task", "passed", "iterations")}
                     | ({"skill_saved": r["skill_saved"]} if "skill_saved" in r else {})}
+        if name == "solve_problem":
+            call = self.problems.pop(0)
+            try:
+                out = self.router.dispatch(call)
+            except (PermissionError, ValueError, RuntimeError) as e:
+                return {"ok": False, "detail": f"{call.get('name')}: {e}"}
+            if self.trainer is not None:
+                self.trainer.add_execution_signal({"task": call["name"], "passed": True,
+                                                   "stdout": json.dumps(out, default=str)[:500], "iterations": 1})
+            return {"ok": True, "detail": {"call": call["name"], "result": out}}
         if name == "author_doc":
             t = self.author_tasks.pop(0)
             r = self.author.create_doc(t["name"], t["content"], t.get("title"))

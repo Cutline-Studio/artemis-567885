@@ -6,6 +6,8 @@ Contents of data/corpus/combined.txt:
   1. every doc in docs_index.json with in_corpus=True AND review=approved (everything.md excluded:
      it duplicates the docs), each wrapped in <doc file=...> markers
   2. instruction records from the docs' example dialogues (data/instructions.py), as text
+  2b. the same dialogues in chat-template form (data/conversations.py, <chat> blocks; Stage 2 SFT)
+  2c. engine-verified math/physics problems (data/problems/*.jsonl from data/build_problems.py)
   3. a deterministic SAMPLE of the dictionary (default 10% of entries, capped so dictionary bytes
      <= 3x the doc bytes) so 31 MB of definitions don't drown out the ~0.2 MB of Artemis docs.
      The full dictionary stays available to the model at run time via the skills.define tool.
@@ -43,6 +45,19 @@ def main(argv=None, root=None):
     recs = instructions.build(pkg, os.path.join(out_dir, "instructions.jsonl"))
     inst_text = "".join(f"<instruction>\n{instructions.to_text(r)}</instruction>\n" for r in recs)
     chunks.append(inst_text)
+    from artemis_dense.data import conversations
+    conv = conversations.build(pkg)
+    conv_text = "".join(f"<chat>\n{t}</chat>\n" for t in conv)
+    chunks.append(conv_text)
+    prob_text, prob_counts = "", {}
+    for name in ("math", "physics"):
+        pp = os.path.join(pkg, "data", "problems", f"{name}.jsonl")
+        if os.path.exists(pp):
+            rs = [json.loads(l) for l in open(pp) if l.strip()]
+            rs = [r for r in rs if r.get("verified")]
+            prob_counts[name] = len(rs)
+            prob_text += "".join(f"<problem domain=\"{name}\">Q: {r['q']}\nA: {r['a']}</problem>\n" for r in rs)
+    chunks.append(prob_text)
     dict_path = os.path.join(pkg, "data", "dictionary", "dictionary.jsonl")
     dict_bytes, dict_entries = 0, 0
     if os.path.exists(dict_path):
@@ -62,6 +77,8 @@ def main(argv=None, root=None):
     m = {"file": "combined.txt", "total_bytes": len(text.encode()), "byte_tokens": len(text.encode()),
          "sha256": hashlib.sha256(text.encode()).hexdigest(), "docs": files, "doc_bytes": doc_bytes,
          "instruction_records": len(recs), "instruction_bytes": len(inst_text.encode()),
+         "conversation_records": len(conv), "conversation_bytes": len(conv_text.encode()),
+         "problems": prob_counts, "problem_bytes": len(prob_text.encode()),
          "dictionary": {"fraction": a.dict_fraction, "cap_ratio": a.dict_cap_ratio, "seed": a.seed,
                         "entries": dict_entries, "bytes": dict_bytes},
          "excluded": ["everything.md", "docs with review=pending or in_corpus=false"]}

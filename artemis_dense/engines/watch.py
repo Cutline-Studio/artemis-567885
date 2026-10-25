@@ -140,8 +140,8 @@ def imitate(model, demo: List[dict], steps: int = 200, lr: float = 3e-3, seed: i
 
 @torch.no_grad()
 def predict_action(model, step, max_len: int = 64) -> str:
-    p = torch.tensor([list(fmt_obs(step))])
-    out = bytes(model.generate(p, max_len)[0, p.shape[1]:].tolist())
+    from . import transformer as tx
+    out = tx.generate(model, fmt_obs(step), max_len)
     return out.split(b"</act>")[0].decode("utf-8", "replace")
 
 
@@ -150,7 +150,7 @@ def match_rate(model, demo) -> float:
 
 
 # ---------------------------------------------------------------- practice-and-check
-def practice(demo: List[dict], policy, router, trainer=None) -> dict:
+def practice(demo: List[dict], policy, router, trainer=None, skills=None, skill_name=None, gate=None) -> dict:
     """policy(step) -> predicted action value. Commands are executed ONLY via router.dispatch
     ("code_exec.run"), i.e. the router's permission list and the code_exec sandbox apply."""
     results = []
@@ -171,6 +171,19 @@ def practice(demo: List[dict], policy, router, trainer=None) -> dict:
     score = {"step_match_rate": sum(r["step_match"] for r in results) / n,
              "outcome_match_rate": sum(r.get("outcome_match", False) for r in results) / n,
              "steps": results}
+    if skills is not None and skill_name and score["step_match_rate"] == 1.0:
+        # promotion: a perfectly practised demo becomes a stored skill, only through the constitution gate
+        from ..promotion import PromotionGate
+        ce = getattr(router, "code_exec", None)
+        g = gate or PromotionGate(sandbox=getattr(ce, "sandbox", None) or None)
+        body = [{"obs": s.get("obs"), "action": s["action"]} for s in demo]
+        v = g.check(f"watched skill {skill_name}", text=json.dumps(body), action="watch.promote_skill",
+                    artifact_path=getattr(ce, "run_dir", None))
+        score["promotion"] = {"allowed": g.promotable(v), "outcome": v.outcome,
+                              "violations": [x.principle for x in v.violations]}
+        if g.promotable(v):
+            skills.acquire(skill_name, f"Learned by watching ({len(demo)} steps)", skill_name, "steps",
+                           body, source="watch", overwrite=True)
     if trainer is not None:
         trainer.add_execution_signal({"task": "watch.practice", "passed": score["step_match_rate"] == 1.0,
                                       "stdout": json.dumps({k: score[k] for k in ("step_match_rate", "outcome_match_rate")}),

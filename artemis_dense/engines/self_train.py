@@ -21,6 +21,7 @@ import torch
 
 from ..config import DenseConfig
 from ..model import ArtemisDense
+from . import transformer as tx
 from .. import killswitch
 
 
@@ -93,19 +94,13 @@ class SelfTrainer:
         cfg = DenseConfig.from_dict(dict(self.state["model_cfg"]))
         torch.manual_seed(self.tc.seed)
         if os.path.exists(self.p["ckpt"]):
-            ck = torch.load(self.p["ckpt"], weights_only=False)
-            cfg = DenseConfig.from_dict(ck["cfg"])
-            m = ArtemisDense(cfg)
-            m.load_state_dict(ck["model"])
-        else:
-            m = ArtemisDense(cfg)
-        return m
+            return tx.load(self.p["ckpt"])
+        return tx.build(cfg)
 
     def _checkpoint(self, model: ArtemisDense):
         if os.path.exists(self.p["ckpt"]):
             shutil.copy2(self.p["ckpt"], self.p["prev"])
-        torch.save({"cfg": model.cfg.to_dict(), "model": model.state_dict()}, self.p["ckpt"] + ".tmp")
-        os.replace(self.p["ckpt"] + ".tmp", self.p["ckpt"])
+        tx.save(model, self.p["ckpt"])
         self.state["model_cfg"] = model.cfg.to_dict()
 
     # ------------------------------------------------------------- growth
@@ -223,6 +218,25 @@ class SelfTrainer:
         return rec
 
     # ------------------------------------------------------------- code_exec hook (stub)
+    def promote(self, dest_dir: str, approved: bool = False, gate=None) -> dict:
+        """Promote the current checkpoint out of the run dir (the run dir must be inside sandbox.env's
+        root for the constitution's sandbox_first principle to pass). Needs approved=True from a human:
+        'promote_model' is treated as a consequential action by this engine."""
+        from ..promotion import PromotionGate
+        import shutil
+        killswitch.check(self.run_dir)
+        g = gate or PromotionGate()
+        if not approved:
+            raise PermissionError("model promotion needs explicit human approval (approved=True)")
+        summary = json.dumps({k: self.state.get(k) for k in ("cycle", "best_eval", "cfg")}, default=str)
+        g.require("model checkpoint", text=summary, action="promote_model", approved=approved,
+                  artifact_path=self.p["ckpt"])
+        os.makedirs(dest_dir, exist_ok=True)
+        dest = os.path.join(dest_dir, "promoted.pt")
+        shutil.copy(self.p["ckpt"], dest)
+        self._log({"event": "promoted", "dest": dest})
+        return {"promoted": dest}
+
     def add_execution_signal(self, record: dict) -> str:
         """Record a code_exec result as future training/eval data. STUB: appends to
         exec_signal.jsonl only; nothing here trains on it."""

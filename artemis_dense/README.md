@@ -19,6 +19,15 @@ Growth is function-preserving: `add_layer()` (zero-init `wo` and `w_down`) and `
 | code execution | `code_exec.py` | write → run → observe → revise in a sandbox | [code_exec.agent.md](engines/code_exec.agent.md) |
 | autonomous | `autonomous.py` | picks the next action from a policy, logs every decision, bounded | [autonomous.agent.md](engines/autonomous.agent.md) |
 | A2A | `a2a/` | signed cross-org handshakes, policy gate, environments ("worlds") | [a2a/agent.md](engines/a2a/agent.md) |
+| transformer | `transformer/` | the single entry point to the one model | [agent.md](engines/transformer/agent.md) |
+| math | `math/` | SymPy/mpmath/Z3 math, verified, sandboxed for tool calls | [agent.md](engines/math/agent.md) |
+| physics | `physics/` | pint units, CODATA constants, SciPy simulation | [agent.md](engines/physics/agent.md) |
+| heart | `heart/` | ranked values -> scores and choices | [agent.md](engines/heart/agent.md) |
+| RAG | `rag/` | BM25 + dense retrieval with citations | [agent.md](engines/rag/agent.md) |
+| scaling | `scaling/` | Kaplan/Chinchilla, compute-optimal planning, own curve | [agent.md](engines/scaling/agent.md) |
+| conversation | `conversation/` + `chat.py` | chat template, dialogue state, grounding, tools, REPL | [agent.md](engines/conversation/agent.md) |
+| custom constitutional | `custom_constitutional/` + `promotion.py` | promotion gate (loose, strict on escalation) | [agent.md](engines/custom_constitutional/agent.md) |
+| self_author, watch, mistakes, tools | `self_author.py`, `watch.py`, `mistakes.py`, `tools.py` | self-authoring (unguarded, gated at promotion), imitation, error journal, tool router | — |
 
 How they connect: the **autonomous** orchestrator is the only thing that drives the others. Each
 step it reads state (trainer history, skill scores, queued code tasks) and chooses one whitelisted
@@ -63,6 +72,35 @@ flowchart LR
   N --> A
   E --> A
   K -. stops .-> O & T & N & E
+  subgraph Brain["One model, many engines"]
+    TX[transformer engine]
+    CV[conversation]
+    R[(rag index)]
+    H[heart]
+    MA[math]
+    PH[physics]
+    SC[scaling]
+    TR[ToolRouter<br/>default-deny]
+  end
+  subgraph Gate["Sandbox + promotion"]
+    SB[[sandbox.env<br/>/tmp/artemis-sandbox, no net]]
+    CA{custom constitution<br/>warn / strict}
+    SA[self_author<br/>unguarded]
+  end
+  TX --> M
+  T --> TX
+  CV --> TX
+  CV --> R
+  CV --> H
+  CV --> TR
+  TR --> MA & PH & R & C & SC
+  PH --> MA
+  O -- solve_problem --> TR
+  C --> SB
+  SA -- stage --> SB --> CA
+  CA -- allowed --> REPO[(repo / skills / promoted ckpt)]
+  C -- passing code --> CA
+  T -- promote --> CA
 ```
 
 ## Code-exec sandbox: enforced vs best-effort
@@ -86,10 +124,19 @@ trainer (before and during every step), the orchestrator (each step), the A2A no
 and the environment manager (each operation) stop. Code-exec children are bounded by their timeout.
 
 ## Docs
+[Conversation.md](Conversation.md) · [Sandbox.md](Sandbox.md) · [CustomConstitutionalAI.md](CustomConstitutionalAI.md) ·
+[Transformer.md](Transformer.md) · [Mathematics.md](Mathematics.md) · [Physics.md](Physics.md) · [Heart.md](Heart.md) ·
+[RAG.md](RAG.md) · [ScalingLaws.md](ScalingLaws.md) · [Dictionary.md](Dictionary.md) · [agents.md](agents.md) ·
+[everything.md](everything.md) (all docs in one file) ·
 [GOVERNANCE.md](GOVERNANCE.md) · [skills.md](skills.md) · [worlds.md](worlds.md) ·
 [HTTP_HTTPS.md](HTTP_HTTPS.md) · [NFC.md](NFC.md) · [RadioBand.md](RadioBand.md) ·
 [UltraWideband.md](UltraWideband.md) · [A2A architecture](engines/a2a/docs/ARCHITECTURE.md) ·
 [A2A prototype spec](engines/a2a/docs/PROTOTYPE_SPEC.md)
 
+Not yet on disk in this branch (linked from older text; to be written): HTTP_HTTPS.md, NFC.md,
+RadioBand.md, UltraWideband.md, personality.md, training.md.
+
 ## Tests (CPU only, seconds)
-`tests/test_dense_model.py`, `tests/test_dense_engines.py`, `tests/test_a2a.py`.
+`tests/test_dense_model.py`, `tests/test_dense_engines.py`, `tests/test_dense_upgrades.py`, `tests/test_a2a.py`,
+`tests/test_learning_engines.py`, `tests/test_self_author.py`, `tests/test_new_engines.py`,
+`tests/test_sandbox_promotion.py`, `tests/test_custom_constitutional.py`.
