@@ -8,9 +8,30 @@
       "in_corpus": true
     },
     {
+      "file": "Anthropic.md",
+      "title": "Anthropic: public reference",
+      "status": "reference",
+      "review": "approved",
+      "in_corpus": true
+    },
+    {
       "file": "Conversation.md",
       "title": "Conversation: how Artemis chats",
       "status": "mixed",
+      "review": "approved",
+      "in_corpus": true
+    },
+    {
+      "file": "CPU.md",
+      "title": "CPU: smoke tests and CPU training",
+      "status": "built",
+      "review": "approved",
+      "in_corpus": true
+    },
+    {
+      "file": "CreateMdFile.md",
+      "title": "CreateMdFile: how to add a new Artemis doc",
+      "status": "built",
       "review": "approved",
       "in_corpus": true
     },
@@ -309,9 +330,37 @@
       "in_corpus": true
     },
     {
+      "file": "FBI.md",
+      "title": "FBI: public reference",
+      "status": "reference",
+      "review": "approved",
+      "in_corpus": true
+    },
+    {
+      "file": "forever.md",
+      "title": "forever: continuity and the brain loop",
+      "status": "mixed",
+      "review": "approved",
+      "in_corpus": true
+    },
+    {
+      "file": "FreeSpaceOptical.md",
+      "title": "FreeSpaceOptical: light through the air as a planned A2A transport",
+      "status": "planned",
+      "review": "approved",
+      "in_corpus": true
+    },
+    {
       "file": "GOVERNANCE.md",
       "title": "Governance \u2014 Artemis 567885 dense rebuild",
       "status": "reference",
+      "review": "approved",
+      "in_corpus": true
+    },
+    {
+      "file": "GPU.md",
+      "title": "GPU: when and how Artemis may use a GPU",
+      "status": "mixed",
       "review": "approved",
       "in_corpus": true
     },
@@ -323,6 +372,27 @@
       "in_corpus": true
     },
     {
+      "file": "HTTP_HTTPS.md",
+      "title": "HTTP_HTTPS: Artemis's planned localhost API",
+      "status": "planned",
+      "review": "approved",
+      "in_corpus": true
+    },
+    {
+      "file": "Instructions.md",
+      "title": "Instructions: how Artemis learns and follows instructions",
+      "status": "mixed",
+      "review": "approved",
+      "in_corpus": true
+    },
+    {
+      "file": "Laser.md",
+      "title": "Laser: laser links as a planned A2A transport",
+      "status": "planned",
+      "review": "approved",
+      "in_corpus": true
+    },
+    {
       "file": "Mathematics.md",
       "title": "Mathematics engine",
       "status": "built",
@@ -330,9 +400,44 @@
       "in_corpus": true
     },
     {
+      "file": "Mistakes.md",
+      "title": "Mistakes: how Artemis learns from failures",
+      "status": "built",
+      "review": "approved",
+      "in_corpus": true
+    },
+    {
+      "file": "NASA.md",
+      "title": "NASA: public reference",
+      "status": "reference",
+      "review": "approved",
+      "in_corpus": true
+    },
+    {
+      "file": "NFC.md",
+      "title": "NFC: near-field communication as a planned A2A transport",
+      "status": "planned",
+      "review": "approved",
+      "in_corpus": true
+    },
+    {
+      "file": "personality.md",
+      "title": "Personality: how Artemis sounds",
+      "status": "mixed",
+      "review": "approved",
+      "in_corpus": true
+    },
+    {
       "file": "Physics.md",
       "title": "Physics engine",
       "status": "built",
+      "review": "approved",
+      "in_corpus": true
+    },
+    {
+      "file": "RadioBand.md",
+      "title": "RadioBand: radio links as a planned A2A transport",
+      "status": "planned",
       "review": "approved",
       "in_corpus": true
     },
@@ -365,6 +470,13 @@
       "in_corpus": true
     },
     {
+      "file": "SelfAuthor.md",
+      "title": "SelfAuthor: Artemis writing its own files",
+      "status": "built",
+      "review": "approved",
+      "in_corpus": true
+    },
+    {
       "file": "skills.md",
       "title": "Artemis skills (top level)",
       "status": "reference",
@@ -372,9 +484,30 @@
       "in_corpus": true
     },
     {
+      "file": "training.md",
+      "title": "Training: how Artemis learns",
+      "status": "mixed",
+      "review": "approved",
+      "in_corpus": true
+    },
+    {
       "file": "Transformer.md",
       "title": "Transformer engine",
       "status": "built",
+      "review": "approved",
+      "in_corpus": true
+    },
+    {
+      "file": "UltraWideband.md",
+      "title": "UltraWideband: UWB ranging as a planned A2A transport",
+      "status": "planned",
+      "review": "approved",
+      "in_corpus": true
+    },
+    {
+      "file": "Watch.md",
+      "title": "Watch: learning by watching",
+      "status": "mixed",
       "review": "approved",
       "in_corpus": true
     },

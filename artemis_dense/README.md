@@ -27,7 +27,7 @@ Growth is function-preserving: `add_layer()` (zero-init `wo` and `w_down`) and `
 | scaling | `scaling/` | Kaplan/Chinchilla, compute-optimal planning, own curve | [agent.md](engines/scaling/agent.md) |
 | conversation | `conversation/` + `chat.py` | chat template, dialogue state, grounding, tools, REPL | [agent.md](engines/conversation/agent.md) |
 | custom constitutional | `custom_constitutional/` + `promotion.py` | promotion gate (loose, strict on escalation) | [agent.md](engines/custom_constitutional/agent.md) |
-| self_author, watch, mistakes, tools | `self_author.py`, `watch.py`, `mistakes.py`, `tools.py` | self-authoring (unguarded, gated at promotion), imitation, error journal, tool router | — |
+| self_author, watch, mistakes, tools | `self_author.py`, `watch.py`, `mistakes.py`, `tools.py` | self-authoring (unguarded, gated at promotion), imitation, error journal, tool router | [SelfAuthor.md](SelfAuthor.md) · [Watch.md](Watch.md) · [Mistakes.md](Mistakes.md) |
 
 How they connect: the **autonomous** orchestrator is the only thing that drives the others. Each
 step it reads state (trainer history, skill scores, queued code tasks) and chooses one whitelisted
@@ -129,12 +129,21 @@ and the environment manager (each operation) stop. Code-exec children are bounde
 [RAG.md](RAG.md) · [ScalingLaws.md](ScalingLaws.md) · [Dictionary.md](Dictionary.md) · [agents.md](agents.md) ·
 [everything.md](everything.md) (all docs in one file) ·
 [GOVERNANCE.md](GOVERNANCE.md) · [skills.md](skills.md) · [worlds.md](worlds.md) ·
-[HTTP_HTTPS.md](HTTP_HTTPS.md) · [NFC.md](NFC.md) · [RadioBand.md](RadioBand.md) ·
-[UltraWideband.md](UltraWideband.md) · [A2A architecture](engines/a2a/docs/ARCHITECTURE.md) ·
-[A2A prototype spec](engines/a2a/docs/PROTOTYPE_SPEC.md)
+[A2A architecture](engines/a2a/docs/ARCHITECTURE.md) · [A2A prototype spec](engines/a2a/docs/PROTOTYPE_SPEC.md)
 
-Not yet on disk in this branch (linked from older text; to be written): HTTP_HTTPS.md, NFC.md,
-RadioBand.md, UltraWideband.md, personality.md, training.md.
+Training and compute: [training.md](training.md) · [CPU.md](CPU.md) · [GPU.md](GPU.md) ·
+[forever.md](forever.md)
+
+Learning and self-authoring: [Instructions.md](Instructions.md) · [Mistakes.md](Mistakes.md) ·
+[Watch.md](Watch.md) · [SelfAuthor.md](SelfAuthor.md) · [CreateMdFile.md](CreateMdFile.md)
+
+Voice: [personality.md](personality.md)
+
+Planned A2A transports: [HTTP_HTTPS.md](HTTP_HTTPS.md) (localhost 127.0.0.1 only) · [NFC.md](NFC.md) ·
+[RadioBand.md](RadioBand.md) · [UltraWideband.md](UltraWideband.md) ·
+[FreeSpaceOptical.md](FreeSpaceOptical.md) · [Laser.md](Laser.md)
+
+Public reference (no affiliation): [NASA.md](NASA.md) · [FBI.md](FBI.md) · [Anthropic.md](Anthropic.md)
 
 ## Tests (CPU only, seconds)
 `tests/test_dense_model.py`, `tests/test_dense_engines.py`, `tests/test_dense_upgrades.py`, `tests/test_a2a.py`,
