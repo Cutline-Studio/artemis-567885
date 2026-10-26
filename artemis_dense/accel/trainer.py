@@ -123,6 +123,11 @@ def run(a: AccelConfig, minutes: float, run_name: str, out_root: str = None, cor
     text = open(corpus, encoding="utf-8").read()
     train_text, val_text = D.split_corpus(text)
     status = {}
+    dev_text = ""
+    if a.keep_best:                         # dev split from TRAIN only; the held-out val is never used to select
+        train_text, dev_text = D.split_corpus(train_text, every=20)
+        status["keep_best"] = f"early stopping on dev split ({len(dev_text.encode())} bytes, carved from train)"
+
     summary = {"run": run_name, "accel": a.to_dict(), "minutes": minutes, "versions": versions(),
                "command": "python -m artemis_dense.accel.trainer " + " ".join(sys.argv[1:]),
                "corpus": {"path": os.path.relpath(corpus, ROOT) if corpus.startswith(ROOT) else corpus,
@@ -280,6 +285,8 @@ def run(a: AccelConfig, minutes: float, run_name: str, out_root: str = None, cor
          "prep_s": round(clock.used(), 1)})
 
     step, seen_tokens, seen_bytes_est, last_eval, evals = 0, 0, 0.0, clock.used(), []
+    best = {"dev_bpb": float("inf"), "model": None, "step": 0}
+    last_best = clock.used()
     bpt = summary["corpus"]["bytes_per_token"]
     while clock.left() > 0:
         frac = clock.frac()
@@ -327,6 +334,12 @@ def run(a: AccelConfig, minutes: float, run_name: str, out_root: str = None, cor
         if step % 25 == 0:
             log({"step": step, "loss": round(loss.item(), 4), "T": T, "lr": round(lr, 6),
                  "layers": model.num_layers, "tokens": seen_tokens, "used_s": round(clock.used(), 1)})
+        if a.keep_best and clock.used() - last_best >= a.best_every_s:
+            with clock.pause():
+                dv = bits_per_byte(model, codec, dev_text, T_max, 20)["bits_per_byte"]
+                if dv < best["dev_bpb"]:
+                    best.update(dev_bpb=dv, model=copy.deepcopy(model), step=step)
+            last_best = clock.used()
         if clock.used() - last_eval >= eval_every_s:
             with clock.pause():
                 ev = {"step": step, "used_s": round(clock.used(), 1), "train_tokens": seen_tokens,
@@ -334,6 +347,12 @@ def run(a: AccelConfig, minutes: float, run_name: str, out_root: str = None, cor
                 evals.append(ev); log({"event": "eval", **ev})
             last_eval = clock.used()
 
+    if a.keep_best:
+        dv = bits_per_byte(model, codec, dev_text, T_max, 20)["bits_per_byte"]
+        if best["model"] is not None and best["dev_bpb"] < dv:
+            model = best["model"]
+            log({"event": "keep_best", "restored_step": best["step"], "dev_bpb": best["dev_bpb"], "last_dev_bpb": dv})
+        summary["keep_best"] = {"best_step": best["step"], "best_dev_bpb": best["dev_bpb"], "last_dev_bpb": dv}
     summary["final"] = bits_per_byte(model, codec, val_text, T_max, 0)
     summary.update(status=status, steps=step, train_tokens_seen=seen_tokens,
                    train_bytes_seen_est=round(seen_tokens * bpt), wall_budget_s=minutes * 60,

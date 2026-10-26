@@ -332,6 +332,7 @@ def test_trainer_fast_preset_smoke(tmp_path):
                              precision="auto", attention="auto", compile=False)
     s = run(cfg, 0.15, "smoke", str(tmp_path / "out"), str(corpus), threads=1, eval_every_s=1000, log_fn=lambda *_: None)
     assert s["steps"] > 0 and s["final"]["bits_per_byte"] < s["before"]["bits_per_byte"]
-    assert s["final_layers"] == 4 and "13_quality_filter" in s["status"]
+    assert "13_quality_filter" in s["status"] and "keep_best" in s
+    assert s["final_layers"] in (2, 3, 4)          # keep_best may restore a pre-growth snapshot
     with pytest.raises(dev.ApprovalRequired):
         run(AccelConfig.preset("gpu_full"), 0.01, "g", str(tmp_path / "g"), str(corpus))

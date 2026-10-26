@@ -83,6 +83,9 @@ class AccelConfig:
     self_play_at: list = field(default_factory=lambda: [0.7])
     self_play_n: int = 4
     self_play_prompts: int = 8
+    # guard against over-fitting a small corpus (not one of the 20; added after the first A/B)
+    keep_best: bool = False             # early stopping on a dev split carved from TRAIN (val untouched)
+    best_every_s: float = 15.0
     # model / loop
     size: str = "small"
     context_len: int = 512
@@ -107,7 +110,7 @@ PRESETS = {
     "fast": dict(precision="auto", attention="auto", compile=True, tokenizer="bpe", pack=True,
                  seq_warmup=True, grow=True, quality_filter=True, dedup=True, synthetic=True,
                  curriculum=True, scaling_size=True, lr_find=True, warmup_frac=0.05,
-                 mistake_replay=True, self_play=True, distill=False, lora=False,
+                 mistake_replay=True, self_play=True, distill=False, lora=False, keep_best=True,
                  context_len=256, batch=16),
     # adds the approval-needed methods; the trainer refuses until each *_approved flag is True
     "gpu_full": dict(device="cuda", precision="bf16", attention="flash", compile=True, ddp=False,
