@@ -177,7 +177,9 @@ refuses to run until Latoya says OK; **planned** is an interface only.
 
 - `baseline`: what `artemis_dense/train.py` stage 1 does today (small, bytes, context 512,
   batch 16, LR 1e-3, 100-step warmup + cosine).
-- `fast`: every method that runs on CPU with no approval: 2, 3 (auto), 4, 6, 7, 8, 11, 13-20.
+- `fast`: every method that runs on CPU with no approval: 2, 3 (auto), 4, 6, 7, 8, 11, 13-20, plus
+  `keep_best` (early stopping on a dev split carved from the train split; the held-out split is
+  never used to pick weights).
   Off on purpose: 10 (no trained local teacher exists yet), 12 (LoRA slows from-scratch learning;
   use it for fine-tuning), and 1, 5, 9 (approval-needed).
 - `gpu_full`: adds the GPU and teacher methods; refuses to run until each approval flag is set.
@@ -194,7 +196,39 @@ and BPE vocabularies.
 
 ## Measured A/B (CPU, same wall time)
 
-RESULTS_PLACEHOLDER
+Run on 2026-10-25 (America/New_York) at commit `1e1b2e2`, branch `dense-model`. Both arms ran **at the
+same time, 2 threads each, 5 minutes of training budget each**, while another CPU training job
+(about 1.4 cores) was also running, so absolute speeds are lower than an idle box. Same corpus
+snapshot (sha256 `8ace1fe5…85edc`, 360,188 train bytes, 17,000 held-out bytes), same seed 567885,
+Python 3.13.5, torch 2.14.1+cpu, tokenizers 0.23.3, Linux 6.12, 8 CPUs.
+
+```
+PYTHONPATH=. python -m artemis_dense.accel.trainer --preset baseline --minutes 5 --run ab_baseline \
+  --threads 2 --seed 567885 --corpus <snapshot of data/corpus/combined.txt> --out <dir> --eval-every-s 60
+PYTHONPATH=. python -m artemis_dense.accel.trainer --preset fast     --minutes 5 --run ab_fast \
+  --threads 2 --seed 567885 --corpus <same snapshot> --out <dir> --eval-every-s 60
+```
+
+| | baseline | fast |
+|---|---|---|
+| model | small, 8 layers, 6.89M params, bytes | tiny grown 2 -> 4 layers, BPE 4096; best snapshot (3 layers, 1.16M params) restored |
+| steps / training tokens | 143 / 1.17M | 1,386 / 5.22M (about 43 passes over the 119,634-token BPE train split) |
+| held-out bits-per-byte, start | 8.0734 | 3.8691 (random init; BPE vocab) |
+| held-out bits-per-byte at ~95 s | 5.10 (64 s) / 3.68 (126 s) | 2.411 (96 s) |
+| **held-out bits-per-byte, final** | **2.2341** | **2.2902** |
+
+Measured result: the fast stack processed about 4.5x more tokens per second and reached 2.41
+bits-per-byte in 96 s, a level the baseline only passed between 248 s and 300 s (roughly 2.6-3x
+faster to that point). But this corpus is tiny, so the fast run then memorised it (train loss
+fell toward 0 while held-out loss rose) and early stopping restored step 626. **Final held-out
+bits-per-byte was 2.2902 for fast vs 2.2341 for baseline: fast was 2.5% worse at the 5-minute
+mark, not faster.** Self-play kept 0 of 32 samples (0 verified correct). Autotune picked bf16 +
+flash attention for the tiny model; torch.compile fell back to eager.
+
+An earlier 5-minute A/B at commit `8b756bc` (no early stopping) ended at 3.6895 (fast) vs
+2.2514 (baseline) because of the same over-fitting; that is why `keep_best` was added.
+The honest reading: on 360 KB of text the limit is data, not speed. These methods pay off with a
+much bigger corpus or a GPU.
 
 ## What needs Latoya's OK
 
