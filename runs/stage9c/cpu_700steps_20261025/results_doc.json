@@ -1,0 +1,139 @@
+{
+ "stage": "9c",
+ "started": "2026-10-25 21:03:53 EDT",
+ "finished": "2026-10-25 21:17:37 EDT",
+ "data": {
+  "url": "https://www.gutenberg.org/cache/epub/1342/pg1342.txt",
+  "n_bytes": 772386,
+  "chunks": 6,
+  "chunk_size": 131072,
+  "sources": {
+   "cache": 6
+  },
+  "statuses": [
+   206
+  ],
+  "network_requests": 0,
+  "sha256": "3f6bb9d6f78e0293b56acd4714dd68cb7d6d1d293402031ce9d5a216bcaf9d75",
+  "synthetic": false,
+  "body": [
+   993,
+   753480
+  ],
+  "train_offset": 993,
+  "train_bytes": 677238,
+  "heldout_offset": 678231,
+  "heldout_bytes": 75249,
+  "heldout_frac": 0.1
+ },
+ "unigram": {
+  "train_entropy_bpb": 4.5742,
+  "heldout_xent_bpb_full": 4.6221,
+  "heldout_xent_bpb_eval_targets": 4.61917
+ },
+ "variants": {
+  "doc": {
+   "pos_mode": "doc",
+   "params": 732800,
+   "steps": 700,
+   "train_time_s": 813.8,
+   "bytes_seen": 2889600,
+   "initial_heldout_bpb": 8.30319,
+   "final_heldout_bpb": 3.15551,
+   "best_heldout_bpb": 3.15551,
+   "final_train_windows_bpb": 3.11152,
+   "eval_windows": 583,
+   "eval_predicted_bytes": 74624,
+   "curve": [
+    {
+     "step": 0,
+     "elapsed_s": 0.0,
+     "train_bpb": null,
+     "heldout_bpb": 8.30319
+    },
+    {
+     "step": 100,
+     "elapsed_s": 194.41,
+     "lr": 0.002,
+     "train_bpb": 4.71637,
+     "heldout_bpb": 3.50691
+    },
+    {
+     "step": 200,
+     "elapsed_s": 403.51,
+     "lr": 0.0016642931261571362,
+     "train_bpb": 3.41482,
+     "heldout_bpb": 3.38353
+    },
+    {
+     "step": 300,
+     "elapsed_s": 519.37,
+     "lr": 0.0013042047300462888,
+     "train_bpb": 3.33104,
+     "heldout_bpb": 3.32364
+    },
+    {
+     "step": 400,
+     "elapsed_s": 660.67,
+     "lr": 0.000903671082743112,
+     "train_bpb": 3.26625,
+     "heldout_bpb": 3.2695
+    },
+    {
+     "step": 500,
+     "elapsed_s": 734.11,
+     "lr": 0.0005420227853188184,
+     "train_bpb": 3.2058,
+     "heldout_bpb": 3.22382
+    },
+    {
+     "step": 600,
+     "elapsed_s": 797.27,
+     "lr": 0.0002908887184035898,
+     "train_bpb": 3.16159,
+     "heldout_bpb": 3.17936
+    },
+    {
+     "step": 700,
+     "elapsed_s": 813.78,
+     "lr": 0.0002000090639071953,
+     "train_bpb": 3.13658,
+     "heldout_bpb": 3.15551
+    }
+   ]
+  }
+ },
+ "config": {
+  "url": "https://www.gutenberg.org/cache/epub/1342/pg1342.txt",
+  "cache_dir": "runs/stage9c/cache",
+  "chunk_size": 131072,
+  "heldout_frac": 0.1,
+  "variants": "doc",
+  "d_model": 128,
+  "n_heads": 4,
+  "d_ff": 256,
+  "experts": 4,
+  "layers": 2,
+  "top_k": 2,
+  "dispatch": "vectorized",
+  "position_frequencies": 20,
+  "position_scale": 1048576.0,
+  "value_scalar": false,
+  "seq_len": 128,
+  "batch": 32,
+  "steps": 700,
+  "lr": 0.002,
+  "warmup": 100,
+  "weight_decay": 0.01,
+  "grad_clip": 1.0,
+  "aux_alpha": 0.01,
+  "eval_every": 100,
+  "eval_windows": 0,
+  "eval_batch": 64,
+  "seed": 567885,
+  "threads": 2,
+  "out": "runs/stage9c/results_doc.json"
+ },
+ "torch": "2.14.1+cpu",
+ "threads": 2
+}

@@ -1,0 +1,11 @@
+[webstream] GET https://www.gutenberg.org/cache/epub/1342/pg1342.txt Range bytes=0-131071 -> 206 131072 B in 0.651s
+[webstream] GET https://www.gutenberg.org/cache/epub/1342/pg1342.txt Range bytes=131072-262143 -> 206 131072 B in 0.691s
+[webstream] GET https://www.gutenberg.org/cache/epub/1342/pg1342.txt Range bytes=262144-393215 -> 206 131072 B in 0.710s
+[webstream] GET https://www.gutenberg.org/cache/epub/1342/pg1342.txt Range bytes=393216-524287 -> 206 131072 B in 0.707s
+[webstream] GET https://www.gutenberg.org/cache/epub/1342/pg1342.txt Range bytes=524288-655359 -> 206 131072 B in 0.531s
+[webstream] GET https://www.gutenberg.org/cache/epub/1342/pg1342.txt Range bytes=655360-786431 -> 206 117026 B in 0.697s
+[stage9c] https://www.gutenberg.org/cache/epub/1342/pg1342.txt 772,386 B sha256 3f6bb9d6f78e0293… (6 chunks, sources {'network': 6}, 6 requests)
+[stage9c] body 993-753,480 | train 677,238 B @ 993 | held-out 75,249 B @ 678,231
+[stage9c] unigram: train entropy 4.5742 bpb | held-out cross-entropy 4.6221 (full) / 4.6192 (eval targets)
+[stage9c] summary (held-out bpb, lower is better):
+  unigram (train dist on held-out) 4.6192

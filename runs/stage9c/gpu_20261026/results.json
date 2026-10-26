@@ -1,0 +1,388 @@
+{
+ "stage": "9c",
+ "started": "2026-10-26 13:09:47 UTC",
+ "finished": "2026-10-26 13:12:01 UTC",
+ "data": {
+  "url": "https://www.gutenberg.org/cache/epub/1342/pg1342.txt",
+  "n_bytes": 772386,
+  "chunks": 6,
+  "chunk_size": 131072,
+  "sources": {
+   "cache": 6
+  },
+  "statuses": [
+   206
+  ],
+  "network_requests": 0,
+  "sha256": "3f6bb9d6f78e0293b56acd4714dd68cb7d6d1d293402031ce9d5a216bcaf9d75",
+  "synthetic": false,
+  "body": [
+   993,
+   753480
+  ],
+  "train_offset": 993,
+  "train_bytes": 677238,
+  "heldout_offset": 678231,
+  "heldout_bytes": 75249,
+  "heldout_frac": 0.1
+ },
+ "unigram": {
+  "train_entropy_bpb": 4.5742,
+  "heldout_xent_bpb_full": 4.6221,
+  "heldout_xent_bpb_eval_targets": 4.61917
+ },
+ "variants": {
+  "doc": {
+   "pos_mode": "doc",
+   "params": 732800,
+   "steps": 3000,
+   "train_time_s": 48.6,
+   "bytes_seen": 12384000,
+   "device": "cuda",
+   "initial_heldout_bpb": 8.30319,
+   "final_heldout_bpb": 1.76413,
+   "best_heldout_bpb": 1.76014,
+   "final_train_windows_bpb": 1.44517,
+   "eval_windows": 583,
+   "eval_predicted_bytes": 74624,
+   "curve": [
+    {
+     "step": 0,
+     "elapsed_s": 0.0,
+     "train_bpb": null,
+     "heldout_bpb": 8.30319
+    },
+    {
+     "step": 250,
+     "elapsed_s": 4.1,
+     "lr": 0.0019695766981535434,
+     "train_bpb": 3.92393,
+     "heldout_bpb": 3.36687
+    },
+    {
+     "step": 500,
+     "elapsed_s": 7.16,
+     "lr": 0.001879893674851537,
+     "train_bpb": 3.2527,
+     "heldout_bpb": 3.21304
+    },
+    {
+     "step": 750,
+     "elapsed_s": 10.23,
+     "lr": 0.0017370621864436341,
+     "train_bpb": 2.92325,
+     "heldout_bpb": 2.44152
+    },
+    {
+     "step": 1000,
+     "elapsed_s": 13.33,
+     "lr": 0.001550815962824639,
+     "train_bpb": 2.14266,
+     "heldout_bpb": 2.03364
+    },
+    {
+     "step": 1250,
+     "elapsed_s": 17.9,
+     "lr": 0.001333847376347748,
+     "train_bpb": 1.87394,
+     "heldout_bpb": 1.90466
+    },
+    {
+     "step": 1500,
+     "elapsed_s": 22.02,
+     "lr": 0.0011009424776238202,
+     "train_bpb": 1.75435,
+     "heldout_bpb": 1.83796
+    },
+    {
+     "step": 1750,
+     "elapsed_s": 26.29,
+     "lr": 0.0008679733506073462,
+     "train_bpb": 1.66913,
+     "heldout_bpb": 1.7938
+    },
+    {
+     "step": 2000,
+     "elapsed_s": 30.78,
+     "lr": 0.000650816456304814,
+     "train_bpb": 1.60325,
+     "heldout_bpb": 1.77943
+    },
+    {
+     "step": 2250,
+     "elapsed_s": 35.27,
+     "lr": 0.000464270678194205,
+     "train_bpb": 1.55196,
+     "heldout_bpb": 1.76577
+    },
+    {
+     "step": 2500,
+     "elapsed_s": 39.59,
+     "lr": 0.0003210488027722831,
+     "train_bpb": 1.50808,
+     "heldout_bpb": 1.76088
+    },
+    {
+     "step": 2750,
+     "elapsed_s": 44.09,
+     "lr": 0.0002309111641637119,
+     "train_bpb": 1.47541,
+     "heldout_bpb": 1.76014
+    },
+    {
+     "step": 3000,
+     "elapsed_s": 48.6,
+     "lr": 0.00020000049348017495,
+     "train_bpb": 1.45909,
+     "heldout_bpb": 1.76413
+    }
+   ]
+  },
+  "none": {
+   "pos_mode": "none",
+   "params": 727552,
+   "steps": 3000,
+   "train_time_s": 42.9,
+   "bytes_seen": 12384000,
+   "device": "cuda",
+   "initial_heldout_bpb": 8.3025,
+   "final_heldout_bpb": 2.07455,
+   "best_heldout_bpb": 2.07455,
+   "final_train_windows_bpb": 2.00042,
+   "eval_windows": 583,
+   "eval_predicted_bytes": 74624,
+   "curve": [
+    {
+     "step": 0,
+     "elapsed_s": 0.0,
+     "train_bpb": null,
+     "heldout_bpb": 8.3025
+    },
+    {
+     "step": 250,
+     "elapsed_s": 4.36,
+     "lr": 0.0019695766981535434,
+     "train_bpb": 3.9254,
+     "heldout_bpb": 3.34621
+    },
+    {
+     "step": 500,
+     "elapsed_s": 9.11,
+     "lr": 0.001879893674851537,
+     "train_bpb": 3.25614,
+     "heldout_bpb": 3.21214
+    },
+    {
+     "step": 750,
+     "elapsed_s": 13.61,
+     "lr": 0.0017370621864436341,
+     "train_bpb": 3.09988,
+     "heldout_bpb": 3.0254
+    },
+    {
+     "step": 1000,
+     "elapsed_s": 17.85,
+     "lr": 0.001550815962824639,
+     "train_bpb": 2.91141,
+     "heldout_bpb": 2.8348
+    },
+    {
+     "step": 1250,
+     "elapsed_s": 22.08,
+     "lr": 0.001333847376347748,
+     "train_bpb": 2.69471,
+     "heldout_bpb": 2.60618
+    },
+    {
+     "step": 1500,
+     "elapsed_s": 25.07,
+     "lr": 0.0011009424776238202,
+     "train_bpb": 2.48448,
+     "heldout_bpb": 2.42953
+    },
+    {
+     "step": 1750,
+     "elapsed_s": 28.02,
+     "lr": 0.0008679733506073462,
+     "train_bpb": 2.33198,
+     "heldout_bpb": 2.29967
+    },
+    {
+     "step": 2000,
+     "elapsed_s": 31.07,
+     "lr": 0.000650816456304814,
+     "train_bpb": 2.22191,
+     "heldout_bpb": 2.22098
+    },
+    {
+     "step": 2250,
+     "elapsed_s": 34.13,
+     "lr": 0.000464270678194205,
+     "train_bpb": 2.14461,
+     "heldout_bpb": 2.1652
+    },
+    {
+     "step": 2500,
+     "elapsed_s": 37.07,
+     "lr": 0.0003210488027722831,
+     "train_bpb": 2.08721,
+     "heldout_bpb": 2.11886
+    },
+    {
+     "step": 2750,
+     "elapsed_s": 40.0,
+     "lr": 0.0002309111641637119,
+     "train_bpb": 2.04941,
+     "heldout_bpb": 2.09218
+    },
+    {
+     "step": 3000,
+     "elapsed_s": 42.94,
+     "lr": 0.00020000049348017495,
+     "train_bpb": 2.03127,
+     "heldout_bpb": 2.07455
+    }
+   ]
+  },
+  "window": {
+   "pos_mode": "window",
+   "params": 732800,
+   "steps": 3000,
+   "train_time_s": 40.9,
+   "bytes_seen": 12384000,
+   "device": "cuda",
+   "initial_heldout_bpb": 8.30122,
+   "final_heldout_bpb": 1.66209,
+   "best_heldout_bpb": 1.66209,
+   "final_train_windows_bpb": 1.48908,
+   "eval_windows": 583,
+   "eval_predicted_bytes": 74624,
+   "curve": [
+    {
+     "step": 0,
+     "elapsed_s": 0.0,
+     "train_bpb": null,
+     "heldout_bpb": 8.30122
+    },
+    {
+     "step": 250,
+     "elapsed_s": 3.63,
+     "lr": 0.0019695766981535434,
+     "train_bpb": 3.90896,
+     "heldout_bpb": 3.2463
+    },
+    {
+     "step": 500,
+     "elapsed_s": 6.94,
+     "lr": 0.001879893674851537,
+     "train_bpb": 2.62747,
+     "heldout_bpb": 2.21803
+    },
+    {
+     "step": 750,
+     "elapsed_s": 9.98,
+     "lr": 0.0017370621864436341,
+     "train_bpb": 2.05251,
+     "heldout_bpb": 1.96308
+    },
+    {
+     "step": 1000,
+     "elapsed_s": 13.02,
+     "lr": 0.001550815962824639,
+     "train_bpb": 1.86737,
+     "heldout_bpb": 1.85881
+    },
+    {
+     "step": 1250,
+     "elapsed_s": 16.7,
+     "lr": 0.001333847376347748,
+     "train_bpb": 1.76802,
+     "heldout_bpb": 1.7976
+    },
+    {
+     "step": 1500,
+     "elapsed_s": 19.78,
+     "lr": 0.0011009424776238202,
+     "train_bpb": 1.70462,
+     "heldout_bpb": 1.76085
+    },
+    {
+     "step": 1750,
+     "elapsed_s": 24.01,
+     "lr": 0.0008679733506073462,
+     "train_bpb": 1.65205,
+     "heldout_bpb": 1.72842
+    },
+    {
+     "step": 2000,
+     "elapsed_s": 28.02,
+     "lr": 0.000650816456304814,
+     "train_bpb": 1.60625,
+     "heldout_bpb": 1.70223
+    },
+    {
+     "step": 2250,
+     "elapsed_s": 31.76,
+     "lr": 0.000464270678194205,
+     "train_bpb": 1.56776,
+     "heldout_bpb": 1.68559
+    },
+    {
+     "step": 2500,
+     "elapsed_s": 34.79,
+     "lr": 0.0003210488027722831,
+     "train_bpb": 1.53523,
+     "heldout_bpb": 1.67462
+    },
+    {
+     "step": 2750,
+     "elapsed_s": 37.82,
+     "lr": 0.0002309111641637119,
+     "train_bpb": 1.51055,
+     "heldout_bpb": 1.66433
+    },
+    {
+     "step": 3000,
+     "elapsed_s": 40.85,
+     "lr": 0.00020000049348017495,
+     "train_bpb": 1.50261,
+     "heldout_bpb": 1.66209
+    }
+   ]
+  }
+ },
+ "config": {
+  "url": "https://www.gutenberg.org/cache/epub/1342/pg1342.txt",
+  "cache_dir": "runs/stage9c/cache",
+  "chunk_size": 131072,
+  "heldout_frac": 0.1,
+  "variants": "doc,none,window",
+  "d_model": 128,
+  "n_heads": 4,
+  "d_ff": 256,
+  "experts": 4,
+  "layers": 2,
+  "top_k": 2,
+  "dispatch": "vectorized",
+  "position_frequencies": 20,
+  "position_scale": 1048576.0,
+  "value_scalar": false,
+  "seq_len": 128,
+  "batch": 32,
+  "steps": 3000,
+  "lr": 0.002,
+  "warmup": 100,
+  "weight_decay": 0.01,
+  "grad_clip": 1.0,
+  "aux_alpha": 0.01,
+  "eval_every": 250,
+  "eval_windows": 0,
+  "eval_batch": 64,
+  "seed": 567885,
+  "threads": 0,
+  "device": "cuda",
+  "out": "runs/stage9c/results_gpu.json"
+ },
+ "torch": "2.5.1+cu124",
+ "threads": 16
+}
