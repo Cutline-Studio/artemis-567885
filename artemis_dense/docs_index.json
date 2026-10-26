@@ -1,6 +1,13 @@
 {
   "docs": [
     {
+      "file": "Accelerate.md",
+      "title": "Accelerate: 20 ways Artemis learns faster",
+      "status": "mixed",
+      "review": "approved",
+      "in_corpus": true
+    },
+    {
       "file": "agents.md",
       "title": "Artemis agents (top level)",
       "status": "reference",

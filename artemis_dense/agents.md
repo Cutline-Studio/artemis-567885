@@ -17,6 +17,7 @@ GPU, and A2A in loopback only.
 | heart | [agent.md](engines/heart/agent.md) | conversation, self_train signals | none (pure scoring) |
 | rag | [agent.md](engines/rag/agent.md) | conversation, tools, self_author hook | local docs (read) |
 | scaling | [agent.md](engines/scaling/agent.md) | tools, planning | none (plans only) |
+| accel (training methods) | [Accelerate.md](Accelerate.md) | a human starting a run, self_train | local corpus, its run dir under checkpoints/accel; GPU/DDP/pretrained/teacher paths refuse without approval |
 | conversation | [agent.md](engines/conversation/agent.md) | the REPL, the planned localhost API | transformer, rag, heart, tools |
 | custom_constitutional | [agent.md](engines/custom_constitutional/agent.md) | the promotion gate | its own logs |
 | self_author (unguarded) | see [CustomConstitutionalAI.md](CustomConstitutionalAI.md) | autonomous `author_doc`, tools | the repo, **only after the promotion gate** |

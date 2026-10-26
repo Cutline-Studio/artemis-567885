@@ -132,6 +132,7 @@ and the environment manager (each operation) stop. Code-exec children are bounde
 [A2A architecture](engines/a2a/docs/ARCHITECTURE.md) · [A2A prototype spec](engines/a2a/docs/PROTOTYPE_SPEC.md)
 
 Training and compute: [training.md](training.md) · [CPU.md](CPU.md) · [GPU.md](GPU.md) ·
+[Accelerate.md](Accelerate.md) (20 accelerated-learning methods, `accel/`) ·
 [forever.md](forever.md)
 
 Learning and self-authoring: [Instructions.md](Instructions.md) · [Mistakes.md](Mistakes.md) ·
@@ -148,4 +149,4 @@ Public reference (no affiliation): [NASA.md](NASA.md) · [FBI.md](FBI.md) · [An
 ## Tests (CPU only, seconds)
 `tests/test_dense_model.py`, `tests/test_dense_engines.py`, `tests/test_dense_upgrades.py`, `tests/test_a2a.py`,
 `tests/test_learning_engines.py`, `tests/test_self_author.py`, `tests/test_new_engines.py`,
-`tests/test_sandbox_promotion.py`, `tests/test_custom_constitutional.py`.
+`tests/test_sandbox_promotion.py`, `tests/test_custom_constitutional.py`, `tests/test_accel.py`.

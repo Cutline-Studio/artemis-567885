@@ -18,6 +18,7 @@ Approvals follow [GOVERNANCE.md](GOVERNANCE.md).
 | Score and choose replies by ranked values | heart | yes | never |
 | Retrieve from the docs with citations, or say "I don't know" | rag | yes | only scoped to a granted world (planned) |
 | Plan model size and tokens for a compute budget; fit our own scaling curve | scaling | yes (plans only) | never |
+| Train faster with the 20 accelerated-learning methods (flags, presets `baseline`/`fast`/`gpu_full`; see [Accelerate.md](Accelerate.md)) | accel | yes on CPU; GPU, DDP, pretrained weights and external teachers need Latoya's OK | never |
 | Multi-turn chat: template, state, clarifying questions, grounding, tools | conversation | yes (REPL; API planned on 127.0.0.1) | never |
 | Define any English word (WordNet + GCIDE, 292,125 records) | skills.define | yes | never |
 | Test untrusted output in an isolated environment | sandbox.env / sandbox.py | yes | never |
