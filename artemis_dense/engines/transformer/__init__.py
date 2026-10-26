@@ -23,8 +23,10 @@ from ...model import ArtemisDense, apply_rope
 
 def validate(cfg: DenseConfig) -> list:
     p = []
-    if cfg.vocab_size != 256:
+    if cfg.tokenizer == "byte" and cfg.vocab_size != 256:
         p.append("vocab_size != 256: the byte-level data pipeline assumes 256")
+    if cfg.tokenizer == "bpe" and not cfg.tokenizer_path:
+        p.append("tokenizer=bpe needs tokenizer_path (the fixed tokenizer.json)")
     if cfg.n_layers < 1 or cfg.d_model < 8:
         p.append("model too small")
     if cfg.n_layers > cfg.caps.get("num_layers_max", cfg.n_layers):
@@ -48,7 +50,10 @@ def build(size: Union[str, DenseConfig] = "small", seed: Optional[int] = None, *
 
 def save(model: ArtemisDense, path: str):
     os.makedirs(os.path.dirname(os.path.abspath(path)), exist_ok=True)
-    torch.save({"cfg": model.cfg.to_dict(), "model": model.state_dict()}, path + ".tmp")
+    ck = {"cfg": model.cfg.to_dict(), "model": model.state_dict()}
+    if getattr(model, "trained_info", None):
+        ck["trained_info"] = model.trained_info
+    torch.save(ck, path + ".tmp")
     os.replace(path + ".tmp", path)
 
 
@@ -56,6 +61,7 @@ def load(path: str) -> ArtemisDense:
     ck = torch.load(path, weights_only=False)
     m = ArtemisDense(DenseConfig.from_dict(ck["cfg"]))
     m.load_state_dict(ck["model"])
+    m.trained_info = ck.get("trained_info")
     return m
 
 
@@ -108,6 +114,35 @@ def generate(model: ArtemisDense, prompt: Union[bytes, torch.Tensor], max_new_to
 
 
 @torch.no_grad()
+def generate_ids(model: ArtemisDense, prompt_ids, max_new_tokens: int = 64, temperature: float = 0.0,
+                 top_k: int = 0, seed: Optional[int] = None, stop_ids=None) -> list:
+    """Token-id generation for any tokenizer (byte or BPE). Returns new ids (stop id excluded)."""
+    model.eval()
+    g = torch.Generator().manual_seed(seed) if seed is not None else None
+    cache, inp, out = model.new_cache(), torch.tensor([list(prompt_ids)]), []
+    stop = set(stop_ids or [])
+    for _ in range(max_new_tokens):
+        if len(prompt_ids) + len(out) >= model.cfg.context_len:
+            break
+        logits, _ = model(inp, cache=cache)
+        last = logits[:, -1].float()
+        if temperature <= 0:
+            nxt = last.argmax(-1, keepdim=True)
+        else:
+            last = last / temperature
+            if top_k:
+                kth = torch.topk(last, min(top_k, last.size(-1))).values[:, -1:]
+                last = last.masked_fill(last < kth, float("-inf"))
+            nxt = torch.multinomial(F.softmax(last, -1), 1, generator=g)
+        t = int(nxt)
+        if t in stop:
+            break
+        out.append(t)
+        inp = nxt
+    return out
+
+
+@torch.no_grad()
 def embed(model: ArtemisDense, tokens: torch.Tensor) -> torch.Tensor:
     model.eval()
     h = model.trunk(model.embed(tokens))
@@ -155,4 +190,4 @@ def model_card(model: ArtemisDense) -> dict:
             "d_ff": c.d_ff, "vocab": c.vocab_size, "context_len": c.context_len, "rope_scaling": c.rope_scaling,
             "params": model.num_params(), "flops_per_token_fwd": flops_per_token(c),
             "tool_head": c.tool_head, "value_head": c.value_head, "encoders": list(model.encoders.keys()),
-            "trained": "no (no real training run has been done)"}
+            "tokenizer": c.tokenizer, "trained": getattr(model, "trained_info", None) or "no"}

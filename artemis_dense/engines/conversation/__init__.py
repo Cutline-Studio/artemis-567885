@@ -179,10 +179,18 @@ class ChatEngine:
         return (self.model.cfg.context_len - self.max_new) if self.model is not None else 4096
 
     def _generate(self, prompt: str, k: int) -> str:
-        from ..transformer import generate
-        b = prompt.encode()[-(self.model.cfg.context_len - self.max_new):]
-        out = generate(self.model, b, self.max_new, temperature=self.temp, seed=self.seed + k)
-        txt = out.decode("utf-8", "replace")
+        from ..transformer import generate, generate_ids
+        if getattr(self.model.cfg, "tokenizer", "byte") == "bpe":
+            from ...tok import get_codec
+            codec = get_codec(self.model.cfg)
+            ids = codec.encode(prompt)[-(self.model.cfg.context_len - self.max_new):]
+            stop = [codec.token_id(END), codec.token_id(TOK["user"])]
+            txt = codec.decode(generate_ids(self.model, ids, self.max_new, temperature=self.temp,
+                                            seed=self.seed + k, stop_ids=[s for s in stop if s is not None]))
+        else:
+            b = prompt.encode()[-(self.model.cfg.context_len - self.max_new):]
+            out = generate(self.model, b, self.max_new, temperature=self.temp, seed=self.seed + k)
+            txt = out.decode("utf-8", "replace")
         return txt.split(END)[0].split(TOK["user"])[0]
 
     def _tool_calls(self, txt: str) -> List[dict]:

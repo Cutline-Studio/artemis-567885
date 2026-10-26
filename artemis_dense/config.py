@@ -10,6 +10,8 @@ import json
 @dataclass
 class DenseConfig:
     vocab_size: int = 256          # raw bytes, same input space as bytelm/ (nn.Embedding(256, ...))
+    tokenizer: str = "byte"        # "byte" (default; vocab 256) or "bpe" (artemis_dense/tokenizer.py)
+    tokenizer_path: str = ""       # tokenizer.json for "bpe"; FIXED once a model is trained on it
     context_len: int = 256         # max sequence length (RoPE cache size)
     n_layers: int = 8
     d_model: int = 256
@@ -35,6 +37,8 @@ class DenseConfig:
             raise ValueError(f"n_heads ({self.n_heads}) must be divisible by n_kv_heads ({self.n_kv_heads})")
         if (self.d_model // self.n_heads) % 2:
             raise ValueError("head_dim must be even for RoPE")
+        if self.tokenizer not in ("byte", "bpe"):
+            raise ValueError(f"tokenizer must be 'byte' or 'bpe', got {self.tokenizer!r}")
         if self.rope_scaling < 1.0:
             raise ValueError("rope_scaling must be >= 1")
 
