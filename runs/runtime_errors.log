@@ -1,0 +1,4 @@
+=== 2026-10-25T21:04:01-0400 cycle=100 attempt=0 mutation=structural+soft ===
+TimeoutExpired after 300.0s
+=== 2026-10-25T21:09:02-0400 cycle=100 attempt=1 mutation=none ===
+TimeoutExpired after 300.0s
