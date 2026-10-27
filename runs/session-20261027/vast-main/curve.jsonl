@@ -1,0 +1,7 @@
+CURVE {"chunk": 1, "cycle": 134, "layers": 16, "raw": 0.022148, "ema": 0.022131, "ood": 1.382535}
+CURVE {"chunk": 2, "cycle": 144, "layers": 16, "raw": 0.022593, "ema": 0.022241, "ood": 1.410708}
+CURVE {"chunk": 3, "cycle": 154, "layers": 16, "raw": 0.02219, "ema": 0.02247, "ood": 1.419008}
+CURVE {"chunk": 4, "cycle": 164, "layers": 16, "raw": 0.022397, "ema": 0.022154, "ood": 1.45923}
+CURVE {"chunk": 5, "cycle": 174, "layers": 16, "raw": 0.022168, "ema": 0.021965, "ood": 1.460693}
+CURVE {"chunk": 6, "cycle": 184, "layers": 16, "raw": 0.022232, "ema": 0.022221, "ood": 1.483873}
+CURVE {"chunk": 7, "cycle": 194, "layers": 16, "raw": 0.022733, "ema": 0.022359, "ood": 1.50074}
