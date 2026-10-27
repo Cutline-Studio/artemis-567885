@@ -1,0 +1,7 @@
+ENV {"python": "3.13.5", "torch": "2.14.1+cpu", "os": "Linux-6.12.94+-x86_64-with-glibc2.41", "threads": 8, "steps": 6358, "seed": 567885, "kwargs": {}, "start": "2026-10-25 12:01:13 EDT"}
+FINAL {"steps": 6358, "seconds": 102.9, "pde_residual_mse": 0.00033985829213634133, "ic_mse": 0.00015259889187291265, "bc_mse": 1.1775966413551942e-05, "aux": 1.643668293952942, "rel_l2_t0.0": 0.054542, "max_abs_err_t0.0": 0.123575, "rel_l2_t0.5": 0.1568, "max_abs_err_t0.5": 0.305279, "rel_l2_t1.0": 0.249662, "max_abs_err_t1.0": 0.399005, "rel_l2_all": 0.173112, "expert_usage_top1_total": [0, 0, 1129, 8132], "experts_used": 2, "usage_entropy": 0.267412, "wall_seconds": 103.6, "config": {"name": "baseline_8thr", "steps": 6358, "threads": 8}}
+ERROR_VS_T [{"t": 0.0, "rel_l2": 0.054542, "max_abs_err": 0.123575}, {"t": 0.1, "rel_l2": 0.06711, "max_abs_err": 0.172436}, {"t": 0.2, "rel_l2": 0.094311, "max_abs_err": 0.225791}, {"t": 0.3, "rel_l2": 0.110956, "max_abs_err": 0.291783}, {"t": 0.4, "rel_l2": 0.131384, "max_abs_err": 0.298322}, {"t": 0.5, "rel_l2": 0.1568, "max_abs_err": 0.305279}, {"t": 0.6, "rel_l2": 0.174062, "max_abs_err": 0.316729}, {"t": 0.7, "rel_l2": 0.201184, "max_abs_err": 0.33355}, {"t": 0.8, "rel_l2": 0.217048, "max_abs_err": 0.340198}, {"t": 0.9, "rel_l2": 0.240213, "max_abs_err": 0.391317}, {"t": 1.0, "rel_l2": 0.249662, "max_abs_err": 0.399005}]
+
+real	1m45.015s
+user	12m53.976s
+sys	0m3.602s

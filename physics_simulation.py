@@ -29,6 +29,17 @@ Fixes relative to the user's sketch (source reconstructed from the spec):
     avoids any version-counter / aliasing surprises.
 
 Run:  python physics_simulation.py --seconds 120
+
+Stage 8b options (all OFF by default; the defaults reproduce the iteration-1 run):
+  * lr / lr_schedule="cosine" (+ min_lr_frac): cosine decay over max_steps
+  * alpha (aux load-balance weight) and noise_std: Gaussian noise added to the
+    router logits before top-k, in train mode only (model.eval() routes cleanly)
+  * causal_eps > 0: causal residual weighting over n_t_bins time bins
+    (Wang, Sankaran & Perdikaris 2022, "Respecting causality is all you need"):
+    w_i = exp(-eps * sum_{j<i} L_j) (weights detached), L_pde = mean_i w_i L_i
+  * curriculum_frac > 0: residual/BC samples use t in [0, t_max(step)], with
+    t_max growing linearly from curriculum_t0 to 1 over curriculum_frac*max_steps
+  * error_vs_t(model, ts): rel. L2 vs the analytic solution on a 41x41 grid per t
 """
 import argparse, json, math, os, time
 import torch
@@ -69,23 +80,25 @@ class PhysicsExpert(nn.Module):
 class CoordinateMoERouter(nn.Module):
     """Routes each coordinate to top-k experts from a small MLP on (x, y, t)."""
 
-    def __init__(self, in_dim: int, num_experts: int, top_k: int = 2, hidden: int = 32):
+    def __init__(self, in_dim: int, num_experts: int, top_k: int = 2, hidden: int = 32, noise_std: float = 0.0):
         super().__init__()
-        self.top_k, self.num_experts = top_k, num_experts
+        self.top_k, self.num_experts, self.noise_std = top_k, num_experts, noise_std
         self.net = nn.Sequential(nn.Linear(in_dim, hidden), nn.Tanh(), nn.Linear(hidden, num_experts))
 
     def forward(self, coords):
         logits = self.net(coords)
-        probs = F.softmax(logits, dim=-1)
+        probs = F.softmax(logits, dim=-1)  # clean probabilities (aux loss)
+        if self.training and self.noise_std > 0:  # noisy top-k routing, train mode only
+            logits = logits + torch.randn_like(logits) * self.noise_std
         top_w, top_i = torch.topk(logits, self.top_k, dim=-1)
         return F.softmax(top_w, dim=-1), top_i, probs
 
 
 class PhysicsMoELayer(nn.Module):
     def __init__(self, num_experts: int = 4, top_k: int = 2, hidden: int = 64, depth: int = 3,
-                 omega0: float = 30.0, scatter: str = "index_add"):
+                 omega0: float = 30.0, scatter: str = "index_add", noise_std: float = 0.0):
         super().__init__()
-        self.router = CoordinateMoERouter(3, num_experts, top_k)
+        self.router = CoordinateMoERouter(3, num_experts, top_k, noise_std=noise_std)
         self.experts = nn.ModuleList([PhysicsExpert(3, hidden, depth, omega0) for _ in range(num_experts)])
         self.num_experts, self.top_k, self.scatter = num_experts, top_k, scatter
 
@@ -134,13 +147,55 @@ def sample(n, gen):
     return torch.cat([xy, t], 1)
 
 
-def losses(model, n, gen, w_ic=10.0, w_bc=10.0):
-    r, aux = pde_residual(model, sample(n, gen))
-    l_pde = r.pow(2).mean()
+def causal_weights(bin_losses, eps: float):
+    """w_i = exp(-eps * sum_{j<i} L_j), detached (no gradient through the weights)."""
+    L = bin_losses.detach()
+    prev = torch.cumsum(L, 0) - L
+    return torch.exp(-eps * prev)
+
+
+def causal_pde_loss(r, t, eps: float, n_bins: int = 16, t_max: float = 1.0):
+    """Causally weighted residual loss: bin points by t into n_bins equal windows of
+    [0, t_max]; L_i = mean r^2 in bin i; return (mean_i w_i L_i, w, L)."""
+    b = torch.clamp((t.flatten() / t_max * n_bins).long(), 0, n_bins - 1)
+    r2 = r.flatten().pow(2)
+    sums = torch.zeros(n_bins, dtype=r2.dtype).index_add(0, b, r2)
+    cnt = torch.bincount(b, minlength=n_bins).clamp(min=1).to(r2.dtype)
+    L = sums / cnt
+    w = causal_weights(L, eps)
+    return (w * L).mean(), w, L
+
+
+def curriculum_tmax(step: int, max_steps: int, frac: float, t0: float = 0.1):
+    if frac <= 0:
+        return 1.0
+    return min(1.0, t0 + (1.0 - t0) * step / max(1.0, frac * max_steps))
+
+
+def lr_at(step: int, max_steps: int, lr: float, schedule: str = "constant", min_lr_frac: float = 0.0):
+    if schedule == "constant":
+        return lr
+    if schedule == "cosine":
+        p = min(1.0, step / max(1, max_steps))
+        return lr * (min_lr_frac + (1 - min_lr_frac) * 0.5 * (1 + math.cos(math.pi * p)))
+    raise ValueError(f"unknown lr_schedule {schedule!r}")
+
+
+def losses(model, n, gen, w_ic=10.0, w_bc=10.0, t_max: float = 1.0, causal_eps: float = 0.0, n_t_bins: int = 16):
+    pts = sample(n, gen)
+    if t_max < 1.0:
+        pts[:, 2] *= t_max
+    r, aux = pde_residual(model, pts)
+    if causal_eps > 0:
+        l_pde, _, _ = causal_pde_loss(r, pts[:, 2], causal_eps, n_t_bins, t_max)
+    else:
+        l_pde = r.pow(2).mean()
     ic = sample(n // 2, gen); ic[:, 2] = 0
     h_ic, _, _ = model(ic)
     l_ic = (h_ic - h0(ic[:, :1], ic[:, 1:2])).pow(2).mean()
     bc = sample(n // 2, gen)
+    if t_max < 1.0:
+        bc[:, 2] *= t_max
     side = torch.rand(n // 2, generator=gen) < 0.5
     bc[side, 0] = -1.0; bc[~side, 1] = -1.0  # inflow boundaries (c > 0)
     h_bc, _, _ = model(bc)
@@ -148,8 +203,49 @@ def losses(model, n, gen, w_ic=10.0, w_bc=10.0):
     return l_pde, l_ic, l_bc, aux, w_ic, w_bc
 
 
+class _eval_mode:
+    """Temporarily put a module in eval mode (no-op for the default, noise-free router)."""
+    def __init__(self, m):
+        self.m = m
+    def __enter__(self):
+        self.was = self.m.training; self.m.eval()
+    def __exit__(self, *a):
+        self.m.train(self.was)
+
+
+def expert_usage_stats(counts):
+    """Experts used (count > 0) and normalised entropy (1 = perfectly even) of a usage histogram."""
+    c = torch.tensor(counts, dtype=torch.float64)
+    p = c / c.sum()
+    nz = p[p > 0]
+    ent = float(-(nz * nz.log()).sum() / math.log(len(counts))) if len(counts) > 1 else 1.0
+    return {"experts_used": int((c > 0).sum()), "usage_entropy": round(ent, 6) + 0.0}  # + 0.0: no -0.0
+
+
+@torch.no_grad()
+def error_vs_t(model, ts=None, res: int = 41):
+    """Rel. L2 and max abs error vs the analytic solution on a res x res grid at each t."""
+    ts = [i / 10 for i in range(11)] if ts is None else ts
+    lin = torch.linspace(-1, 1, res)
+    X, Y = torch.meshgrid(lin, lin, indexing="ij")
+    rows = []
+    with _eval_mode(model):
+        for t in ts:
+            coords = torch.stack([X.flatten(), Y.flatten(), torch.full_like(X.flatten(), float(t))], 1)
+            h, _, _ = model(coords)
+            ex = exact(coords[:, :1], coords[:, 1:2], coords[:, 2:3])
+            rows.append({"t": round(float(t), 4), "rel_l2": round(float(torch.norm(h - ex) / torch.norm(ex)), 6),
+                         "max_abs_err": round(float((h - ex).abs().max()), 6)})
+    return rows
+
+
 @torch.no_grad()
 def evaluate(model, res: int = 41):
+    with _eval_mode(model):
+        return _evaluate(model, res)
+
+
+def _evaluate(model, res: int = 41):
     lin = torch.linspace(-1, 1, res)
     ts = torch.tensor([0.0, 0.5, 1.0])
     out = {}
@@ -177,6 +273,7 @@ def evaluate(model, res: int = 41):
             regions[f"{name},{tname}"] = torch.bincount(top1[m & tm], minlength=model.num_experts).tolist()
     out["expert_usage_top1_total"] = torch.bincount(top1, minlength=model.num_experts).tolist()
     out["expert_usage_top1_by_region"] = regions
+    out.update(expert_usage_stats(out["expert_usage_top1_total"]))
     return out
 
 
@@ -206,7 +303,8 @@ def heldout_reference(n: int = 161, times=(0.25, 0.5, 0.75, 1.0), stride: int = 
 
 @torch.no_grad()
 def heldout_error(model, ref):
-    h, _, _ = model(ref["coords"])
+    with _eval_mode(model):
+        h, _, _ = model(ref["coords"])
     return {"heldout_rel_l2_vs_fd": float(torch.norm(h - ref["fd"]) / torch.norm(ref["fd"])),
             "heldout_rel_l2_vs_exact": float(torch.norm(h - ref["exact"]) / torch.norm(ref["exact"])),
             "heldout_max_abs_vs_fd": float((h - ref["fd"]).abs().max())}
@@ -214,16 +312,24 @@ def heldout_error(model, ref):
 
 def train(seconds: float = 120.0, max_steps: int = 200_000, n: int = 1024, lr: float = 1e-3, seed: int = 567885,
           num_experts: int = 4, top_k: int = 2, hidden: int = 64, omega0: float = 30.0, alpha: float = 0.01,
-          log_every: int = 250, log_path: str = None, heldout: dict = None):
+          log_every: int = 250, log_path: str = None, heldout: dict = None,
+          lr_schedule: str = "constant", min_lr_frac: float = 0.0, noise_std: float = 0.0,
+          causal_eps: float = 0.0, n_t_bins: int = 16, curriculum_frac: float = 0.0, curriculum_t0: float = 0.1,
+          threads: int = None):
+    """Stage 8b options default to the iteration-1 behaviour. lr_schedule="cosine" and
+    curriculum_frac > 0 are defined over max_steps, so use a step budget (large `seconds`)."""
     torch.manual_seed(seed)
-    torch.set_num_threads(max(1, min(8, os.cpu_count() or 1)))
+    torch.set_num_threads(threads if threads else max(1, min(8, os.cpu_count() or 1)))
     gen = torch.Generator().manual_seed(seed)
-    model = PhysicsMoELayer(num_experts, top_k, hidden, 3, omega0)
+    model = PhysicsMoELayer(num_experts, top_k, hidden, 3, omega0, noise_std=noise_std)
     opt = torch.optim.Adam(model.parameters(), lr=lr)
-    sched = None
     t0, step, hist = time.time(), 0, []
     while step < max_steps and time.time() - t0 < seconds:
-        l_pde, l_ic, l_bc, aux, w_ic, w_bc = losses(model, n, gen)
+        if lr_schedule != "constant":
+            for g in opt.param_groups:
+                g["lr"] = lr_at(step, max_steps, lr, lr_schedule, min_lr_frac)
+        t_max = curriculum_tmax(step, max_steps, curriculum_frac, curriculum_t0)
+        l_pde, l_ic, l_bc, aux, w_ic, w_bc = losses(model, n, gen, t_max=t_max, causal_eps=causal_eps, n_t_bins=n_t_bins)
         loss = l_pde + w_ic * l_ic + w_bc * l_bc + alpha * aux
         if not torch.isfinite(loss):
             raise RuntimeError(f"NaNLoss at step {step}")
@@ -232,6 +338,10 @@ def train(seconds: float = 120.0, max_steps: int = 200_000, n: int = 1024, lr: f
         if step % log_every == 0 or step == 1:
             rec = {"step": step, "sec": round(time.time() - t0, 1), "pde": l_pde.item(), "ic": l_ic.item(),
                    "bc": l_bc.item(), "aux": aux.item()}
+            if lr_schedule != "constant":
+                rec["lr"] = opt.param_groups[0]["lr"]
+            if curriculum_frac > 0:
+                rec["t_max"] = t_max
             if heldout is not None:
                 rec.update(heldout_error(model, heldout))
             hist.append(rec)
@@ -240,7 +350,8 @@ def train(seconds: float = 120.0, max_steps: int = 200_000, n: int = 1024, lr: f
                     f.write(json.dumps(rec) + "\n")
     # final losses on a fresh, larger sample
     eg = torch.Generator().manual_seed(seed - 1)
-    l_pde, l_ic, l_bc, aux, _, _ = losses(model, 8192, eg)
+    with _eval_mode(model):
+        l_pde, l_ic, l_bc, aux, _, _ = losses(model, 8192, eg)
     final = {"steps": step, "seconds": round(time.time() - t0, 1), "pde_residual_mse": l_pde.item(),
              "ic_mse": l_ic.item(), "bc_mse": l_bc.item(), "aux": aux.item(), **evaluate(model)}
     if heldout is not None:
@@ -254,13 +365,27 @@ def main():
     ap.add_argument("--max-steps", type=int, default=200_000)
     ap.add_argument("--points", type=int, default=1024)
     ap.add_argument("--experts", type=int, default=4)
+    ap.add_argument("--seed", type=int, default=567885)
+    ap.add_argument("--lr", type=float, default=1e-3)
+    ap.add_argument("--lr-schedule", choices=["constant", "cosine"], default="constant")
+    ap.add_argument("--min-lr-frac", type=float, default=0.0)
+    ap.add_argument("--alpha", type=float, default=0.01)
+    ap.add_argument("--noise-std", type=float, default=0.0)
+    ap.add_argument("--causal-eps", type=float, default=0.0)
+    ap.add_argument("--t-bins", type=int, default=16)
+    ap.add_argument("--curriculum-frac", type=float, default=0.0)
+    ap.add_argument("--curriculum-t0", type=float, default=0.1)
+    ap.add_argument("--threads", type=int, default=None)
     ap.add_argument("--out", default=os.path.join(os.path.dirname(os.path.abspath(__file__)), "runs", "physics"))
     a = ap.parse_args()
     os.makedirs(a.out, exist_ok=True)
     log = os.path.join(a.out, "train_log.jsonl")
     if os.path.exists(log):
         os.remove(log)
-    model, final, hist = train(a.seconds, a.max_steps, a.points, num_experts=a.experts, log_path=log)
+    model, final, hist = train(a.seconds, a.max_steps, a.points, lr=a.lr, seed=a.seed, num_experts=a.experts,
+                               alpha=a.alpha, log_path=log, lr_schedule=a.lr_schedule, min_lr_frac=a.min_lr_frac,
+                               noise_std=a.noise_std, causal_eps=a.causal_eps, n_t_bins=a.t_bins,
+                               curriculum_frac=a.curriculum_frac, curriculum_t0=a.curriculum_t0, threads=a.threads)
     with open(os.path.join(a.out, "final.json"), "w") as f:
         json.dump(final, f, indent=2)
     print(json.dumps(final, indent=2))
