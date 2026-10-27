@@ -1,0 +1,70 @@
+{
+ "url": "https://www.gutenberg.org/cache/epub/1342/pg1342.txt",
+ "measured_at": "2026-10-25 18:08:33 EDT",
+ "chunks": [
+  {
+   "url": "https://www.gutenberg.org/cache/epub/1342/pg1342.txt",
+   "start": 100000,
+   "end": 102047,
+   "status": 206,
+   "source": "network",
+   "range_honored": true,
+   "total_length": 772386,
+   "elapsed_s": 0.2853312619990902,
+   "synthetic": false,
+   "eof": false,
+   "retries": 0,
+   "n_bytes": 2048,
+   "label": "real bytes (network)"
+  },
+  {
+   "url": "https://www.gutenberg.org/cache/epub/1342/pg1342.txt",
+   "start": 102048,
+   "end": 104095,
+   "status": 206,
+   "source": "network",
+   "range_honored": true,
+   "total_length": 772386,
+   "elapsed_s": 0.2881397430028301,
+   "synthetic": false,
+   "eof": false,
+   "retries": 0,
+   "n_bytes": 2048,
+   "label": "real bytes (network)"
+  },
+  {
+   "url": "https://www.gutenberg.org/cache/epub/1342/pg1342.txt",
+   "start": 104096,
+   "end": 106143,
+   "status": 206,
+   "source": "network",
+   "range_honored": true,
+   "total_length": 772386,
+   "elapsed_s": 0.2804739760031225,
+   "synthetic": false,
+   "eof": false,
+   "retries": 0,
+   "n_bytes": 2048,
+   "label": "real bytes (network)"
+  }
+ ],
+ "offset_after_stop": 104096,
+ "resumed_from": 104096,
+ "final_state": {
+  "url": "https://www.gutenberg.org/cache/epub/1342/pg1342.txt",
+  "offset": 106144,
+  "done": true,
+  "chunk_size": 2048,
+  "synthetic_chunks": 0
+ },
+ "request_gaps_s": [
+  1.0,
+  1.0
+ ],
+ "network_requests": 3,
+ "log": [
+  "[webstream] GET https://www.gutenberg.org/cache/epub/1342/pg1342.txt Range bytes=100000-102047 -> 206 2048 B in 0.285s",
+  "[webstream] GET https://www.gutenberg.org/cache/epub/1342/pg1342.txt Range bytes=102048-104095 -> 206 2048 B in 0.288s",
+  "[webstream] GET https://www.gutenberg.org/cache/epub/1342/pg1342.txt Range bytes=104096-106143 -> 206 2048 B in 0.280s"
+ ]
+}

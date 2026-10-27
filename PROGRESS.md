@@ -78,3 +78,42 @@
 
 ### Next
 - Stage 9(b) (PLAN.md): `webstream.py`, HTTP Range byte streaming with a local cache, polite rate limiting and no silent synthetic fallback, ported from `docs/reference/clf_stream_original.py` with the listed fixes.
+
+## Iteration 9 — 2026-10-25 (scheduled loop)
+- Expand engine: cycles 90–99 on branch `expand-loop` (commit afa13f5). Eval loss 0.02522 (cycle 90) → 0.02638 at cycle 99 (best 0.02519 at cycle 92; one spike to 0.0368 at cycle 95, recovered next cycle); tokens dropped every cycle (75–477 per eval); CF 2.45 → 2.5 at cycle 90, **capacity_factor cap 2.5 reached** and drops persist; loss stalls grew layer 10 from 5 to 9 experts → experts [6, 9, 5, 8, 5, 5, 5, 19, 7, 9], 10 layers (cap 12); aux max ~1.001 so alpha stays 0.1. No failures or rollbacks.
+
+### Stage 9(b) — webstream
+- New `webstream.py`, ported from `docs/reference/clf_stream_original.py`; no tokenizer, all torch. Nothing else imports it yet and no existing default changed.
+- `RangeFetcher.fetch(url, start, end)`:
+  - Sends `Range: bytes=start-end`, `Accept-Encoding: identity` and an identifying User-Agent (`Artemis-567885-webstream/0.1 (...; +https://github.com/lpittman-blip/artemis-567885)`).
+  - **206** is required, and its Content-Range must start at `start`. A **200** means the server ignored Range: the read is bounded to `end+1` bytes (max 8 MiB), sliced explicitly, warned about, and marked `range_honored=False`. **416** = EOF.
+  - Waits ≥ 1.0 s (default) between network sends, retries included. **429/503** honour Retry-After (seconds or HTTP-date) with at most 3 retries and a 120 s cap, then raise.
+  - Disk cache is keyed by sha256(URL + range), with a JSON sidecar. Hits make no request and don't wait; a truncated cache file is refetched.
+  - Every other failure raises `WebStreamError`.
+- `fetch_bytes(..., fallback="error")` fails loudly. Only an explicit `fallback="synthetic"` returns the old sine bytes, labelled `synthetic=True` / `source="SYNTHETIC"` / `[SYNTHETIC] ... NOT internet data` in the result, the log and the CLI output, and they are never cached.
+- `WebByteStream` gives resumable offsets: a JSON state file is written atomically after each chunk.
+- `ByteFeaturizer` produces per-byte features `[FourierFeatures(1, 8)(v/255), FourierFeatures(1, 16)(offset/2^20)]`, i.e. each byte value and its own absolute position encoded separately, with no window mixing and no parameters. It also returns raw ids for 9(c)'s `nn.Embedding(256, d)`.
+- Source: the reference's w3.org URL is 404, so this uses Project Gutenberg *Pride and Prejudice* (`https://www.gutenberg.org/cache/epub/1342/pg1342.txt`).
+- Real smoke, 2026-10-25 18:08 ET (`python3 webstream.py --start 0 --length 4096 --log runs/stage9b/smoke.jsonl`):
+  - Bytes 0–4095 → HTTP 206, Content-Range total 772,386, 4096 B in 0.289 s. sha256 `0e760604…1cfe78`, the same as an independent `curl` Range fetch. Text starts "The Project Gutenberg eBook of Pride and Prejudice". Features [4096, 48].
+  - A repeat call was a cache hit in 0.0001 s with no request.
+- Resumable stream (`tools/stage9b_stream_smoke.py`): 3 × 2048 B from offset 100,000, stopped after 2 chunks (state offset 104,096). A new stream resumed at 104,096 and ended at 106,144 (`done`). All requests returned 206, 2048 B in 0.280–0.288 s, with measured gaps of 1.0 s and 1.0 s between sends, and 3 requests in total.
+- Details: `docs/STAGE9B_WEBSTREAM.md`; raw logs in `runs/stage9b/` (the cache directory is git-ignored).
+- New `tests/test_webstream.py` (44 tests, ~5 s, local `http.server` in a thread) covers:
+  - byte ranges and the Range header sent
+  - User-Agent
+  - 416 = EOF
+  - 200 sliced and bounded; 206 with a wrong Content-Range rejected
+  - cache hits avoid the network (same and new fetcher), cache key = URL+range, truncated cache refetched
+  - rate limit: default ≥ 1 s, 0.3 s real-time spacing, exact 1.0 s with a fake clock, cache hits don't sleep
+  - 429 with Retry-After 1 s (real wait ≥ 0.95 s), HTTP-date, persistent 429 and over-long Retry-After raise
+  - 404 and connection refused raise by default; synthetic labelling in result, log and CLI, never cached
+  - resumable stream without refetching, state/URL mismatch, stop at Content-Range total
+  - per-element features vs a FourierFeatures reference, value/position independence, no neighbour mixing, global RNG untouched
+- Results:
+  - Full suite (`python3 -m pytest -q tests checks`): 376 passed, 1 xfailed (332 + 44 new), first run, no flaky failure.
+  - `python3 sandbox.py`: fixed Total Loss 0.3415 (dropped 6, ∇x 0.0663, ∇W_g 0.0228, aux 1.0281).
+  - `python3 sandbox.py --mode legacy`: Total Loss 1.5083 (dropped 6, ∇x 0.1581, ∇W_g 0.0546).
+
+### Next
+- Stage 9(c) (PLAN.md): byte-level Continuous-Language-Field prototype. Raw bytes from `webstream` → byte embedding + γ(t) for the document position (`ByteFeaturizer` / `FourierFeatures`) → causal MoE blocks → next-byte softmax. Report held-out bits-per-byte vs a unigram baseline and a no-position ablation.
