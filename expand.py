@@ -37,6 +37,50 @@ DEFAULT_CONFIG = {
 DIM_KEYS = ("d_model", "n_heads", "d_ff", "top_k")
 
 
+
+def owner_stop_active(cfg=None) -> bool:
+    """True when the owner kill switch says stopped, or the state cannot be read.
+
+    On by default (ARTEMIS_KILLSWITCH=1). Set ARTEMIS_KILLSWITCH=0 to skip the check
+    on a machine that has no stop-state source configured and must keep training.
+    Reads ARTEMIS_KILLSWITCH_DB (SQLite, mode=ro) or ARTEMIS_KILLSWITCH_STATE_URL (+ pubkey).
+    Fail closed: any error counts as stopped.
+    """
+    import os
+    if os.environ.get("ARTEMIS_KILLSWITCH", "1") == "0":
+        return False
+    if cfg is not None and cfg.get("killswitch") is False:
+        return False
+    try:
+        db = os.environ.get("ARTEMIS_KILLSWITCH_DB")
+        if db:
+            import sqlite3
+            from pathlib import Path as _P
+            path = _P(db)
+            if not path.is_file():
+                return True
+            conn = sqlite3.connect(f"{path.resolve().as_uri()}?mode=ro", uri=True, timeout=2)
+            try:
+                row = conn.execute("SELECT stopped FROM killswitch_state WHERE id = 1").fetchone()
+            finally:
+                conn.close()
+            return row is None or bool(row[0])
+        url = os.environ.get("ARTEMIS_KILLSWITCH_STATE_URL")
+        key = os.environ.get("ARTEMIS_KILLSWITCH_STATE_PUBKEY")
+        if url and key:
+            import json, base64, time as _t, urllib.request
+            with urllib.request.urlopen(urllib.request.Request(url, headers={"Accept": "application/json"}), timeout=5) as r:
+                doc = json.loads(r.read(16_384))
+            state = json.loads(base64.b64decode(doc["payload"]))
+            if abs(_t.time() - float(state["ts"])) > 300:
+                return True
+            return bool(state["stopped"])
+        return True
+    except Exception:
+        return True
+
+
+
 class OutputShapeMismatch(RuntimeError):
     pass
 
@@ -292,6 +336,8 @@ def run_cycle(root: str) -> dict:
     t0 = time.time()
     p = paths(root)
     cfg = load_config(root)
+    if owner_stop_active(cfg):
+        raise SystemExit("expand: Artemis is stopped by its owner (or the stop state is unreadable); halting.")
     torch.set_num_threads(int(cfg.get("num_threads", max(1, min(4, os.cpu_count() or 1)))))
     mutation = cfg.get("pending_mutation") or {"name": "none", "changes": {}, "reasons": []}
     ck = torch.load(p["ckpt"], map_location="cpu", weights_only=False) if os.path.exists(p["ckpt"]) else None
@@ -318,6 +364,8 @@ def run_cycle(root: str) -> dict:
     losses, auxes, drops = [], [], []
     model.train()
     for step in range(cfg["steps_per_cycle"]):
+        if step % 10 == 0 and owner_stop_active(cfg):
+            raise SystemExit("expand: Artemis is stopped by its owner mid-cycle; halting.")
         lr = lr_at(cfg, step)
         for grp in opt.param_groups:
             grp["lr"] = lr
@@ -407,6 +455,8 @@ def run_cycle(root: str) -> dict:
 def loop(root: str, cycles: int) -> List[dict]:
     out = []
     for _ in range(cycles):
+        if owner_stop_active():
+            raise SystemExit("expand: Artemis is stopped by its owner (or the stop state is unreadable); halting.")
         cfg = load_config(root)
         save_config(root, apply_mutation(cfg, plan_mutations(cfg)[0]))
         out.append(run_cycle(root))
