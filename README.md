@@ -100,6 +100,19 @@ python3 train_bytes.py --help             # byte-level training options
 
 `train_bytes.py` expects a local text corpus (`bytelm/build_corpus.py` builds the Gutenberg one; corpus text is not committed) or `--text FILE`.
 
+## Stage 1: review fixes and tests
+
+- `moe.py` takes `legacy=True` to reproduce the original behaviour exactly; the default applies the fixes in `docs/REVIEW.md`.
+- `tests/`: pytest suite. `docs/REVIEW.md`: verified correctness findings. `PLAN.md`: staged roadmap. `PROGRESS.md`: iteration log.
+
+```bash
+pip install --index-url https://download.pytorch.org/whl/cpu torch
+pip install pytest
+python sandbox.py               # legacy + fixed modes
+python sandbox.py --mode legacy # original numbers exactly
+python -m pytest -q
+```
+
 ## Roadmap
 
 - [x] Fix the baseline MoE (aux loss, capacity priority, dropped tokens) behind a `legacy` flag
