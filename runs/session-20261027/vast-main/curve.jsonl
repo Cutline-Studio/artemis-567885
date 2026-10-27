@@ -5,3 +5,10 @@ CURVE {"chunk": 4, "cycle": 164, "layers": 16, "raw": 0.022397, "ema": 0.022154,
 CURVE {"chunk": 5, "cycle": 174, "layers": 16, "raw": 0.022168, "ema": 0.021965, "ood": 1.460693}
 CURVE {"chunk": 6, "cycle": 184, "layers": 16, "raw": 0.022232, "ema": 0.022221, "ood": 1.483873}
 CURVE {"chunk": 7, "cycle": 194, "layers": 16, "raw": 0.022733, "ema": 0.022359, "ood": 1.50074}
+CURVE {"chunk": 8, "cycle": 204, "layers": 16, "raw": 0.022167, "ema": 0.022139, "ood": 1.497748}
+CURVE {"chunk": 9, "cycle": 214, "layers": 16, "raw": 0.022473, "ema": 0.022145, "ood": 1.51143}
+CURVE {"chunk": 10, "cycle": 224, "layers": 16, "raw": 0.022228, "ema": 0.021859, "ood": 1.523083}
+CURVE {"chunk": 11, "cycle": 234, "layers": 16, "raw": 0.021999, "ema": 0.022378, "ood": 1.533541}
+CURVE {"chunk": 12, "cycle": 244, "layers": 16, "raw": 0.022102, "ema": 0.021843, "ood": 1.545662}
+CURVE {"chunk": 13, "cycle": 254, "layers": 16, "raw": 0.02227, "ema": 0.022244, "ood": 1.553848}
+CURVE {"chunk": 14, "cycle": 264, "layers": 16, "raw": 0.022917, "ema": 0.021909, "ood": 1.555977}
