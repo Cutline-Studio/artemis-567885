@@ -117,3 +117,28 @@
 
 ### Next
 - Stage 9(c) (PLAN.md): byte-level Continuous-Language-Field prototype. Raw bytes from `webstream` → byte embedding + γ(t) for the document position (`ByteFeaturizer` / `FourierFeatures`) → causal MoE blocks → next-byte softmax. Report held-out bits-per-byte vs a unigram baseline and a no-position ablation.
+
+## Iteration 10 — 2026-10-26 (scheduled daily GPU session)
+Session: 1× RTX 4070 on Vast.ai (instance 57817513, $0.167/h, torch 2.5.1+cu124, AMD EPYC 7F52, 32 threads), rented 09:08:01 ET, destroyed 09:19:13 ET (verified by ID). Measured cost $0.034 (credit delta) against the $1.00 daily cap. Guards: on-instance self-destroy, detached host-side destroyer, in-script deadline.
+
+### Stage 9(c): byte-level Continuous-Language-Field prototype (`clf.py`)
+- `ByteCLF`: learned byte embedding (+ optional byte/255 scalar) + Linear(γ(t)) → stage-3/5 causal MoE blocks (dropless, causal-safe) → next-byte softmax. No tokenizer. Position modes: `doc` (t = absolute document byte offset / 2^20, the CLF coordinate), `window` (t = offset inside the window, control), `none` (no-position ablation). γ is computed in float64. New `--device` flag (CUDA support).
+- Data: Project Gutenberg *Pride and Prejudice* read with `webstream.WebByteStream` (HTTP Range, 6 × 128 KiB chunks, sha256 `3f6bb9d6f78e0293…`), body only (Gutenberg header/footer stripped). Train = first 90 % of the body (677,238 B), held-out = last 10 % (75,249 B), contiguous, never trained on.
+- GPU run (`python clf.py --device cuda --dispatch vectorized --steps 3000`, d=128, 2 layers, 4 experts, top-2, seq 128, batch 32, 732,800 params; same seed and batches for every variant). Held-out bits per byte (583 windows, 74,624 predicted bytes):
+
+| Variant | held-out bpb (final) | best | train-window bpb | train time |
+|---|---|---|---|---|
+| unigram baseline (train byte distribution) | 4.6192 | | | |
+| `none` (no position) | 2.0745 | 2.0745 | 2.0004 | 42.9 s |
+| `doc` (absolute document coordinate) | 1.7641 | 1.7601 | 1.4452 | 48.6 s |
+| `window` (position inside window) | **1.6621** | 1.6621 | 1.4891 | 40.9 s |
+
+- Reading: every variant beats the unigram baseline by a wide margin; position information helps (none 2.07 → window 1.66). The absolute document coordinate is worse than the in-window position and has the biggest train/held-out gap (1.45 vs 1.76): on held-out offsets the model sees coordinates it never trained on, so a field on the document coordinate memorises rather than generalises — the risk PLAN.md predicted. Single seed, one book.
+- Earlier CPU run of the same code (700 steps, 2 threads, 2026-10-25) kept in `runs/stage9c/cpu_700steps_20261025/`: none 3.1418, doc 3.1555, window 2.2446.
+- Tests: `tests/test_clf.py` 26 passed on the GPU host, including a new CUDA-vs-CPU equivalence test (shapes, causality across positions and rows, gradients to every parameter, one-step loss decrease, position-mode behaviour, float64 position precision, hand-computed bpb/unigram, tiny end-to-end run, loud failure on fetch errors).
+- Full suite on the GPU host (`pytest -q tests checks`): 401 passed, 6 failed. One was a bug in the new CUDA test (fixed; clf tests then 26/26). The other 5 are existing bit-exact (`torch.equal`) causality tests in `test_artemis_model.py`, `test_positional.py` and `test_stage7_capacity.py` that fail with 32 threads on this CPU / torch 2.5.1 and all pass with `OMP_NUM_THREADS=1` (10 passed): multi-threaded reduction order, not a causal leak in the 1-thread check. Logs in `runs/stage9c/gpu_20261026/`.
+- `python sandbox.py`: fixed 0.3415, legacy 1.5083 (unchanged).
+
+### Next
+- Make the bit-exact causality tests thread-robust (pin threads inside the test, or compare with a tight tolerance plus an exact 1-thread check).
+- Stage 9(c) follow-ups: more seeds and a second book (author-level held-out), a relative/periodic document coordinate so held-out offsets are in-distribution, then 9(d).
