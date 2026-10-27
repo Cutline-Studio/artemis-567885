@@ -1,0 +1,17 @@
+$ /workspace/artemis-567885/train_bytes.py --d-model 128 --n-heads 4 --d-ff 256 --experts 4 --layers 3 --pos sinusoidal --seq-len 128 --batch 32 --lr 2e-3 --warmup 100 --eval-every 250 --eval-windows 256 --eval-batch 64 --seed 567885 --time-budget 0 --prompt 'It was a ' --sample-len 160 --aux-alpha 0.01 --top-k 2 --routing expert_choice --capacity-factor 1.0 --capacity-mode sequence --max-steps 2000 --threads 2 --out-dir /workspace/artemis-567885/runs/stage8 --run-name ec_k2_cf1_seq_LEAKY
+[stage8] WARNING: routing=expert_choice is not causal (each expert picks its top-C tokens using future positions of the group); results are labelled leaky
+[stage6] corpus=/workspace/artemis-corpus-bench/corpus train/ vs val/ | train 11,984,086 B, held-out 1,230,205 B (eval 256 windows x 128 predicted bytes)
+[stage6] params 1,058,304 | d=128 layers=3 experts=4 top_k=2 seq=128 batch=32 | unigram bpb 4.5965 (eval windows) / 4.5817 (full held-out)
+step      0 t=    0.5s lr=0.00e+00 train   -    bpb | held-out 8.2981 bpb (unigram 4.5965)
+step    250 t=   34.5s lr=1.93e-03 train 3.9035 bpb | held-out 3.0158 bpb (unigram 4.5965)
+step    500 t=   69.3s lr=1.74e-03 train 2.7192 bpb | held-out 2.4671 bpb (unigram 4.5965)
+step    750 t=  103.9s lr=1.45e-03 train 2.3829 bpb | held-out 2.2704 bpb (unigram 4.5965)
+step   1000 t=  138.1s lr=1.10e-03 train 2.2168 bpb | held-out 2.1491 bpb (unigram 4.5965)
+step   1250 t=  171.1s lr=7.57e-04 train 2.1211 bpb | held-out 2.0816 bpb (unigram 4.5965)
+step   1500 t=  203.2s lr=4.65e-04 train 2.0561 bpb | held-out 2.0324 bpb (unigram 4.5965)
+step   1750 t=  236.0s lr=2.69e-04 train 2.0107 bpb | held-out 2.0029 bpb (unigram 4.5965)
+step   2000 t=  269.1s lr=2.00e-04 train 1.9792 bpb | held-out 1.9849 bpb (unigram 4.5965)
+[stage6] done: 2000 steps in 269.1s | held-out 1.9849 bpb vs unigram 4.5965 | samples:
+It was a few and the leasting of a shop family and
+conversations to seek, after she had been satisfie and alluming as a
+distance of the free threating as first of the 

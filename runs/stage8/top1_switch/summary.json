@@ -1,0 +1,113 @@
+{
+  "run_name": "top1_switch",
+  "data": "corpus=/workspace/artemis-corpus-bench/corpus train/ vs val/",
+  "train_bytes": 11984086,
+  "heldout_bytes": 1230205,
+  "eval_windows": 256,
+  "eval_predicted_bytes": 32768,
+  "params": 1058304,
+  "steps": 2000,
+  "train_time_s": 233.7,
+  "bytes_seen": 8192000,
+  "first_train_bpb": 8.2931,
+  "initial_heldout_bpb": 8.30823,
+  "final_heldout_bpb": 1.99358,
+  "best_heldout_bpb": 1.99358,
+  "final_heldout_loss_nats": 1.38184,
+  "capacity_factor": null,
+  "capacity_mode": "sequence",
+  "leaky": false,
+  "top_k": 1,
+  "gate_weighting": "switch",
+  "routing": "token_choice",
+  "z_loss_coef": 0.0,
+  "train_z_mean": 31.83566,
+  "heldout_z_loss": 46.63849,
+  "train_drop_rate": 0.0,
+  "heldout_drop_rate": 0.0,
+  "heldout_entropy_routed": [
+    0.99411,
+    0.99781,
+    0.99765
+  ],
+  "heldout_entropy_kept": [
+    0.99411,
+    0.99781,
+    0.99765
+  ],
+  "heldout_entropy_routed_mean": 0.99652,
+  "heldout_entropy_kept_mean": 0.99652,
+  "heldout_load_routed": [
+    [
+      9515.0,
+      8478.0,
+      6620.0,
+      8411.0
+    ],
+    [
+      7746.0,
+      9180.0,
+      8531.0,
+      7567.0
+    ],
+    [
+      7900.0,
+      8009.0,
+      9411.0,
+      7704.0
+    ]
+  ],
+  "final_aux": 3.01533,
+  "unigram_bpb_eval_windows": 4.59647,
+  "unigram_bpb_full_heldout": 4.58172,
+  "config": {
+    "corpus": null,
+    "text": null,
+    "heldout_split": "val",
+    "heldout_frac": 0.1,
+    "d_model": 128,
+    "n_heads": 4,
+    "d_ff": 256,
+    "experts": 4,
+    "layers": 3,
+    "top_k": 1,
+    "pos": "sinusoidal",
+    "dispatch": "loop",
+    "seq_len": 128,
+    "batch": 32,
+    "lr": 0.002,
+    "warmup": 100,
+    "weight_decay": 0.01,
+    "grad_clip": 1.0,
+    "aux_alpha": 0.01,
+    "capacity_factor": null,
+    "capacity_mode": "sequence",
+    "gate_weighting": "switch",
+    "routing": "token_choice",
+    "z_loss": 0.0,
+    "max_steps": 2000,
+    "time_budget": 0.0,
+    "eval_every": 250,
+    "eval_windows": 256,
+    "eval_batch": 64,
+    "sample_len": 160,
+    "temperature": 0.8,
+    "sample_top_k": 40,
+    "seed": 567885,
+    "threads": 2,
+    "out_dir": "/workspace/artemis-567885/runs/stage8",
+    "run_name": "top1_switch",
+    "save_checkpoint": false
+  },
+  "torch": "2.14.1+cpu",
+  "threads": 2,
+  "samples": [
+    {
+      "prompt": "It was a ",
+      "temperature": 0.8,
+      "top_k": 40,
+      "seed": 567885,
+      "text": "It was a few and the moment with a smoke, and takes converwithing\r\nscreaking and seemed a tring that beautiful men that his france of the\r\nbee to latter as fifferent som"
+    }
+  ]
+}

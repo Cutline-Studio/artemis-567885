@@ -1,0 +1,9 @@
+run,top_k,gate_weighting,routing,z_loss_coef,capacity_factor,leaky,steps,train_time_s,heldout_bpb,heldout_loss_nats,best_heldout_bpb,heldout_drop_rate,entropy_routed_mean,entropy_routed_per_layer,final_aux,train_z_mean,heldout_z_loss,params,unigram_bpb
+top2_renorm,2,renorm,token_choice,0.0,none,False,2000,286.1,1.98661,1.37701,1.98661,0.0,0.99874,0.9982 0.9985 0.9995,3.01988,41.82918,56.71434,1058304,4.59647
+top1_renorm,1,renorm,token_choice,0.0,none,False,2000,223.0,2.10871,1.46164,2.10871,0.0,0.99943,0.9996 0.9989 0.9998,3.00269,7.53334,7.72259,1058304,4.59647
+top1_switch,1,switch,token_choice,0.0,none,False,2000,233.7,1.99358,1.38184,1.99358,0.0,0.99652,0.9941 0.9978 0.9977,3.01533,31.83566,46.63849,1058304,4.59647
+top2_switch,2,switch,token_choice,0.0,none,False,2000,526.5,1.98453,1.37557,1.98453,0.0,0.99827,0.9970 0.9988 0.9990,3.02334,40.7402,55.96227,1058304,4.59647
+top2_renorm_z1e-3,2,renorm,token_choice,0.001,none,False,2000,519.8,1.97666,1.37012,1.97666,0.0,0.99904,0.9998 0.9982 0.9991,3.01263,1.4453,1.39421,1058304,4.59647
+top2_renorm_z1e-2,2,renorm,token_choice,0.01,none,False,2000,303.5,1.99315,1.38155,1.99315,0.0,0.99925,0.9992 0.9985 1.0000,2.99683,0.30733,0.22887,1058304,4.59647
+top1_switch_z1e-3,1,switch,token_choice,0.001,none,False,2000,241.3,1.99774,1.38473,1.99774,0.0,0.99761,0.9959 0.9974 0.9996,3.01006,1.46611,1.46579,1058304,4.59647
+ec_k2_cf1_seq_LEAKY,2,renorm,expert_choice,0.0,1.0,True,2000,269.1,1.98487,1.37581,1.98487,0.0,1.0,1.0000 1.0000 1.0000,3.0,40.96304,55.08552,1058304,4.59647

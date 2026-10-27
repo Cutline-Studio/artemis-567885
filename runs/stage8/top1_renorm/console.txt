@@ -1,0 +1,16 @@
+$ /workspace/artemis-567885/train_bytes.py --d-model 128 --n-heads 4 --d-ff 256 --experts 4 --layers 3 --pos sinusoidal --seq-len 128 --batch 32 --lr 2e-3 --warmup 100 --eval-every 250 --eval-windows 256 --eval-batch 64 --seed 567885 --time-budget 0 --prompt 'It was a ' --sample-len 160 --aux-alpha 0.01 --top-k 1 --max-steps 2000 --threads 2 --out-dir /workspace/artemis-567885/runs/stage8 --run-name top1_renorm
+[stage6] corpus=/workspace/artemis-corpus-bench/corpus train/ vs val/ | train 11,984,086 B, held-out 1,230,205 B (eval 256 windows x 128 predicted bytes)
+[stage6] params 1,058,304 | d=128 layers=3 experts=4 top_k=1 seq=128 batch=32 | unigram bpb 4.5965 (eval windows) / 4.5817 (full held-out)
+step      0 t=    0.4s lr=0.00e+00 train   -    bpb | held-out 8.2899 bpb (unigram 4.5965)
+step    250 t=   28.1s lr=1.93e-03 train 3.9132 bpb | held-out 3.0814 bpb (unigram 4.5965)
+step    500 t=   56.7s lr=1.74e-03 train 2.8391 bpb | held-out 2.6286 bpb (unigram 4.5965)
+step    750 t=   84.4s lr=1.45e-03 train 2.5448 bpb | held-out 2.4155 bpb (unigram 4.5965)
+step   1000 t=  111.7s lr=1.10e-03 train 2.3800 bpb | held-out 2.2998 bpb (unigram 4.5965)
+step   1250 t=  138.9s lr=7.57e-04 train 2.2841 bpb | held-out 2.2169 bpb (unigram 4.5965)
+step   1500 t=  167.8s lr=4.65e-04 train 2.2188 bpb | held-out 2.1620 bpb (unigram 4.5965)
+step   1750 t=  195.5s lr=2.69e-04 train 2.1712 bpb | held-out 2.1243 bpb (unigram 4.5965)
+step   2000 t=  223.0s lr=2.00e-04 train 2.1391 bpb | held-out 2.1087 bpb (unigram 4.5965)
+[stage6] done: 2000 steps in 223.0s | held-out 2.1087 bpb vs unigram 4.5965 | samples:
+It was a few and the moment with a shop face
+taker collerlings of sights, afterness hand the same that he was
+lift, if it whale was seen the confaction special of the 

@@ -35,12 +35,14 @@ class MultiHeadAttention(nn.Module):
 class MoETransformerBlock(nn.Module):
     def __init__(self, d_model: int, n_heads: int, d_ff: int, num_experts: int, top_k: int = 2, capacity_factor: float = 1.0,
                  legacy: bool = False, causal: bool = False, dispatch: str = "loop",
-                 capacity_mode: str = "global"):
+                 capacity_mode: str = "global", gate_weighting: str = "renorm",
+                 routing: str = "token_choice"):
         super().__init__()
         self.attn = MultiHeadAttention(d_model, n_heads, causal=causal)
         self.ln1 = nn.LayerNorm(d_model)
         self.moe = CapacitySparseMoELayer(d_model, d_ff, num_experts, top_k, capacity_factor, legacy=legacy,
-                                          dispatch=dispatch, capacity_mode=capacity_mode)
+                                          dispatch=dispatch, capacity_mode=capacity_mode,
+                                          gate_weighting=gate_weighting, routing=routing)
         self.ln2 = nn.LayerNorm(d_model)
 
     def forward(self, x: torch.Tensor):
