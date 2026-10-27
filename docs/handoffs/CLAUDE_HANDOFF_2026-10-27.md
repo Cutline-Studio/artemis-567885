@@ -1,6 +1,6 @@
 # Handoff for Claude: Artemis (Cutline Industries LLC), 2026-10-27
 
-Prepared 2026-10-27, about 1:10 PM ET, for a fresh Claude session (claude.ai or Claude Code) that has never seen this project. All times are US Eastern (ET) unless marked UTC.
+Prepared 2026-10-27, about 1:20 PM ET, for a fresh Claude session (claude.ai or Claude Code) that has never seen this project. All times are US Eastern (ET) unless marked UTC.
 
 ---
 
@@ -350,11 +350,11 @@ Latoya relayed this from your previous Claude Code session (Claude Opus 5 High, 
 
 ### 7.5 Exact resume point (line B)
 State at hand-off, as reported by the session: **Holding. Nothing running, nothing pushed, no training ever started.** It stopped during corpus prep, before the about 7 CPU-hours. `main` is untouched at `50fc779`.
-- An uncommitted **14-line change** on local branch **`experiment/clean-label-routing`** adds a `--no-residual-build` passthrough to `gateway/artemis/stream_corpus.py`. It's backward compatible (`residual_build` defaults to True, both `_filter` call sites updated).
-- The session said it would commit, push and open a **draft PR** once tests passed. **At 1:10 PM ET Oct 27, no `experiment/*` branch and no such PR exists on GitHub.** If it isn't there when you start, re-apply the patch.
-- Corpus prep was killed mid-download. About 460 MB of scratch data was in that session's own container (`/tmp/claude-0/.../scratchpad/proto-route`). It's gone or unreachable, so treat it as lost.
+- **Update, 1:15 PM ET:** the session pushed branch **`experiment/clean-label-routing`** (commit `eb01908`, "Let stream_corpus leave unmatched source unlabelled") and opened **draft PR #18**: https://github.com/lpittman-blip/Cutline-Industries/pull/18. It changes `gateway/artemis/stream_corpus.py` (+14 −4, a `--no-residual-build` passthrough; `residual_build` defaults to True, so default behaviour is unchanged) and `gateway/tests/test_stream_corpus.py` (+40 −5; the `_filter` fake now mirrors the real signature and honours the flag). The PR reports `cd gateway && python3 -m pytest tests/ -q` → **422 passed, 2 skipped**, with `pyarrow` installed. **CI doesn't install `pyarrow`**, so `test_stream_corpus.py` has no CI coverage. Adding it to the CI install line is a one-word change and isn't in the PR. **Not merged. Don't merge without Latoya.**
+- **Correct one claim in PR #18's description:** it says the clean-label experiment "has never been run". At proto scale it **was** run, as arm `moe-nores`, and it was the worst arm (see 7.3). What hasn't been run is the compute-optimal (117.5M-token) version.
+- Corpus prep was killed mid-download. About 460 MB of scratch data was in that session's own container (`/tmp/claude-0/.../scratchpad/proto-route`). Treat it as lost. **No training has started.**
 
-**The patch to re-apply** (reconstructed from the code; the original diff isn't on GitHub):
+**What the patch does** (reconstructed from the code before PR #18 existed; PR #18 is the authoritative version):
 ```diff
 --- a/gateway/artemis/stream_corpus.py
 +++ b/gateway/artemis/stream_corpus.py
@@ -380,8 +380,8 @@ State at hand-off, as reported by the session: **Holding. Nothing running, nothi
 +            _filter(_fetch(args.dataset, i, args.shards_total, raw), j, residual_build)
 ```
 Then:
-1. Update the fake `_filter` in `gateway/tests/test_stream_corpus.py` to accept `residual_build` and honour it like `classify()` (with it off, emit `build`-only docs without a `domain` key). Add a test that `--no-residual-build` leaves undetected docs unlabelled. With `pyarrow` installed, run the full gateway suite (`cd gateway && python -m pytest -q`). The previous session saw 7 failed / 414 passed before this fix; the target is 0 failed / 421 total, and a clean tree should give the same count. Only then push.
-2. Commit on `experiment/clean-label-routing` and push to `lpittman-blip/Cutline-Industries`. Open a **draft** PR into `main`. Don't merge.
+1. Check out `experiment/clean-label-routing` (PR #18). With `pyarrow` installed, re-run `cd gateway && python3 -m pytest tests/ -q` and confirm 422 passed, 2 skipped.
+2. Optional follow-ups for PR #18 (ask Latoya first): record `residual_build` in `prep-state.json` / the manifest and refuse to resume on a mismatch, add `pyarrow` to CI, and fix the "never been run" wording. Keep the PR a draft. Don't merge.
 3. Agree with Latoya on whether to run (see the 7.3 caveat), plus a host, price cap and time limit. Then **she** runs prep and training on a rented host, never on the old assistant's box. For example, `python3 -m artemis.stream_corpus --work /data/clean-labels --shards 2 --vocab 4096 --no-residual-build`, then the proto trainer with the same seed/steps as the 117M control and `--route-coef 0.1`. Compare against val 2.6164.
 
 ---
@@ -430,6 +430,6 @@ Then:
 - The outcome and cost split of dense run 2 (Vast 57753825), and the per-run costs of Artemis-7B / Artemis-30B (only the $3.84 combined credit delta is known).
 - Whether the Llama-3.1-8B conversational fine-tune ever ran (no evidence found).
 - The final Azure bill for the Oct 27 replicate ($1.05 is an estimate).
-- The state of the external Claude session's corpus download and its 14-line patch (plus test fix). Not on GitHub as of 1:13 PM ET. The scratch data is presumed lost.
+- The external Claude session's scratch corpus download (presumed lost). PR #18's 422-passed result is as reported in the PR. It wasn't re-run here.
 - The Claude GitHub app installation (175898435) on `Cutline-industries`, reported by Latoya. Not checked from here.
 - The `cutlineboxarchive` storage account's region and tier.
