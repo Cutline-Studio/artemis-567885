@@ -1,0 +1,22 @@
+.........F.............................................................. [ 48%]
+.....................................................x.................. [ 96%]
+.....                                                                    [100%]
+=================================== FAILURES ===================================
+__________________ test_default_caps_are_the_approved_limits ___________________
+
+    def test_default_caps_are_the_approved_limits():
+        caps = expand.DEFAULT_CONFIG["caps"]
+        assert caps["capacity_factor_max"] == 2.5
+        assert caps["num_layers_max"] == 12
+        assert caps["num_experts_max"] == 16  # per layer
+        repo = json.load(open(os.path.join(ROOT, "config.json")))["caps"]
+>       assert (repo["capacity_factor_max"], repo["num_layers_max"], repo["num_experts_max"]) == (2.5, 12, 16)
+E       assert (3.0, 16, 16) == (2.5, 12, 16)
+E         
+E         At index 0 diff: 3.0 != 2.5
+E         Use -v to get more diff
+
+tests/test_expand.py:86: AssertionError
+=========================== short test summary info ============================
+FAILED tests/test_expand.py::test_default_caps_are_the_approved_limits - asse...
+1 failed, 147 passed, 1 xfailed in 51.58s
