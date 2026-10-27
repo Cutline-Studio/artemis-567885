@@ -1,0 +1,40 @@
+{"cycle": 0, "loss": 0.099082, "aux": 1.001019, "dropped": 204, "capacity_factor": 0.8, "alpha": 0.1, "num_experts": [4], "num_layers": 1}
+{"cycle": 1, "loss": 0.09049, "aux": 1.001533, "dropped": 152, "capacity_factor": 0.85, "alpha": 0.1, "num_experts": [4], "num_layers": 1}
+{"cycle": 2, "loss": 0.085469, "aux": 1.001573, "dropped": 100, "capacity_factor": 0.9, "alpha": 0.1, "num_experts": [4], "num_layers": 1}
+{"cycle": 3, "loss": 0.081064, "aux": 1.002443, "dropped": 49, "capacity_factor": 0.95, "alpha": 0.1, "num_experts": [4], "num_layers": 1}
+{"cycle": 4, "loss": 0.078043, "aux": 1.00257, "dropped": 15, "capacity_factor": 1.0, "alpha": 0.1, "num_experts": [4], "num_layers": 1}
+{"cycle": 5, "loss": 0.075284, "aux": 1.00216, "dropped": 0, "capacity_factor": 1.05, "alpha": 0.1, "num_experts": [4], "num_layers": 1}
+{"cycle": 6, "loss": 0.07185, "aux": 1.001803, "dropped": 0, "capacity_factor": 1.05, "alpha": 0.1, "num_experts": [4], "num_layers": 1}
+{"cycle": 7, "loss": 0.062887, "aux": 1.002255, "dropped": 0, "capacity_factor": 1.05, "alpha": 0.1, "num_experts": [4], "num_layers": 1}
+{"cycle": 8, "loss": 0.054726, "aux": 1.00185, "dropped": 0, "capacity_factor": 1.05, "alpha": 0.1, "num_experts": [4], "num_layers": 1}
+{"cycle": 9, "loss": 0.050025, "aux": 1.002009, "dropped": 0, "capacity_factor": 1.05, "alpha": 0.1, "num_experts": [4], "num_layers": 1}
+{"cycle": 10, "loss": 0.046993, "aux": 1.00283, "dropped": 1, "capacity_factor": 1.05, "alpha": 0.1, "num_experts": [4], "num_layers": 1}
+{"cycle": 11, "loss": 0.044762, "aux": 1.002471, "dropped": 0, "capacity_factor": 1.1, "alpha": 0.1, "num_experts": [4], "num_layers": 1}
+{"cycle": 12, "loss": 0.043473, "aux": 1.002553, "dropped": 0, "capacity_factor": 1.1, "alpha": 0.1, "num_experts": [4], "num_layers": 1}
+{"cycle": 13, "loss": 0.042611, "aux": 1.001984, "dropped": 0, "capacity_factor": 1.1, "alpha": 0.1, "num_experts": [4], "num_layers": 1}
+{"cycle": 14, "loss": 0.041512, "aux": 1.001645, "dropped": 0, "capacity_factor": 1.1, "alpha": 0.1, "num_experts": [4], "num_layers": 1}
+{"cycle": 15, "loss": 0.040461, "aux": 1.001384, "dropped": 0, "capacity_factor": 1.1, "alpha": 0.1, "num_experts": [4], "num_layers": 1}
+{"cycle": 16, "loss": 0.039876, "aux": 1.001088, "dropped": 0, "capacity_factor": 1.1, "alpha": 0.1, "num_experts": [4], "num_layers": 1}
+{"cycle": 17, "loss": 0.039041, "aux": 1.000776, "dropped": 0, "capacity_factor": 1.1, "alpha": 0.1, "num_experts": [4], "num_layers": 1}
+{"cycle": 18, "loss": 0.03826, "aux": 1.000561, "dropped": 0, "capacity_factor": 1.1, "alpha": 0.1, "num_experts": [4], "num_layers": 1}
+{"cycle": 19, "loss": 0.037336, "aux": 1.000461, "dropped": 0, "capacity_factor": 1.1, "alpha": 0.1, "num_experts": [4], "num_layers": 1}
+{"cycle": 20, "loss": 0.036794, "aux": 1.000638, "dropped": 0, "capacity_factor": 1.1, "alpha": 0.1, "num_experts": [4], "num_layers": 1}
+{"cycle": 21, "loss": 0.03611, "aux": 1.000754, "dropped": 0, "capacity_factor": 1.1, "alpha": 0.1, "num_experts": [4], "num_layers": 1}
+{"cycle": 22, "loss": 0.035653, "aux": 1.000475, "dropped": 0, "capacity_factor": 1.1, "alpha": 0.1, "num_experts": [4], "num_layers": 1}
+{"cycle": 23, "loss": 0.035186, "aux": 1.000475, "dropped": 0, "capacity_factor": 1.1, "alpha": 0.1, "num_experts": [4], "num_layers": 1}
+{"cycle": 24, "loss": 0.035013, "aux": 1.000811, "dropped": 0, "capacity_factor": 1.1, "alpha": 0.1, "num_experts": [4], "num_layers": 1}
+{"cycle": 25, "loss": 0.034669, "aux": 1.000805, "dropped": 0, "capacity_factor": 1.1, "alpha": 0.1, "num_experts": [4], "num_layers": 1}
+{"cycle": 26, "loss": 0.034199, "aux": 1.000473, "dropped": 0, "capacity_factor": 1.1, "alpha": 0.1, "num_experts": [4], "num_layers": 1}
+{"cycle": 27, "loss": 0.035726, "aux": 1.000102, "dropped": 0, "capacity_factor": 1.1, "alpha": 0.1, "num_experts": [5], "num_layers": 1}
+{"cycle": 28, "loss": 0.035355, "aux": 1.00024, "dropped": 0, "capacity_factor": 1.1, "alpha": 0.1, "num_experts": [5], "num_layers": 1}
+{"cycle": 29, "loss": 0.036923, "aux": 1.000325, "dropped": 3, "capacity_factor": 1.1, "alpha": 0.1, "num_experts": [5], "num_layers": 1}
+{"cycle": 30, "loss": 0.03491, "aux": 1.000615, "dropped": 0, "capacity_factor": 1.15, "alpha": 0.1, "num_experts": [5], "num_layers": 1}
+{"cycle": 31, "loss": 0.034613, "aux": 1.000427, "dropped": 0, "capacity_factor": 1.15, "alpha": 0.1, "num_experts": [5], "num_layers": 1}
+{"cycle": 32, "loss": 0.034287, "aux": 1.000424, "dropped": 0, "capacity_factor": 1.15, "alpha": 0.1, "num_experts": [5], "num_layers": 1}
+{"cycle": 33, "loss": 0.032218, "aux": 1.000098, "dropped": 0, "capacity_factor": 1.15, "alpha": 0.1, "num_experts": [5, 4], "num_layers": 2}
+{"cycle": 34, "loss": 0.030775, "aux": 0.999469, "dropped": 0, "capacity_factor": 1.15, "alpha": 0.1, "num_experts": [5, 4], "num_layers": 2}
+{"cycle": 35, "loss": 0.029953, "aux": 0.999892, "dropped": 0, "capacity_factor": 1.15, "alpha": 0.1, "num_experts": [5, 4], "num_layers": 2}
+{"cycle": 36, "loss": 0.0294, "aux": 0.999943, "dropped": 0, "capacity_factor": 1.15, "alpha": 0.1, "num_experts": [5, 4], "num_layers": 2}
+{"cycle": 37, "loss": 0.029233, "aux": 0.999781, "dropped": 0, "capacity_factor": 1.15, "alpha": 0.1, "num_experts": [5, 4], "num_layers": 2}
+{"cycle": 38, "loss": 0.02887, "aux": 0.999758, "dropped": 0, "capacity_factor": 1.15, "alpha": 0.1, "num_experts": [5, 4], "num_layers": 2}
+{"cycle": 39, "loss": 0.028683, "aux": 1.000423, "dropped": 0, "capacity_factor": 1.15, "alpha": 0.1, "num_experts": [5, 5], "num_layers": 2}

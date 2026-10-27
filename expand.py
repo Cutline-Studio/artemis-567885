@@ -22,6 +22,7 @@ import torch
 import torch.nn.functional as F
 
 from model import DynamicMultiBlockTransformer
+from moe import expert_load_entropy, expert_min_load_ratio
 
 DEFAULT_CONFIG = {
     "d_model": 16, "n_heads": 2, "d_ff": 64,
@@ -30,11 +31,40 @@ DEFAULT_CONFIG = {
     "lr": 1e-3, "steps_per_cycle": 300, "batch_size": 8, "seq_len": 16,
     "eval_batch_size": 32, "seed": 567885,
     "rules": {"cf_step": 0.05, "aux_threshold": 1.2, "alpha_mult": 1.5, "stall_rel_improvement": 0.01,
-              "expert_noise_std": 0.01},
+              "expert_noise_std": 0.01},  # growth-health rules: see GROWTH_RULE_DEFAULTS (used when absent)
     "caps": {"capacity_factor_max": 2.5, "num_experts_max": 16, "alpha_max": 1.0, "num_layers_max": 12},
     "cycle": 0, "pending_mutation": None, "history": [],
 }
 DIM_KEYS = ("d_model", "n_heads", "d_ff", "top_k")
+
+# Growth-health rules (2026-10-27). They apply whenever a config's "rules" lacks the key, so existing
+# configs pick them up without edits. The "legacy" column reproduces the pre-2026-10-27 expand loop.
+GROWTH_RULE_DEFAULTS = {
+    # fix 1: an expert may only be added to a layer whose existing experts all carry load.
+    # min_load_ratio = E * min_i(load_i / total) over the last eval batch's top-k assignments
+    # (1.0 = uniform, 0 = an idle expert); entropy is moe.expert_load_entropy (normalised).
+    "growth_min_load_ratio": 0.25,         # legacy: 0.0
+    "growth_min_load_entropy": 0.8,        # legacy: 0.0
+    "growth_min_healthy_layer_frac": 0.5,  # a new LAYER needs >= this fraction of load-healthy layers; legacy: 0.0
+    # fix 3: growth must pay for itself. After a growth the loop waits `stall_patience` cycles, then compares
+    # the mean eval loss of those cycles with the mean of the `stall_patience` cycles BEFORE the growth
+    # (a pre-growth baseline, so the post-growth optimizer restart cannot feed the next decision).
+    # gain < min_growth_gain -> an expert growth escalates to a layer, a layer growth means "converged":
+    # no structural growth until growth_cooldown cycles have passed since that growth.
+    "stall_patience": 3,                   # legacy: 0 (disables the whole growth-pays check)
+    "min_growth_gain": 0.01,
+    "growth_cooldown": 25,
+    "loss_floor": 0.0,                     # eval loss <= floor -> never grow (0 disables)
+    # fix 4: how a new expert is initialised: "mean" (average of the layer's experts + noise, gate row = mean
+    # row + noise) or "most_loaded" (legacy: clone of the most-loaded expert + noise).
+    "expert_init": "mean",
+}
+LEGACY_GROWTH_RULES = {"growth_min_load_ratio": 0.0, "growth_min_load_entropy": 0.0,
+                       "growth_min_healthy_layer_frac": 0.0, "stall_patience": 0, "expert_init": "most_loaded"}
+
+
+def rule(rules: dict, key: str):
+    return rules[key] if key in rules else GROWTH_RULE_DEFAULTS[key]
 
 
 class OutputShapeMismatch(RuntimeError):
@@ -102,40 +132,138 @@ def plan_mutations(cfg: dict) -> List[dict]:
         soft["alpha"] = round(min(caps["alpha_max"], cfg["alpha"] * rules["alpha_mult"]), 6)
         reasons.append(f"aux={last['aux']:.4f}>{rules['aux_threshold']} -> alpha*={rules['alpha_mult']}")
 
-    structural, s_reason = {}, None
-    if last["rel_improvement"] < rules["stall_rel_improvement"]:
+    structural, s_reason, notes = {}, None, []
+    stalled = last["rel_improvement"] < rules["stall_rel_improvement"]
+    floor = float(rule(rules, "loss_floor"))
+    if stalled and floor > 0 and _eval_metric(last) <= floor:
+        stalled = False
+        notes.append(f"eval loss {_eval_metric(last):.6f} <= loss_floor {floor} -> no growth")
+    if stalled:
         # caps["num_experts_max"] is a PER-LAYER cap on growth: a stall may only add an expert to a
         # layer that is below it. Layers already above it (trained before the cap was lowered) keep
         # all their experts; they just stop growing.
         experts = list(cfg["num_experts"])
         prev_mut = (last.get("mutation") or {}).get("changes", {})
         expert_added_last = "num_experts" in prev_mut and "num_layers" not in prev_mut
-        open_layers = [i for i, e in enumerate(experts) if e < caps["num_experts_max"]]
-        all_full = not open_layers
+        verdict, v_note = growth_verdict(hist, rules)
+        if v_note:
+            notes.append(v_note)
+        if verdict in ("paid", "cooldown_over"):
+            expert_added_last = False  # last growth paid off (or was long ago): keep growing experts first
+        elif verdict == "unpaid_expert":
+            expert_added_last = True   # an expert didn't pay -> escalate to a layer
+        health = layer_health(last, experts, rules)
+        below_cap = [i for i, e in enumerate(experts) if e < caps["num_experts_max"]]
+        open_layers = [i for i in below_cap if health[i]["healthy"]]
+        unhealthy_open = [i for i in below_cap if not health[i]["healthy"]]
+        for i in unhealthy_open:
+            notes.append(f"layer {i} not load-healthy (min_load_ratio={health[i]['min_load_ratio']:.3f}, "
+                         f"entropy={health[i]['entropy']:.3f}) -> no expert added there")
+        all_full = not below_cap
+        healthy_frac = sum(h["healthy"] for h in health) / max(1, len(health))
+        layer_ok = healthy_frac >= float(rule(rules, "growth_min_healthy_layer_frac"))
         layer_room = cfg["num_layers"] < caps["num_layers_max"]
-        if (expert_added_last or all_full) and layer_room:
+        want_layer = expert_added_last or all_full
+        if verdict in ("settling", "converged"):
+            pass
+        elif want_layer and layer_room and layer_ok:
             structural = {"num_layers": cfg["num_layers"] + 1, "num_experts": experts + [cfg["base_num_experts"]]}
             s_reason = (f"stall rel_improvement={last['rel_improvement']:.4f} after "
                         f"{'expert addition' if expert_added_last else 'per-layer expert cap on every layer'} -> add layer")
-        elif not all_full:
-            layer = open_layers[-1]  # deepest layer still below the per-layer cap
+        elif verdict == "unpaid_expert":
+            notes.append("expert growth didn't pay and no layer can be added -> no growth")
+        elif open_layers:
+            layer = open_layers[-1]  # deepest load-healthy layer still below the per-layer cap
             experts[layer] += 1
             structural = {"num_experts": experts}
             s_reason = f"stall rel_improvement={last['rel_improvement']:.4f} -> add expert to layer {layer}"
+        elif want_layer and layer_room:  # (not layer_ok)
+            notes.append(f"only {healthy_frac:.2f} of layers load-healthy -> no layer added")
 
     cands = []
     if structural:
         cands.append({"name": "structural+soft", "changes": {**soft, **structural}, "reasons": reasons + [s_reason]})
     if soft:
-        cands.append({"name": "soft", "changes": dict(soft), "reasons": list(reasons)})
+        cands.append({"name": "soft", "changes": dict(soft), "reasons": list(reasons) + notes})
         half = {}
         if "capacity_factor" in soft:
             half["capacity_factor"] = round(cfg["capacity_factor"] + rules["cf_step"] / 2, 6)
         if "alpha" in soft:
             half["alpha"] = round(min(caps["alpha_max"], cfg["alpha"] * (1 + (rules["alpha_mult"] - 1) / 2)), 6)
         cands.append({"name": "soft_half_step", "changes": half, "reasons": [r + " (half step)" for r in reasons]})
-    cands.append(noop)
+    cands.append({**noop, "reasons": list(notes)} if notes else noop)
     return cands
+
+
+def _eval_metric(rec: dict) -> float:
+    """Per-cycle eval loss used by the growth rules: dropless when recorded (it measures the model, not
+    the capacity drops), else the capacity-limited eval loss."""
+    v = rec.get("loss_dropless")
+    return float(rec["loss"] if v is None else v)
+
+
+def _is_growth(rec: dict):
+    """'layer' / 'expert' if this cycle trained right after a structural growth, else None."""
+    before = rec.get("num_experts_before")
+    if before is not None and "num_experts" in rec:
+        if len(rec["num_experts"]) > len(before):
+            return "layer"
+        return "expert" if rec["num_experts"] != before else None
+    ch = (rec.get("mutation") or {}).get("changes", {})
+    if "num_layers" in ch:
+        return "layer"
+    return "expert" if "num_experts" in ch else None
+
+
+def growth_verdict(hist: List[dict], rules: dict):
+    """Did the most recent structural growth pay for itself? Returns (verdict, note).
+
+    verdict: "legacy"        stall_patience <= 0 (rule disabled) or no judgeable growth in history
+             "settling"      fewer than stall_patience cycles since the growth -> wait, don't grow again
+             "paid"          mean eval loss over the post-growth window beat the pre-growth window by >= min_growth_gain
+             "unpaid_expert" an expert growth didn't pay -> the planner may escalate to a layer
+             "converged"     a layer growth didn't pay -> no structural growth until growth_cooldown
+             "cooldown_over" growth_cooldown cycles passed since an unpaid growth -> one more try
+    Comparing eval losses across cycles (not the within-cycle rel_improvement of the post-growth cycle)
+    means the optimizer restart / perturbation that growth causes cannot trigger the next growth.
+    """
+    pat = int(rule(rules, "stall_patience"))
+    if pat <= 0:
+        return "legacy", None
+    g = next((i for i in range(len(hist) - 1, -1, -1) if _is_growth(hist[i])), None)
+    if not g:  # no growth yet, or it happened in the very first recorded cycle (no pre-growth baseline)
+        return "legacy", None
+    kind, since = _is_growth(hist[g]), len(hist) - g
+    if since < pat:
+        return "settling", f"{kind} growth {since} cycle(s) ago < stall_patience {pat} -> waiting"
+    pre_w = hist[max(0, g - pat):g]
+    pre = sum(_eval_metric(r) for r in pre_w) / len(pre_w)
+    post = sum(_eval_metric(r) for r in hist[g:g + pat]) / pat
+    gain = (pre - post) / pre if pre > 0 else 0.0
+    msg = f"last {kind} growth: eval {pre:.6f} -> {post:.6f} (gain {gain:+.4f}, need {rule(rules, 'min_growth_gain')})"
+    if gain >= float(rule(rules, "min_growth_gain")):
+        return "paid", msg + " -> paid"
+    if since >= int(rule(rules, "growth_cooldown")):
+        return "cooldown_over", msg + f" -> unpaid but {since} cycles ago >= growth_cooldown, retry"
+    if kind == "expert":
+        return "unpaid_expert", msg + " -> unpaid, escalate"
+    return "converged", msg + " -> unpaid layer growth: converged, no growth"
+
+
+def layer_health(last: dict, experts: List[int], rules: dict) -> List[dict]:
+    """Per-layer load health from the last cycle's eval-batch expert_load (top-k assignment counts).
+    A layer without a matching load record (no data yet / just grown) counts as healthy."""
+    loads = last.get("expert_load") or []
+    rmin, hmin = float(rule(rules, "growth_min_load_ratio")), float(rule(rules, "growth_min_load_entropy"))
+    out = []
+    for i, e in enumerate(experts):
+        l = loads[i] if i < len(loads) else None
+        if not l or len(l) != e:
+            out.append({"healthy": True, "min_load_ratio": None, "entropy": None})
+            continue
+        r, h = expert_min_load_ratio(l), expert_load_entropy(l)
+        out.append({"healthy": r >= rmin and h >= hmin, "min_load_ratio": r, "entropy": h})
+    return out
 
 
 def apply_mutation(cfg: dict, mutation: dict) -> dict:
@@ -231,7 +359,14 @@ def build_model(root: str, cfg: dict, ck: dict = None):
             model.add_layer(cfg["base_num_experts"] if target is None else target)
             info["grown"].append(f"layer {layer} added near-identity with {target} experts (only this layer initialised)")
             continue
+        init = rule(cfg["rules"], "expert_init")
         while model.blocks[layer].moe.num_experts < target:
+            if init == "mean":
+                new = model.add_expert(layer, None, cfg["rules"]["expert_noise_std"], gen, init="mean")
+                info["grown"].append(f"layer {layer} expert {new} = mean of the layer's experts + noise")
+                continue
+            if init != "most_loaded":
+                raise ValueError(f"rules.expert_init must be 'mean' or 'most_loaded', got {init!r}")
             src = 0
             if layer < len(loads) and loads[layer]:
                 src = int(torch.tensor(loads[layer]).argmax().item())
@@ -379,7 +514,9 @@ def run_cycle(root: str) -> dict:
         "capacity_factor": cfg["capacity_factor"], "alpha": cfg["alpha"],
         "num_layers": model.num_layers, "num_experts": model.num_experts, "num_experts_before": num_experts_before,
         "grad_x_norm": round(xe.grad.norm().item(), 6), "grad_gate_norm": round(gate_grad_norm(model), 6),
-        "output_shape_ok": True, "expert_load": loads, "mutation": mutation,
+        "output_shape_ok": True, "expert_load": loads,
+        "expert_load_entropy": [round(expert_load_entropy(l), 6) for l in loads],
+        "expert_min_load_ratio": [round(expert_min_load_ratio(l), 6) for l in loads], "mutation": mutation,
         "optimizer_reset": info["optimizer_reset"], "optimizer_carried": info["optimizer_carried"],
         "weights_action": info["weights_action"], "grown": info["grown"], "device": info["device"],
         "steps": cfg["steps_per_cycle"], "seconds": round(time.time() - t0, 2),

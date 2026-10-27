@@ -1,0 +1,132 @@
+........................................................................ [ 48%]
+........................................F............x.............FFFF. [ 96%]
+.....                                                                    [100%]
+=================================== FAILURES ===================================
+__________________ test_loop_vs_vectorized[cfg5-True-dtype0] ___________________
+
+cfg = (64, 2, 1.0, 1024, 32, 64), train = True, dtype = torch.float32
+
+    @pytest.mark.parametrize("dtype", [torch.float32, torch.float64])
+    @pytest.mark.parametrize("train", [False, True])
+    @pytest.mark.parametrize("cfg", CONFIGS)
+    def test_loop_vs_vectorized(cfg, train, dtype):
+>       res = compare(*cfg, dtype, train)
+
+checks/test_check3_moe_dispatch.py:72: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+E = 64, K = 2, cf = 1.0, N = 1024, d = 32, d_ff = 64, dtype = torch.float32
+train = True, seed = 0, assert_param_grads = True
+
+    def compare(E, K, cf, N, d, d_ff, dtype, train, seed=0, assert_param_grads=True):
+        a, b = pair(E, K, cf, d, d_ff, dtype, seed)
+        x = torch.randn(N, d, generator=torch.Generator().manual_seed(seed + 1), dtype=dtype)
+        ra, rb = run(a, x, train, 77), run(b, x, train, 77)
+        tol = TOL[dtype]
+        res = {}
+        res["topk_equal"] = torch.equal(ra[3]["topk_indices"], rb[3]["topk_indices"])
+        res["kept_equal"] = torch.equal(ra[3]["kept_slots"], rb[3]["kept_slots"])
+        res["dropped"] = (ra[2], rb[2])
+        res["dropped_tokens"] = (ra[3]["dropped_tokens"], rb[3]["dropped_tokens"])
+        res["out_max_abs"] = (ra[0] - rb[0]).abs().max().item()
+        res["aux_abs"] = (ra[1] - rb[1]).abs().item()
+        res["xgrad_max_abs"] = (ra[4] - rb[4]).abs().max().item()
+        res["param_grad_max_abs"] = max((ra[5][n] - rb[5][n]).abs().max().item() for n in ra[5])
+        assert set(ra[5]) == set(rb[5])
+        assert res["topk_equal"] and res["kept_equal"]
+        assert ra[2] == rb[2] and ra[3]["dropped_tokens"] == rb[3]["dropped_tokens"]
+        assert torch.allclose(ra[0], rb[0], **tol)
+        assert torch.allclose(ra[1], rb[1], **tol)
+        assert torch.allclose(ra[4], rb[4], **tol)
+        res["param_grads_within_tol"] = all(torch.allclose(ra[5][n], rb[5][n], **tol) for n in ra[5])
+        res["param_grad_max_abs_over_max_grad"] = max(
+            (ra[5][n] - rb[5][n]).abs().max().item() / max(ra[5][n].abs().max().item(), 1e-30) for n in ra[5])
+        if assert_param_grads:
+            for n in ra[5]:
+>               assert torch.allclose(ra[5][n], rb[5][n], **tol), n
+E               AssertionError: gate.weight
+E               assert False
+E                +  where False = <built-in method allclose of type object at 0x7f9b9125f240>(tensor([[ 0.0164,  0.6334, -2.3408,  ..., -0.2077, -1.5337, -2.1396],\n        [-2.6982,  1.1198, -2.5999,  ..., -1.603...6356,  1.9021,  ...,  0.4368, -1.0806, -3.0956],\n        [ 0.7699, -1.3056,  1.2353,  ..., -1.3546, -0.0473,  1.2039]]), tensor([[ 0.0164,  0.6334, -2.3408,  ..., -0.2077, -1.5337, -2.1396],\n        [-2.6982,  1.1198, -2.5999,  ..., -1.603...6356,  1.9021,  ...,  0.4368, -1.0806, -3.0956],\n        [ 0.7699, -1.3056,  1.2353,  ..., -1.3546, -0.0473,  1.2039]]), **{'atol': 1e-06, 'rtol': 1e-05})
+E                +    where <built-in method allclose of type object at 0x7f9b9125f240> = torch.allclose
+
+checks/test_check3_moe_dispatch.py:64: AssertionError
+_______________ test_causal_dropless_moe_has_no_leak[False-loop] _______________
+
+dispatch = 'loop', train = False
+
+    @pytest.mark.parametrize("dispatch", ["loop", "vectorized"])
+    @pytest.mark.parametrize("train", [False, True])
+    def test_causal_dropless_moe_has_no_leak(dispatch, train):
+        m = make(cf=None, dispatch=dispatch)
+        st = leak_stats(m, train)
+        jac = max(jac_past_wrt_future(m, t, train) for t in CUTS)
+        cs = cross_sample_leak(m)
+        print(f"CAUSAL dropless dispatch={dispatch} train={train}: {json.dumps(st)} max|dPast/dFuture|={jac} cross_sample={cs}")
+>       assert st["leaking_trials"] == 0 and st["max_abs_change_past"] == 0.0
+E       assert (15 == 0)
+
+checks/test_check5_causal.py:90: AssertionError
+----------------------------- Captured stdout call -----------------------------
+CAUSAL dropless dispatch=loop train=False: {"max_abs_change_past": 4.76837158203125e-07, "leaking_trials": 15, "trials": 15} max|dPast/dFuture|=0.0 cross_sample=2.384185791015625e-07
+____________ test_causal_dropless_moe_has_no_leak[False-vectorized] ____________
+
+dispatch = 'vectorized', train = False
+
+    @pytest.mark.parametrize("dispatch", ["loop", "vectorized"])
+    @pytest.mark.parametrize("train", [False, True])
+    def test_causal_dropless_moe_has_no_leak(dispatch, train):
+        m = make(cf=None, dispatch=dispatch)
+        st = leak_stats(m, train)
+        jac = max(jac_past_wrt_future(m, t, train) for t in CUTS)
+        cs = cross_sample_leak(m)
+        print(f"CAUSAL dropless dispatch={dispatch} train={train}: {json.dumps(st)} max|dPast/dFuture|={jac} cross_sample={cs}")
+>       assert st["leaking_trials"] == 0 and st["max_abs_change_past"] == 0.0
+E       assert (7 == 0)
+
+checks/test_check5_causal.py:90: AssertionError
+----------------------------- Captured stdout call -----------------------------
+CAUSAL dropless dispatch=vectorized train=False: {"max_abs_change_past": 2.384185791015625e-07, "leaking_trials": 7, "trials": 15} max|dPast/dFuture|=0.0 cross_sample=0.0
+_______________ test_causal_dropless_moe_has_no_leak[True-loop] ________________
+
+dispatch = 'loop', train = True
+
+    @pytest.mark.parametrize("dispatch", ["loop", "vectorized"])
+    @pytest.mark.parametrize("train", [False, True])
+    def test_causal_dropless_moe_has_no_leak(dispatch, train):
+        m = make(cf=None, dispatch=dispatch)
+        st = leak_stats(m, train)
+        jac = max(jac_past_wrt_future(m, t, train) for t in CUTS)
+        cs = cross_sample_leak(m)
+        print(f"CAUSAL dropless dispatch={dispatch} train={train}: {json.dumps(st)} max|dPast/dFuture|={jac} cross_sample={cs}")
+>       assert st["leaking_trials"] == 0 and st["max_abs_change_past"] == 0.0
+E       assert (15 == 0)
+
+checks/test_check5_causal.py:90: AssertionError
+----------------------------- Captured stdout call -----------------------------
+CAUSAL dropless dispatch=loop train=True: {"max_abs_change_past": 4.76837158203125e-07, "leaking_trials": 15, "trials": 15} max|dPast/dFuture|=0.0 cross_sample=2.384185791015625e-07
+____________ test_causal_dropless_moe_has_no_leak[True-vectorized] _____________
+
+dispatch = 'vectorized', train = True
+
+    @pytest.mark.parametrize("dispatch", ["loop", "vectorized"])
+    @pytest.mark.parametrize("train", [False, True])
+    def test_causal_dropless_moe_has_no_leak(dispatch, train):
+        m = make(cf=None, dispatch=dispatch)
+        st = leak_stats(m, train)
+        jac = max(jac_past_wrt_future(m, t, train) for t in CUTS)
+        cs = cross_sample_leak(m)
+        print(f"CAUSAL dropless dispatch={dispatch} train={train}: {json.dumps(st)} max|dPast/dFuture|={jac} cross_sample={cs}")
+>       assert st["leaking_trials"] == 0 and st["max_abs_change_past"] == 0.0
+E       assert (11 == 0)
+
+checks/test_check5_causal.py:90: AssertionError
+----------------------------- Captured stdout call -----------------------------
+CAUSAL dropless dispatch=vectorized train=True: {"max_abs_change_past": 2.384185791015625e-07, "leaking_trials": 11, "trials": 15} max|dPast/dFuture|=0.0 cross_sample=0.0
+=========================== short test summary info ============================
+FAILED checks/test_check3_moe_dispatch.py::test_loop_vs_vectorized[cfg5-True-dtype0]
+FAILED checks/test_check5_causal.py::test_causal_dropless_moe_has_no_leak[False-loop]
+FAILED checks/test_check5_causal.py::test_causal_dropless_moe_has_no_leak[False-vectorized]
+FAILED checks/test_check5_causal.py::test_causal_dropless_moe_has_no_leak[True-loop]
+FAILED checks/test_check5_causal.py::test_causal_dropless_moe_has_no_leak[True-vectorized]
+5 failed, 143 passed, 1 xfailed in 88.36s (0:01:28)
+rc=1

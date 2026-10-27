@@ -74,5 +74,5 @@ class DynamicMultiBlockTransformer(nn.Module):
         return len(self.blocks) - 1
 
     def add_expert(self, layer: int = -1, source_idx: int = None, noise_std: float = 1e-2,
-                   generator: torch.Generator = None) -> int:
-        return self.blocks[layer].moe.add_expert(source_idx, noise_std, generator)
+                   generator: torch.Generator = None, init: str = "copy") -> int:
+        return self.blocks[layer].moe.add_expert(source_idx, noise_std, generator, init=init)

@@ -1,0 +1,54 @@
+{
+  "cycle": 149,
+  "arch": {
+    "d_model": 16,
+    "n_heads": 2,
+    "d_ff": 64,
+    "top_k": 2,
+    "num_layers": 6,
+    "num_experts": [
+      5,
+      7,
+      5,
+      5,
+      5,
+      4
+    ]
+  },
+  "n_seqs": 1024,
+  "device": "cpu",
+  "torch": "2.5.1+cu124",
+  "time": "2026-10-27T18:08:07+0000",
+  "raw": {
+    "heldout_mse": 0.022922,
+    "heldout_mse_dropless": 0.022922,
+    "r2": 0.947065,
+    "baseline_zero_mse": 0.433015,
+    "baseline_identity_mse": 0.217508,
+    "bucket_mse": {
+      "|x|<1": 0.004003,
+      "1<=|x|<2": 0.039183,
+      "|x|>=2": 0.211945
+    },
+    "ood_mse": 1.614173,
+    "odd_symmetry_err": 0.003778,
+    "token_order_err": 0.0,
+    "legacy_eval_loss": 0.024826
+  },
+  "ema": {
+    "heldout_mse": 0.022897,
+    "heldout_mse_dropless": 0.022897,
+    "r2": 0.947122,
+    "baseline_zero_mse": 0.433015,
+    "baseline_identity_mse": 0.217508,
+    "bucket_mse": {
+      "|x|<1": 0.003989,
+      "1<=|x|<2": 0.039189,
+      "|x|>=2": 0.21157
+    },
+    "ood_mse": 1.612543,
+    "odd_symmetry_err": 0.003737,
+    "token_order_err": 0.0,
+    "legacy_eval_loss": 0.024834
+  }
+}
