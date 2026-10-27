@@ -8,6 +8,7 @@ Linux 6.12 x86_64, 8 logical CPUs.
 Re-run everything: `bash checks/run_all.sh /path/to/artemis-corpus-bench` (that dir holds the three
 real `runs/seed*/best.pt` and `corpus/`; neither is in git).
 Full suite after the changes: `python3 -m pytest -q tests checks` -> **134 passed, 1 xfailed** (strict xfail, see check 3).
+**Update (check 3 fix):** the xfail's root cause is fixed; suite is now **139 passed, 0 xfailed** (see "Check 3 update" below).
 
 Base: this branch is stacked on `stage-physics-frequency-study` (PR #3 + merged PR #4), because the code under
 review (MoE fixes, multi-block model, physics PINN, pilot study, byte LM) is on the PR #1-#4 stack, not on `main`.
@@ -20,6 +21,24 @@ review (MoE fixes, multi-block model, physics PINN, pilot study, byte LM) is on 
 | 3t | Timing (only after equivalence) | measured | 1 thread, N=4096, d=128, d_ff=512, top-2, cf=1, median of 15: fwd eval loop/vec ms: E=4 17.0/27.0, E=16 20.9/30.2, E=64 41.8/30.0; fwd+bwd train: E=4 42.7/73.9, E=16 46.4/72.2, E=64 82.4/73.3. Vectorized is slower at E<=16 and faster at E=64 on this CPU. | `check3_bench_console.txt` |
 | 4 | Solver validation, then IC/BC + held-out error | Solver **PASS**; PINN trains but is **not converged/unstable** | `physics_solver.py` (same PDE as the PINN). t=1 error vs analytic, dx halving 0.1 -> 0.00625: Lax-Wendroff L2 1.60e-2 -> 6.84e-5, observed order 1.92, 1.97, 1.98, **2.00** (max-norm 2.01); upwind order 0.75 -> **0.96**. Held-out set: 6724 FD grid nodes (161^2 grid, stride 4, t=0.25/0.5/0.75/1), FD vs exact rel L2 8.6e-4. PINN (PDE + 10 IC + 10 BC + 0.01 aux), seed 567885, 180 s, 12,582 steps: final held-out rel L2 vs FD **0.1425** (vs exact 0.1423), IC MSE 7.6e-4, BC MSE 4.5e-5, PDE residual MSE 1.0e-2. Trajectory unstable (held-out 0.32 at step 1000, 0.99 at 2500, 0.13 at 10000, 0.24 at 12500); top-1 expert usage [0, 0, 335, 8926] (collapse). | `check4_solver_console.txt`, `check4_pinn_train_console.txt` |
 | 5 | Causal attention + MoE future independence | **PASS dropless / FAIL (leak) with capacity** | `causal=True` added to `MultiHeadAttention` -> `MoETransformerBlock` -> `DynamicMultiBlockTransformer`. 2 layers, 4 experts, top-2, B=4, L=24, 5 cut points x 3 perturbations. Dropless (`capacity_factor=None`), loop and vectorized, eval and train: 0/15 leaking trials, max change 0.0, d(past)/d(future) = 0.0 exactly, cross-sample 0.0. **Capacity routing leaks**: cf=1.0 fixed 12/15 trials, max change 0.366, cross-sample 0.185; cf=0.5 15/15, 0.605; legacy cf=1.0 12/15, 2.65 (legacy leaks across batch rows, not within row 0). Original non-causal model leaks 15/15 (0.554). | `check5_causal_console.txt` |
+
+## Check 3 update: float32 parameter gradients now match at the stated tolerance
+Root cause of the former strict xfail `test_bench_size_float32_param_grads_at_stated_tol`: the vectorized
+path computed each expert's weight/bias gradient as a reduction over its padded `[cap, d]` buffer in
+*priority* order, while the loop reduces over exactly the kept rows in *its* processing order (`nonzero()`
+order, or priority order when the expert overflows). Different summation order/length -> different float32
+rounding (up to 3.05e-5 at N=4096). Fix (`moe._BatchedExpertFFN`): buffer rows are laid out in the loop's
+order; the forward and the input/activation gradients stay batched (row-wise, so already bit-identical);
+expert weight/bias gradients are reduced per expert over exactly the first n_e rows with the same
+`mm`/`sum` calls nn.Linear's autograd uses. Measured: float32 param-grad max abs diff loop vs vectorized is
+now **0.0** (bit-identical) for all 8 small configs x {eval,train} and at N=4096 for E=4 (seed 4), 16, 64;
+was 5.7e-6 / 3.05e-5 / 1.3e-5 / 4.3e-6. Tolerances unchanged; the xfail marker is removed, three float32
+bench-size all-gradient tests and a double-backward (create_graph) test are added. `checks/check3_bench.py`
+now asserts float32 parameter gradients too. Cost (measured, noisy shared CPU): vectorized fwd+bwd train is
+~20-35% slower than before (per-expert weight-grad reductions instead of one padded bmm); fwd eval ~2-8%.
+Loop / legacy / expand-engine paths are untouched: `sandbox.py --mode legacy` still prints Total Loss 1.5083,
+and a 2-cycle `expand.py loop` from `init` gives a bit-identical checkpoint and identical log except wall seconds.
+Consoles: `results/check3_fix_console.txt`.
 
 ## Code changes (all opt-in; defaults unchanged, the 47 pre-existing tests still pass)
 - `moe.py`: `dispatch="vectorized"` path (fixed semantics only); `capacity_factor=None` = dropless; fixed/vectorized
