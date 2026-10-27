@@ -161,24 +161,57 @@ def arch_of(cfg: dict) -> dict:
             "num_layers": cfg["num_layers"], "num_experts": list(cfg["num_experts"])}
 
 
-def build_model(root: str, cfg: dict):
+def resolve_device(cfg: dict) -> torch.device:
+    """cfg["device"]: "cpu" (default, the original behaviour), "cuda" or "auto"."""
+    want = cfg.get("device", "cpu")
+    if want == "auto":
+        want = "cuda" if torch.cuda.is_available() else "cpu"
+    return torch.device(want)
+
+
+def _carry_optimizer_state(opt, model, old_names: List[str], old_opt_state: dict) -> int:
+    """Copy Adam moments for every parameter whose name AND shape survived growth.
+
+    Growth only appends experts/layers and widens the gate, so all other parameters
+    keep their trained Adam statistics instead of restarting from zero. Returns the
+    number of parameters whose state was carried over.
+    """
+    old_state = old_opt_state.get("state", {})
+    old_ids = old_opt_state["param_groups"][0]["params"]
+    by_name = {old_names[i]: old_state.get(pid) for i, pid in enumerate(old_ids) if i < len(old_names)}
+    carried = 0
+    for name, p in model.named_parameters():
+        st = by_name.get(name)
+        if not st or "exp_avg" not in st or st["exp_avg"].shape != p.shape:
+            continue
+        opt.state[p] = {k: (v.to(p.device) if torch.is_tensor(v) and v.dim() > 0 else
+                            (v.clone() if torch.is_tensor(v) else v)) for k, v in st.items()}
+        carried += 1
+    return carried
+
+
+def build_model(root: str, cfg: dict, ck: dict = None):
     """Build the model from config, loading + growing the checkpoint if one exists.
 
     Returns (model, optimizer, info). Dimension changes (d_model/n_heads/d_ff/top_k)
     against an existing checkpoint are NOT silently re-initialised: load_state_dict
     raises a size-mismatch error that the supervisor can auto-correct.
+    `ck` may be passed in to avoid loading the checkpoint file twice.
     """
     p = paths(root)
-    info = {"optimizer_reset": False, "weights_action": "fresh_init", "grown": []}
+    dev = resolve_device(cfg)
+    info = {"optimizer_reset": False, "optimizer_carried": 0, "weights_action": "fresh_init", "grown": [],
+            "device": str(dev)}
     gen = torch.Generator().manual_seed(cfg["seed"] + 1000 + cfg["cycle"])
-    if not os.path.exists(p["ckpt"]):
+    if ck is None and os.path.exists(p["ckpt"]):
+        ck = torch.load(p["ckpt"], map_location="cpu", weights_only=False)
+    if ck is None:
         torch.manual_seed(cfg["seed"])
         model = DynamicMultiBlockTransformer(cfg["d_model"], cfg["n_heads"], cfg["d_ff"], cfg["num_experts"],
-                                             cfg["num_layers"], cfg["top_k"], cfg["capacity_factor"])
+                                             cfg["num_layers"], cfg["top_k"], cfg["capacity_factor"]).to(dev)
         opt = torch.optim.Adam(model.parameters(), lr=cfg["lr"])
         return model, opt, info
 
-    ck = torch.load(p["ckpt"], weights_only=False)
     a = ck["arch"]
     if cfg["num_layers"] < a["num_layers"] or any(
             c < o for c, o in zip(cfg["num_experts"], a["num_experts"])):
@@ -188,6 +221,8 @@ def build_model(root: str, cfg: dict):
     model = DynamicMultiBlockTransformer(cfg["d_model"], cfg["n_heads"], cfg["d_ff"], a["num_experts"],
                                          a["num_layers"], cfg["top_k"], cfg["capacity_factor"])
     model.load_state_dict(ck["model"])
+    model.to(dev)
+    old_names = [n for n, _ in model.named_parameters()]
     info["weights_action"] = "loaded_checkpoint"
     loads = ck.get("expert_load") or []
     for layer, target in enumerate(cfg["num_experts"]):
@@ -206,29 +241,73 @@ def build_model(root: str, cfg: dict):
     opt = torch.optim.Adam(model.parameters(), lr=cfg["lr"])
     if a == arch_of(cfg) and ck.get("optimizer") is not None:
         opt.load_state_dict(ck["optimizer"])
+        for st in opt.state.values():  # optimizer state follows the model's device
+            for k, v in st.items():
+                if torch.is_tensor(v) and v.dim() > 0:
+                    st[k] = v.to(dev)
     else:
         info["optimizer_reset"] = True
+        if cfg.get("carry_optimizer_on_growth") and ck.get("optimizer") is not None:
+            info["optimizer_carried"] = _carry_optimizer_state(opt, model, old_names, ck["optimizer"])
     if info["grown"]:
         info["weights_action"] = "loaded_checkpoint+grown"
     return model, opt, info
 
 
-# ---------------------------------------------------------------- one cycle
+def lr_at(cfg: dict, step: int) -> float:
+    """Per-step learning rate. lr_schedule "constant" (default, original) or "cosine":
+    linear warmup for warmup_steps, then cosine decay to lr_min over the cycle."""
+    base = cfg["lr"]
+    if cfg.get("lr_schedule", "constant") != "cosine":
+        return base
+    warm, total, lo = int(cfg.get("warmup_steps", 0)), cfg["steps_per_cycle"], float(cfg.get("lr_min", 0.0))
+    if warm and step < warm:
+        return base * (step + 1) / warm
+    t = (step - warm) / max(1, total - warm)
+    return lo + 0.5 * (base - lo) * (1 + math.cos(math.pi * min(1.0, t)))
+
+
 def gate_grad_norm(model) -> float:
     gs = [b.moe.gate.weight.grad.flatten() for b in model.blocks if b.moe.gate.weight.grad is not None]
     return float(torch.cat(gs).norm()) if gs else 0.0
+
+
+@torch.no_grad()
+def eval_mse(model, x: torch.Tensor, dropless: bool = False) -> float:
+    """MSE vs sin(x) in eval mode; dropless=True temporarily disables the capacity limit."""
+    was = model.training
+    model.eval()
+    cf = model._capacity_factor
+    if dropless:
+        model.set_capacity_factor(None)
+    try:
+        y, _, _ = model(x)
+        return F.mse_loss(y, torch.sin(x)).item()
+    finally:
+        model.set_capacity_factor(cf)
+        model.train(was)
 
 
 def run_cycle(root: str) -> dict:
     t0 = time.time()
     p = paths(root)
     cfg = load_config(root)
-    torch.set_num_threads(max(1, min(4, os.cpu_count() or 1)))
+    torch.set_num_threads(int(cfg.get("num_threads", max(1, min(4, os.cpu_count() or 1)))))
     mutation = cfg.get("pending_mutation") or {"name": "none", "changes": {}, "reasons": []}
-    num_experts_before = None
-    if os.path.exists(p["ckpt"]):
-        num_experts_before = torch.load(p["ckpt"], weights_only=False)["arch"]["num_experts"]
-    model, opt, info = build_model(root, cfg)
+    ck = torch.load(p["ckpt"], map_location="cpu", weights_only=False) if os.path.exists(p["ckpt"]) else None
+    num_experts_before = ck["arch"]["num_experts"] if ck else None
+    model, opt, info = build_model(root, cfg, ck)
+    dev = resolve_device(cfg)
+
+    # optional exponential moving average of the weights (checkpoint averaging); restarted on growth
+    ema_decay = float(cfg.get("ema_decay", 0.0))
+    ema = None
+    if ema_decay > 0:
+        ema = copy.deepcopy(model)
+        if ck and ck.get("ema") is not None and not info["grown"] and ck["arch"] == arch_of(cfg):
+            ema.load_state_dict(ck["ema"])
+        for q in ema.parameters():
+            q.requires_grad_(False)
 
     cyc = cfg["cycle"]
     g = torch.Generator().manual_seed(cfg["seed"] + cyc)
@@ -238,7 +317,10 @@ def run_cycle(root: str) -> dict:
     losses, auxes, drops = [], [], []
     model.train()
     for step in range(cfg["steps_per_cycle"]):
-        x = torch.randn(B, S, D, generator=g)
+        lr = lr_at(cfg, step)
+        for grp in opt.param_groups:
+            grp["lr"] = lr
+        x = torch.randn(B, S, D, generator=g).to(dev)  # generated on CPU: same data on every device
         y, aux, dropped = model(x)
         if y.shape != x.shape:
             raise OutputShapeMismatch(f"OutputShapeMismatch: output {tuple(y.shape)} != input {tuple(x.shape)}")
@@ -249,6 +331,10 @@ def run_cycle(root: str) -> dict:
         opt.zero_grad(set_to_none=True)
         loss.backward()
         opt.step()
+        if ema is not None:
+            with torch.no_grad():
+                for qe, qm in zip(ema.parameters(), model.parameters()):
+                    qe.lerp_(qm, 1.0 - ema_decay)
         losses.append(target.item()); auxes.append(aux.item() / model.num_layers); drops.append(dropped)
 
     w = max(1, len(losses) // 5)
@@ -257,15 +343,15 @@ def run_cycle(root: str) -> dict:
 
     # evaluation on a fixed held-out batch (eval mode: no router noise) + grad norms
     eg = torch.Generator().manual_seed(cfg["seed"] - 1)
-    xe = torch.randn(cfg["eval_batch_size"], S, D, generator=eg).requires_grad_(True)
+    xe = torch.randn(cfg["eval_batch_size"], S, D, generator=eg).to(dev).requires_grad_(True)
     model.eval(); model.zero_grad(set_to_none=True)
     ye, aux_e, dropped_e = model(xe)
     if ye.shape != xe.shape:
         raise OutputShapeMismatch(f"OutputShapeMismatch: output {tuple(ye.shape)} != input {tuple(xe.shape)}")
     eval_target = F.mse_loss(ye, torch.sin(xe.detach()))
-    (eval_target + alpha * aux_e).backward()
     if not torch.isfinite(eval_target):
         raise NaNLoss(f"NaNLoss: non-finite eval loss at cycle {cyc}")
+    (eval_target + alpha * aux_e).backward()
     loads = []
     with torch.no_grad():
         h = xe.detach()
@@ -275,6 +361,13 @@ def run_cycle(root: str) -> dict:
             loads.append(torch.bincount(idx.flatten(), minlength=b.moe.num_experts).tolist())
             h, _, _ = b(h)
     dropped_tokens = sum(b.moe.last_stats.get("dropped_tokens", 0) for b in model.blocks)
+    extra = {}
+    if cfg.get("eval_extra", False):
+        xd = xe.detach()
+        extra["loss_dropless"] = round(eval_mse(model, xd, dropless=True), 6)
+        if ema is not None:
+            extra["ema_loss"] = round(eval_mse(ema, xd), 6)
+            extra["ema_loss_dropless"] = round(eval_mse(ema, xd, dropless=True), 6)
 
     rec = {
         "cycle": cyc, "loss": round(eval_target.item(), 6), "train_loss_start": round(start, 6),
@@ -286,13 +379,19 @@ def run_cycle(root: str) -> dict:
         "num_layers": model.num_layers, "num_experts": model.num_experts, "num_experts_before": num_experts_before,
         "grad_x_norm": round(xe.grad.norm().item(), 6), "grad_gate_norm": round(gate_grad_norm(model), 6),
         "output_shape_ok": True, "expert_load": loads, "mutation": mutation,
-        "optimizer_reset": info["optimizer_reset"], "weights_action": info["weights_action"], "grown": info["grown"],
+        "optimizer_reset": info["optimizer_reset"], "optimizer_carried": info["optimizer_carried"],
+        "weights_action": info["weights_action"], "grown": info["grown"], "device": info["device"],
         "steps": cfg["steps_per_cycle"], "seconds": round(time.time() - t0, 2),
-        "time": time.strftime("%Y-%m-%dT%H:%M:%S%z"),
+        "time": time.strftime("%Y-%m-%dT%H:%M:%S%z"), **extra,
     }
-    # persist: checkpoint, config (state write-back), jsonl log
+    # persist: checkpoint (always CPU tensors, so it loads anywhere), config (state write-back), jsonl log
     os.makedirs(os.path.dirname(p["ckpt"]), exist_ok=True)
-    torch.save({"arch": arch_of(cfg), "model": model.state_dict(), "optimizer": opt.state_dict(),
+    cpu = lambda sd: {k: v.detach().cpu() for k, v in sd.items()}
+    opt_sd = opt.state_dict()  # its per-param dicts alias the live state, so build copies
+    opt_sd = {"state": {i: {k: (v.detach().cpu() if torch.is_tensor(v) else v) for k, v in st.items()}
+                        for i, st in opt_sd["state"].items()}, "param_groups": opt_sd["param_groups"]}
+    torch.save({"arch": arch_of(cfg), "model": cpu(model.state_dict()), "optimizer": opt_sd,
+                "ema": cpu(ema.state_dict()) if ema is not None else None,
                 "expert_load": loads, "cycle": cyc}, p["ckpt"] + ".tmp")
     os.replace(p["ckpt"] + ".tmp", p["ckpt"])
     cfg["history"].append(rec)
