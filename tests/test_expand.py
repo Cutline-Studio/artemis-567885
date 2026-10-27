@@ -83,7 +83,7 @@ def test_default_caps_are_the_approved_limits():
     assert caps["num_layers_max"] == 12
     assert caps["num_experts_max"] == 16  # per layer
     repo = json.load(open(os.path.join(ROOT, "config.json")))["caps"]
-    assert (repo["capacity_factor_max"], repo["num_layers_max"], repo["num_experts_max"]) == (2.5, 12, 16)
+    assert (repo["capacity_factor_max"], repo["num_layers_max"], repo["num_experts_max"]) == (3.0, 16, 16)  # raised 2026-10-27 (user-approved)
 
 
 LIVE = [6, 9, 5, 8, 5, 5, 5, 19]  # layer 7 grew to 19 before the per-layer cap of 16 existed
