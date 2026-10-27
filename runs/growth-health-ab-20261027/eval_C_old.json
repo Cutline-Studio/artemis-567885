@@ -1,0 +1,64 @@
+{
+  "cycle": 379,
+  "arch": {
+    "d_model": 16,
+    "n_heads": 2,
+    "d_ff": 64,
+    "top_k": 2,
+    "num_layers": 16,
+    "num_experts": [
+      16,
+      16,
+      16,
+      16,
+      16,
+      16,
+      16,
+      19,
+      16,
+      16,
+      16,
+      16,
+      16,
+      16,
+      16,
+      16
+    ]
+  },
+  "n_seqs": 1024,
+  "device": "cpu",
+  "torch": "2.5.1+cu124",
+  "time": "2026-10-27T18:08:14+0000",
+  "raw": {
+    "heldout_mse": 0.025798,
+    "heldout_mse_dropless": 0.02178,
+    "r2": 0.940423,
+    "baseline_zero_mse": 0.433015,
+    "baseline_identity_mse": 0.217508,
+    "bucket_mse": {
+      "|x|<1": 0.008561,
+      "1<=|x|<2": 0.041398,
+      "|x|>=2": 0.193233
+    },
+    "ood_mse": 1.538876,
+    "odd_symmetry_err": 0.013803,
+    "token_order_err": 0.0,
+    "legacy_eval_loss": 0.027505
+  },
+  "ema": {
+    "heldout_mse": 0.023784,
+    "heldout_mse_dropless": 0.021738,
+    "r2": 0.945072,
+    "baseline_zero_mse": 0.433015,
+    "baseline_identity_mse": 0.217508,
+    "bucket_mse": {
+      "|x|<1": 0.006121,
+      "1<=|x|<2": 0.039997,
+      "|x|>=2": 0.193996
+    },
+    "ood_mse": 1.53573,
+    "odd_symmetry_err": 0.007126,
+    "token_order_err": 0.0,
+    "legacy_eval_loss": 0.025852
+  }
+}

@@ -1,0 +1,339 @@
+{
+  "F_old": {
+    "cycles_run": 150,
+    "first_cycle": 0,
+    "last_cycle": 149,
+    "growth_events": 38,
+    "layer_adds": 6,
+    "num_layers": 7,
+    "num_experts": [
+      16,
+      6,
+      5,
+      8,
+      14,
+      6,
+      5
+    ],
+    "total_experts": 60,
+    "load_entropy_per_layer": [
+      0.9986,
+      0.9966,
+      0.9962,
+      0.9899,
+      0.992,
+      0.9969,
+      0.9998
+    ],
+    "min_load_ratio_per_layer": [
+      0.8281,
+      0.8203,
+      0.874,
+      0.5703,
+      0.752,
+      0.873,
+      0.9668
+    ],
+    "mean_load_entropy": 0.9957,
+    "layers_with_idle_expert": 0,
+    "eval_loss_last5_mean": 0.025317,
+    "eval_loss_dropless_last5_mean": 0.025317,
+    "sec_per_cycle": 10.89,
+    "heldout": {
+      "raw": {
+        "heldout_mse": 0.02287,
+        "heldout_mse_dropless": 0.02287,
+        "r2": 0.947184,
+        "ood_mse": 1.518901
+      },
+      "ema": {
+        "heldout_mse": 0.022845,
+        "heldout_mse_dropless": 0.022845,
+        "r2": 0.947242,
+        "ood_mse": 1.517915
+      }
+    }
+  },
+  "F_new": {
+    "cycles_run": 150,
+    "first_cycle": 0,
+    "last_cycle": 149,
+    "growth_events": 13,
+    "layer_adds": 5,
+    "num_layers": 6,
+    "num_experts": [
+      5,
+      8,
+      5,
+      5,
+      5,
+      4
+    ],
+    "total_experts": 32,
+    "load_entropy_per_layer": [
+      0.999,
+      0.9835,
+      0.9968,
+      0.9949,
+      0.9977,
+      0.9991
+    ],
+    "min_load_ratio_per_layer": [
+      0.9277,
+      0.4766,
+      0.8154,
+      0.8398,
+      0.9229,
+      0.9375
+    ],
+    "mean_load_entropy": 0.9952,
+    "layers_with_idle_expert": 0,
+    "eval_loss_last5_mean": 0.02591,
+    "eval_loss_dropless_last5_mean": 0.02591,
+    "sec_per_cycle": 9.25,
+    "heldout": {
+      "raw": {
+        "heldout_mse": 0.022822,
+        "heldout_mse_dropless": 0.022686,
+        "r2": 0.947294,
+        "ood_mse": 1.604379
+      },
+      "ema": {
+        "heldout_mse": 0.022793,
+        "heldout_mse_dropless": 0.022666,
+        "r2": 0.947363,
+        "ood_mse": 1.602306
+      }
+    }
+  },
+  "F_new_ml": {
+    "cycles_run": 150,
+    "first_cycle": 0,
+    "last_cycle": 149,
+    "growth_events": 12,
+    "layer_adds": 5,
+    "num_layers": 6,
+    "num_experts": [
+      5,
+      7,
+      5,
+      5,
+      5,
+      4
+    ],
+    "total_experts": 31,
+    "load_entropy_per_layer": [
+      0.9985,
+      0.9983,
+      0.9962,
+      0.9967,
+      0.9987,
+      0.9984
+    ],
+    "min_load_ratio_per_layer": [
+      0.9033,
+      0.8887,
+      0.8057,
+      0.8301,
+      0.8838,
+      0.9141
+    ],
+    "mean_load_entropy": 0.9978,
+    "layers_with_idle_expert": 0,
+    "eval_loss_last5_mean": 0.024873,
+    "eval_loss_dropless_last5_mean": 0.024873,
+    "sec_per_cycle": 9.49,
+    "heldout": {
+      "raw": {
+        "heldout_mse": 0.022922,
+        "heldout_mse_dropless": 0.022922,
+        "r2": 0.947065,
+        "ood_mse": 1.614173
+      },
+      "ema": {
+        "heldout_mse": 0.022897,
+        "heldout_mse_dropless": 0.022897,
+        "r2": 0.947122,
+        "ood_mse": 1.612543
+      }
+    }
+  },
+  "C_old": {
+    "cycles_run": 15,
+    "first_cycle": 365,
+    "last_cycle": 379,
+    "growth_events": 4,
+    "layer_adds": 0,
+    "num_layers": 16,
+    "num_experts": [
+      16,
+      16,
+      16,
+      16,
+      16,
+      16,
+      16,
+      19,
+      16,
+      16,
+      16,
+      16,
+      16,
+      16,
+      16,
+      16
+    ],
+    "total_experts": 259,
+    "load_entropy_per_layer": [
+      0.9877,
+      0.9539,
+      0.9603,
+      0.6822,
+      0.6422,
+      0.7089,
+      0.522,
+      0.8168,
+      0.9099,
+      0.9315,
+      0.8978,
+      0.7373,
+      0.9886,
+      0.8364,
+      0.809,
+      0.8532
+    ],
+    "min_load_ratio_per_layer": [
+      0.4688,
+      0.0312,
+      0.3125,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0186,
+      0.1406,
+      0.25,
+      0.0156,
+      0.0,
+      0.5312,
+      0.0312,
+      0.0,
+      0.0469
+    ],
+    "mean_load_entropy": 0.8274,
+    "layers_with_idle_expert": 6,
+    "eval_loss_last5_mean": 0.028445,
+    "eval_loss_dropless_last5_mean": 0.023984,
+    "sec_per_cycle": 147.48,
+    "heldout": {
+      "raw": {
+        "heldout_mse": 0.025798,
+        "heldout_mse_dropless": 0.02178,
+        "r2": 0.940423,
+        "ood_mse": 1.538876
+      },
+      "ema": {
+        "heldout_mse": 0.023784,
+        "heldout_mse_dropless": 0.021738,
+        "r2": 0.945072,
+        "ood_mse": 1.53573
+      }
+    }
+  },
+  "C_new": {
+    "cycles_run": 15,
+    "first_cycle": 365,
+    "last_cycle": 379,
+    "growth_events": 0,
+    "layer_adds": 0,
+    "num_layers": 16,
+    "num_experts": [
+      12,
+      16,
+      16,
+      16,
+      16,
+      16,
+      16,
+      19,
+      16,
+      16,
+      16,
+      16,
+      16,
+      16,
+      16,
+      16
+    ],
+    "total_experts": 255,
+    "load_entropy_per_layer": [
+      0.9916,
+      0.9533,
+      0.9706,
+      0.5842,
+      0.6062,
+      0.7124,
+      0.6429,
+      0.8146,
+      0.8495,
+      0.9029,
+      0.9411,
+      0.8245,
+      0.9866,
+      0.8524,
+      0.8538,
+      0.8987
+    ],
+    "min_load_ratio_per_layer": [
+      0.6914,
+      0.0312,
+      0.3906,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0186,
+      0.0,
+      0.2188,
+      0.2656,
+      0.0,
+      0.4844,
+      0.0625,
+      0.0,
+      0.0156
+    ],
+    "mean_load_entropy": 0.8366,
+    "layers_with_idle_expert": 7,
+    "eval_loss_last5_mean": 0.030392,
+    "eval_loss_dropless_last5_mean": 0.024014,
+    "sec_per_cycle": 145.4,
+    "heldout": {
+      "raw": {
+        "heldout_mse": 0.028569,
+        "heldout_mse_dropless": 0.021763,
+        "r2": 0.934023,
+        "ood_mse": 1.545849
+      },
+      "ema": {
+        "heldout_mse": 0.023867,
+        "heldout_mse_dropless": 0.02173,
+        "r2": 0.944882,
+        "ood_mse": 1.53398
+      }
+    }
+  },
+  "C_start365": {
+    "raw": {
+      "heldout_mse": 0.026252,
+      "heldout_mse_dropless": 0.021763,
+      "r2": 0.939373,
+      "ood_mse": 1.547332
+    },
+    "ema": {
+      "heldout_mse": 0.02524,
+      "heldout_mse_dropless": 0.021747,
+      "r2": 0.941711,
+      "ood_mse": 1.542341
+    }
+  }
+}

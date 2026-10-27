@@ -9,14 +9,17 @@
 #   C_old / C_new            : continue the 2026-10-27 Vast run from cycle 365 (growth was still active
 #                              there; at cycle 624 every layer is at its cap so neither code can grow)
 set -u
-NF=${NF:-40}; NC=${NC:-15}
+NF=${NF:-150}; NC=${NC:-15}
+# AS RUN on 2026-10-27: NF was 40, then each F arm was continued in place with
+# `expand.py loop --cycles 110` (state is persisted per cycle, so 40+110 = 150 cycles from the same seeds),
+# and pytest was re-run after `pip install pyjwt==2.9.0` (checks/test_check1 imports jwt).
 R=$(cat /w/R); DEADLINE=$(( R + 47*60 ))
 O=/w/out; mkdir -p $O; cd /w
 left(){ echo $(( DEADLINE - $(date +%s) )); }
 log(){ echo "$(date -u +%FT%TZ) $*" | tee -a $O/status.txt; }
 log "start left=$(left) NF=$NF NC=$NC"
 nvidia-smi > $O/nvidia_smi.txt 2>&1; lscpu > $O/lscpu.txt 2>&1
-pip install -q pytest==8.3.3 > $O/pip.txt 2>&1
+pip install -q pytest==8.3.3 pyjwt==2.9.0 > $O/pip.txt 2>&1
 python -c 'import torch,sys,numpy,pytest,platform,os;print("torch",torch.__version__,"cuda",torch.version.cuda,torch.cuda.is_available(),"py",sys.version.split()[0],"numpy",numpy.__version__,"pytest",pytest.__version__,platform.platform(),"cpus",os.cpu_count())' | tee $O/env.txt
 ( cd /w/old && timeout 900 python -m pytest -q tests checks -p no:cacheprovider > $O/pytest_old.txt 2>&1; echo "rc=$?" >> $O/pytest_old.txt ) &
 ( cd /w/new && timeout 900 python -m pytest -q tests checks -p no:cacheprovider > $O/pytest_new.txt 2>&1; echo "rc=$?" >> $O/pytest_new.txt ) &

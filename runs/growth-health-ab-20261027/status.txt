@@ -1,0 +1,12 @@
+2026-10-27T17:30:00Z start left=2752 NF=40 NC=15
+2026-10-27T17:30:09Z pytest old: 1 error in 2.47s rc=2  | new: 1 error in 2.48s rc=2 
+2026-10-27T17:30:46Z arms ready gpu=cuda
+2026-10-27T17:32:55Z arm F_old rc=0 secs=129
+2026-10-27T17:33:04Z arm F_new rc=0 secs=138
+2026-10-27T17:33:08Z arm F_new_ml rc=0 secs=142
+2026-10-27T17:54:59Z arm F_new extend rc=0 secs=1261
+2026-10-27T17:55:30Z arm F_new_ml extend rc=0 secs=1292
+2026-10-27T17:59:15Z arm F_old extend rc=0 secs=1517
+2026-10-27T18:07:19Z arm C_new rc=0 secs=2193
+2026-10-27T18:07:51Z arm C_old rc=0 secs=2225
+2026-10-27T18:09:07Z DONE
