@@ -1,0 +1,1 @@
+{"event": "cycle_ok", "cycle": 125, "attempt": 0, "mutation": "structural+soft", "autocorrected": false, "loss": 0.024313, "aux": 1.00005, "dropped": 22, "capacity_factor": 3.0, "alpha": 0.1, "num_experts": [6, 9, 5, 8, 5, 5, 5, 19, 7, 9, 5, 10, 5, 6, 5], "num_layers": 15, "grad_x_norm": 0.002879, "grad_gate_norm": 0.028507}

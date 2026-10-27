@@ -1,0 +1,8 @@
+2026-10-27T06:30:16Z start left=20581
+2026-10-27T06:30:20Z pytest rc=2
+2026-10-27T06:30:24Z eval_before rc=0
+arm B rc=0 secs=207
+arm A rc=0 secs=215
+arm G rc=0 secs=277
+arm C rc=0 secs=289
+2026-10-27T06:35:43Z winner=G

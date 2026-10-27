@@ -1,0 +1,57 @@
+2026-10-27T06:42:23Z start left=19500
+2026-10-27T06:43:04Z pytest rc=0 148 passed, 1 xfailed in 38.07s
+2026-10-27T06:43:12Z eval_start rc=0
+2026-10-27T06:43:43Z timing cpu secs=31
+2026-10-27T06:44:05Z timing cuda secs=22
+2026-10-27T06:44:05Z device=cuda
+2026-10-27T06:47:48Z chunk=1 rc=0 secs=215 left=19175 next_cycle=135
+2026-10-27T06:51:45Z chunk=2 rc=0 secs=228 left=18938 next_cycle=145
+2026-10-27T06:55:50Z chunk=3 rc=0 secs=235 left=18693 next_cycle=155
+2026-10-27T07:00:09Z chunk=4 rc=0 secs=250 left=18434 next_cycle=165
+2026-10-27T07:04:28Z chunk=5 rc=0 secs=250 left=18175 next_cycle=175
+2026-10-27T07:08:55Z chunk=6 rc=0 secs=257 left=17908 next_cycle=185
+2026-10-27T07:13:28Z chunk=7 rc=0 secs=263 left=17635 next_cycle=195
+2026-10-27T07:18:17Z chunk=8 rc=0 secs=278 left=17346 next_cycle=205
+2026-10-27T07:23:06Z chunk=9 rc=0 secs=279 left=17057 next_cycle=215
+2026-10-27T07:28:03Z chunk=10 rc=0 secs=286 left=16760 next_cycle=225
+2026-10-27T07:33:26Z chunk=11 rc=0 secs=311 left=16437 next_cycle=235
+2026-10-27T07:38:52Z chunk=12 rc=0 secs=316 left=16111 next_cycle=245
+2026-10-27T07:44:24Z chunk=13 rc=0 secs=320 left=15779 next_cycle=255
+2026-10-27T07:49:49Z chunk=14 rc=0 secs=314 left=15454 next_cycle=265
+2026-10-27T07:55:48Z chunk=15 rc=0 secs=346 left=15095 next_cycle=275
+2026-10-27T08:01:44Z chunk=16 rc=0 secs=345 left=14739 next_cycle=285
+2026-10-27T08:07:49Z chunk=17 rc=0 secs=354 left=14374 next_cycle=295
+2026-10-27T08:13:48Z chunk=18 rc=0 secs=348 left=14015 next_cycle=305
+2026-10-27T08:19:49Z chunk=19 rc=0 secs=348 left=13654 next_cycle=315
+2026-10-27T08:26:44Z chunk=20 rc=0 secs=403 left=13239 next_cycle=325
+2026-10-27T08:33:24Z chunk=21 rc=0 secs=388 left=12839 next_cycle=335
+2026-10-27T08:40:32Z chunk=22 rc=0 secs=416 left=12411 next_cycle=345
+2026-10-27T08:47:21Z chunk=23 rc=0 secs=396 left=12002 next_cycle=355
+2026-10-27T08:54:14Z chunk=24 rc=0 secs=401 left=11589 next_cycle=365
+2026-10-27T09:01:08Z chunk=25 rc=0 secs=400 left=11175 next_cycle=375
+2026-10-27T09:08:21Z chunk=26 rc=0 secs=419 left=10742 next_cycle=385
+2026-10-27T09:15:20Z chunk=27 rc=0 secs=407 left=10323 next_cycle=395
+2026-10-27T09:22:16Z chunk=28 rc=0 secs=400 left=9907 next_cycle=405
+2026-10-27T09:29:06Z chunk=29 rc=0 secs=396 left=9497 next_cycle=415
+2026-10-27T09:36:08Z chunk=30 rc=0 secs=409 left=9075 next_cycle=425
+2026-10-27T09:43:21Z chunk=31 rc=0 secs=419 left=8642 next_cycle=435
+2026-10-27T09:50:37Z chunk=32 rc=0 secs=424 left=8206 next_cycle=445
+2026-10-27T09:57:40Z chunk=33 rc=0 secs=409 left=7783 next_cycle=455
+2026-10-27T10:04:33Z chunk=34 rc=0 secs=401 left=7370 next_cycle=465
+2026-10-27T10:11:44Z chunk=35 rc=0 secs=419 left=6939 next_cycle=475
+2026-10-27T10:18:50Z chunk=36 rc=0 secs=414 left=6513 next_cycle=485
+2026-10-27T10:26:26Z chunk=37 rc=0 secs=443 left=6057 next_cycle=495
+2026-10-27T10:33:15Z chunk=38 rc=0 secs=396 left=5648 next_cycle=505
+2026-10-27T10:40:18Z chunk=39 rc=0 secs=409 left=5225 next_cycle=515
+2026-10-27T10:47:20Z chunk=40 rc=0 secs=409 left=4803 next_cycle=525
+2026-10-27T10:54:22Z chunk=41 rc=0 secs=409 left=4381 next_cycle=535
+2026-10-27T11:01:36Z chunk=42 rc=0 secs=420 left=3947 next_cycle=545
+2026-10-27T11:08:40Z chunk=43 rc=0 secs=412 left=3523 next_cycle=555
+2026-10-27T11:15:48Z chunk=44 rc=0 secs=413 left=3095 next_cycle=565
+2026-10-27T11:22:50Z chunk=45 rc=0 secs=410 left=2673 next_cycle=575
+2026-10-27T11:29:58Z chunk=46 rc=0 secs=413 left=2245 next_cycle=585
+2026-10-27T11:37:22Z chunk=47 rc=0 secs=429 left=1801 next_cycle=595
+2026-10-27T11:44:31Z chunk=48 rc=0 secs=415 left=1372 next_cycle=605
+2026-10-27T11:51:36Z chunk=49 rc=0 secs=410 left=947 next_cycle=615
+2026-10-27T11:58:48Z chunk=50 rc=0 secs=416 left=515 next_cycle=625
+2026-10-27T11:59:02Z DONE

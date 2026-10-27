@@ -1,0 +1,14 @@
+$schema: https://azuremlschemas.azureedge.net/latest/commandJob.schema.json
+display_name: artemis-567885-ablation-replicates-20261027
+experiment_name: artemis-567885-expand-loop
+code: ./src
+command: bash ablate_aml.sh ${{outputs.out}}
+environment:
+  image: pytorch/pytorch:2.5.1-cuda12.4-cudnn9-runtime
+compute: azureml:t4-a567-20261027
+outputs:
+  out:
+    type: uri_folder
+    mode: rw_mount
+limits:
+  timeout: 4800

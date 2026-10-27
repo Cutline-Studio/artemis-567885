@@ -35,10 +35,10 @@
     "expert_noise_std": 0.01
   },
   "caps": {
-    "capacity_factor_max": 2.5,
+    "capacity_factor_max": 3.0,
     "num_experts_max": 16,
     "alpha_max": 1.0,
-    "num_layers_max": 12
+    "num_layers_max": 16
   },
   "cycle": 115,
   "pending_mutation": null,

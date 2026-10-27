@@ -1,0 +1,2 @@
+Azure ML job sad_sprout_y6p1tbpjkg (NC8as_T4_v3, East US, dedicated; subscription 52056bc2). It ran from 06:44:25 UTC until the 80-minute job timeout killed it at 08:04 UTC. This is a timeout, not a code error.
+Wave 1 finished: arms A/B/C/G with data_seed=1, cycles 115-124. Wave 2 (data_seed=2) did not log completion before the timeout. The evaluate.py JSONs for wave 1 were not written to the mounted output (their .err files are empty), so the numbers in this folder are only the per-cycle 32-sequence eval loss from the supervisor consoles.
