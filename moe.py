@@ -3,6 +3,37 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
+def expert_load_entropy(counts, normalize: bool = True) -> float:
+    """Shannon entropy of an expert load histogram (counts per expert, any scale).
+
+    Natural log; normalize=True divides by ln(E) so a perfectly uniform load is
+    1.0 and all load on one expert is 0.0. Zero counts contribute 0 (0 log 0 = 0).
+    E == 1 or an all-zero histogram returns 0.0.
+    (Same definition as the stage-7 helper in PR #11, so the two merge cleanly.)
+    """
+    c = torch.as_tensor(counts, dtype=torch.float64).flatten()
+    if c.numel() == 0 or float(c.sum()) <= 0:
+        return 0.0
+    p = c / c.sum()
+    nz = p > 0
+    h = float(-(p[nz] * torch.log(p[nz])).sum())
+    if normalize:
+        return h / math.log(c.numel()) if c.numel() > 1 else 0.0
+    return h
+
+
+def expert_min_load_ratio(counts) -> float:
+    """Smallest per-expert load as a multiple of the uniform share: E * min_i(count_i / sum).
+
+    1.0 = perfectly balanced, 0.0 = at least one expert received nothing.
+    An all-zero histogram returns 0.0.
+    """
+    c = torch.as_tensor(counts, dtype=torch.float64).flatten()
+    if c.numel() == 0 or float(c.sum()) <= 0:
+        return 0.0
+    return float(c.numel() * (c / c.sum()).min())
+
+
 class Expert(nn.Module):
     def __init__(self, d_model: int, d_ff: int):
         super().__init__()
@@ -232,24 +263,37 @@ class CapacitySparseMoELayer(nn.Module):
         return output_workspace.view(orig_shape), aux_loss, dropped_count
 
     @torch.no_grad()
-    def add_expert(self, source_idx: int = None, noise_std: float = 1e-2, generator: torch.Generator = None) -> int:
+    def add_expert(self, source_idx: int = None, noise_std: float = 1e-2, generator: torch.Generator = None,
+                   init: str = "copy") -> int:
         """Grow the layer by one expert, preserving all trained weights.
 
-        The new expert is a copy of `source_idx` (default: expert 0) plus Gaussian
-        noise; the gate gains one row copied from the source row plus noise.
+        init="copy" (original): the new expert is a copy of `source_idx` (default:
+        expert 0) plus Gaussian noise; the gate gains the source's row plus noise.
+        init="mean": the new expert is the parameter-wise mean of the layer's
+        existing experts plus noise, and its gate row is the mean of the existing
+        gate rows plus noise (`source_idx` is ignored). Its router logit then sits
+        at the layer's average instead of tying with one expert's logit, so it
+        does not inherit (and split top-2 slots with) any single expert's tokens.
         Returns the index of the new expert.
         """
-        if source_idx is None:
-            source_idx = 0
-        src = self.experts[source_idx]
-        new = Expert(self.d_model, self.d_ff).to(src.w1.weight.device, src.w1.weight.dtype)
-        new.load_state_dict(src.state_dict())
+        if init not in ("copy", "mean"):
+            raise ValueError(f"init must be 'copy' or 'mean', got {init!r}")
+        ref = self.experts[0]
+        new = Expert(self.d_model, self.d_ff).to(ref.w1.weight.device, ref.w1.weight.dtype)
+        old_w = self.gate.weight.data
+        if init == "copy":
+            if source_idx is None:
+                source_idx = 0
+            new.load_state_dict(self.experts[source_idx].state_dict())
+            row = old_w[source_idx:source_idx + 1].clone()
+        else:
+            sds = [e.state_dict() for e in self.experts]
+            new.load_state_dict({k: torch.stack([sd[k] for sd in sds]).mean(0) for k in sds[0]})
+            row = old_w.mean(0, keepdim=True).clone()
         for p in new.parameters():
             p.add_(torch.randn(p.shape, generator=generator, dtype=p.dtype).to(p.device) * noise_std)
         self.experts.append(new)
 
-        old_w = self.gate.weight.data
-        row = old_w[source_idx:source_idx + 1].clone()
         row.add_(torch.randn(row.shape, generator=generator, dtype=row.dtype).to(row.device) * noise_std)
         new_gate = nn.Linear(self.d_model, self.num_experts + 1, bias=False).to(old_w.device, old_w.dtype)
         new_gate.weight.data.copy_(torch.cat([old_w, row], dim=0))
