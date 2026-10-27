@@ -310,8 +310,9 @@ def run_cycle(root: str) -> dict:
             q.requires_grad_(False)
 
     cyc = cfg["cycle"]
-    g = torch.Generator().manual_seed(cfg["seed"] + cyc)
-    torch.manual_seed(cfg["seed"] + 10_000 + cyc)  # router noise
+    rep = 100_000 * int(cfg.get("data_seed", 0))  # replicate runs: new train data + router noise, same eval sets
+    g = torch.Generator().manual_seed(cfg["seed"] + cyc + rep)
+    torch.manual_seed(cfg["seed"] + 10_000 + cyc + rep)  # router noise
     B, S, D = cfg["batch_size"], cfg["seq_len"], cfg["d_model"]
     alpha = cfg["alpha"]
     losses, auxes, drops = [], [], []
