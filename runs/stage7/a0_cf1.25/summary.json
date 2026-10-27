@@ -1,0 +1,104 @@
+{
+  "run_name": "a0_cf1.25",
+  "data": "corpus=/workspace/artemis-corpus-bench/corpus train/ vs val/",
+  "train_bytes": 11984086,
+  "heldout_bytes": 1230205,
+  "eval_windows": 256,
+  "eval_predicted_bytes": 32768,
+  "params": 1058304,
+  "steps": 2000,
+  "train_time_s": 341.5,
+  "bytes_seen": 8192000,
+  "first_train_bpb": 8.2761,
+  "initial_heldout_bpb": 8.2896,
+  "final_heldout_bpb": 1.99644,
+  "best_heldout_bpb": 1.99644,
+  "final_heldout_loss_nats": 1.38383,
+  "capacity_factor": 1.25,
+  "capacity_mode": "sequence",
+  "leaky": false,
+  "train_drop_rate": 0.014075,
+  "heldout_drop_rate": 0.007686,
+  "heldout_entropy_routed": [
+    0.98345,
+    0.99919,
+    0.98816
+  ],
+  "heldout_entropy_kept": [
+    0.98585,
+    0.9992,
+    0.98886
+  ],
+  "heldout_entropy_routed_mean": 0.99026,
+  "heldout_entropy_kept_mean": 0.9913,
+  "heldout_load_routed": [
+    [
+      11917.0,
+      18287.0,
+      14659.0,
+      21185.0
+    ],
+    [
+      17589.0,
+      16838.0,
+      16134.0,
+      15487.0
+    ],
+    [
+      15306.0,
+      20166.0,
+      18228.0,
+      12348.0
+    ]
+  ],
+  "final_aux": 3.06447,
+  "unigram_bpb_eval_windows": 4.59647,
+  "unigram_bpb_full_heldout": 4.58172,
+  "config": {
+    "corpus": null,
+    "text": null,
+    "heldout_split": "val",
+    "heldout_frac": 0.1,
+    "d_model": 128,
+    "n_heads": 4,
+    "d_ff": 256,
+    "experts": 4,
+    "layers": 3,
+    "top_k": 2,
+    "pos": "sinusoidal",
+    "dispatch": "loop",
+    "seq_len": 128,
+    "batch": 32,
+    "lr": 0.002,
+    "warmup": 100,
+    "weight_decay": 0.01,
+    "grad_clip": 1.0,
+    "aux_alpha": 0.0,
+    "capacity_factor": 1.25,
+    "capacity_mode": "sequence",
+    "max_steps": 2000,
+    "time_budget": 0.0,
+    "eval_every": 250,
+    "eval_windows": 256,
+    "eval_batch": 64,
+    "sample_len": 160,
+    "temperature": 0.8,
+    "sample_top_k": 40,
+    "seed": 567885,
+    "threads": 2,
+    "out_dir": "/workspace/artemis-567885/runs/stage7",
+    "run_name": "a0_cf1.25",
+    "save_checkpoint": false
+  },
+  "torch": "2.14.1+cpu",
+  "threads": 2,
+  "samples": [
+    {
+      "prompt": "It was a ",
+      "temperature": 0.8,
+      "top_k": 40,
+      "seed": 567885,
+      "text": "It was a lettern to do with a light head, and have\r\nconverwhered up in the afferred that it I saw the man walkumling, if\r\nthe flutcholy and seemed her present and said, "
+    }
+  ]
+}

@@ -1,0 +1,104 @@
+{
+  "run_name": "a0.1_cf0.8",
+  "data": "corpus=/workspace/artemis-corpus-bench/corpus train/ vs val/",
+  "train_bytes": 11984086,
+  "heldout_bytes": 1230205,
+  "eval_windows": 256,
+  "eval_predicted_bytes": 32768,
+  "params": 1058304,
+  "steps": 2000,
+  "train_time_s": 286.9,
+  "bytes_seen": 8192000,
+  "first_train_bpb": 8.2775,
+  "initial_heldout_bpb": 8.29085,
+  "final_heldout_bpb": 2.13866,
+  "best_heldout_bpb": 2.13866,
+  "final_heldout_loss_nats": 1.48241,
+  "capacity_factor": 0.8,
+  "capacity_mode": "sequence",
+  "leaky": false,
+  "train_drop_rate": 0.195271,
+  "heldout_drop_rate": 0.195484,
+  "heldout_entropy_routed": [
+    0.9999,
+    0.99992,
+    0.99998
+  ],
+  "heldout_entropy_kept": [
+    1.0,
+    1.0,
+    1.0
+  ],
+  "heldout_entropy_routed_mean": 0.99994,
+  "heldout_entropy_kept_mean": 1.0,
+  "heldout_load_routed": [
+    [
+      16260.0,
+      16917.0,
+      16614.0,
+      16257.0
+    ],
+    [
+      16715.0,
+      16203.0,
+      16346.0,
+      16784.0
+    ],
+    [
+      16502.0,
+      16341.0,
+      16598.0,
+      16607.0
+    ]
+  ],
+  "final_aux": 2.998,
+  "unigram_bpb_eval_windows": 4.59647,
+  "unigram_bpb_full_heldout": 4.58172,
+  "config": {
+    "corpus": null,
+    "text": null,
+    "heldout_split": "val",
+    "heldout_frac": 0.1,
+    "d_model": 128,
+    "n_heads": 4,
+    "d_ff": 256,
+    "experts": 4,
+    "layers": 3,
+    "top_k": 2,
+    "pos": "sinusoidal",
+    "dispatch": "loop",
+    "seq_len": 128,
+    "batch": 32,
+    "lr": 0.002,
+    "warmup": 100,
+    "weight_decay": 0.01,
+    "grad_clip": 1.0,
+    "aux_alpha": 0.1,
+    "capacity_factor": 0.8,
+    "capacity_mode": "sequence",
+    "max_steps": 2000,
+    "time_budget": 0.0,
+    "eval_every": 250,
+    "eval_windows": 256,
+    "eval_batch": 64,
+    "sample_len": 160,
+    "temperature": 0.8,
+    "sample_top_k": 40,
+    "seed": 567885,
+    "threads": 2,
+    "out_dir": "/workspace/artemis-567885/runs/stage7",
+    "run_name": "a0.1_cf0.8",
+    "save_checkpoint": false
+  },
+  "torch": "2.14.1+cpu",
+  "threads": 2,
+  "samples": [
+    {
+      "prompt": "It was a ",
+      "temperature": 0.8,
+      "top_k": 40,
+      "seed": 567885,
+      "text": "It was a few asthis\r\nmensping of that the Civelas raction who sturps for thafle.\r\nI lok lite sill, whilded youur so mulke. I  a from desting exct in the\r\nspeecte of the "
+    }
+  ]
+}

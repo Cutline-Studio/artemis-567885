@@ -13,6 +13,24 @@ class Expert(nn.Module):
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         return self.w2(self.act(self.w1(x)))
 
+def expert_load_entropy(counts, normalize: bool = True) -> float:
+    """Shannon entropy of an expert load histogram (counts per expert, any scale).
+
+    Natural log; normalize=True divides by ln(E) so a perfectly uniform load is
+    1.0 and all load on one expert is 0.0. Zero counts contribute 0 (0 log 0 = 0).
+    E == 1 or an all-zero histogram returns 0.0.
+    """
+    c = torch.as_tensor(counts, dtype=torch.float64).flatten()
+    if c.numel() == 0 or float(c.sum()) <= 0:
+        return 0.0
+    p = c / c.sum()
+    nz = p > 0
+    h = float(-(p[nz] * torch.log(p[nz])).sum())
+    if normalize:
+        return h / math.log(c.numel()) if c.numel() > 1 else 0.0
+    return h
+
+
 class CapacitySparseMoELayer(nn.Module):
     """Top-K sparse MoE with a per-expert capacity ceiling.
 
@@ -38,12 +56,31 @@ class CapacitySparseMoELayer(nn.Module):
     capacity_factor=None means dropless routing (capacity = number of tokens).
     Capacity-limited routing ranks tokens across the whole flattened batch, so
     with a causal mask a future token can displace a past token (see
-    checks/test_check5_causal.py); use capacity_factor=None for causal models.
+    checks/test_check5_causal.py); use capacity_factor=None for causal models,
+    or capacity_mode="sequence".
+
+    capacity_mode="global" (default) is the behaviour described above.
+    capacity_mode="sequence" (stage 7) is a causal-safe capacity: x must be
+    [B, T, d] (a 2-D x is one sequence); every sequence gets its own per-expert
+    capacity ceil(T / E * capacity_factor * top_k), and assignments are served
+    first-come-first-served in position order (position ascending, then slot),
+    so whether the assignment at position t is kept depends only on the routing
+    of positions <= t of the same sequence. With causal attention, future bytes
+    and other sequences in the batch therefore cannot change past outputs.
+    Cost of the causal ordering: late positions are the ones that get dropped
+    when an expert overflows. Only valid with legacy=False; works with both
+    dispatch paths (same keep mask).
     """
 
     def __init__(self, d_model: int, d_ff: int, num_experts: int, top_k: int = 2,
-                 capacity_factor: float = 1.0, legacy: bool = False, dispatch: str = "loop"):
+                 capacity_factor: float = 1.0, legacy: bool = False, dispatch: str = "loop",
+                 capacity_mode: str = "global"):
         super().__init__()
+        if capacity_mode not in ("global", "sequence"):
+            raise ValueError(f"capacity_mode must be 'global' or 'sequence', got {capacity_mode!r}")
+        if capacity_mode == "sequence" and legacy:
+            raise ValueError("capacity_mode='sequence' implements the fixed (legacy=False) semantics only")
+        self.capacity_mode = capacity_mode
         if dispatch not in ("loop", "vectorized"):
             raise ValueError(f"dispatch must be 'loop' or 'vectorized', got {dispatch!r}")
         if dispatch == "vectorized" and legacy:
@@ -63,6 +100,25 @@ class CapacitySparseMoELayer(nn.Module):
         if self.capacity_factor is None:  # dropless
             return int(num_tokens)
         return int(math.ceil((num_tokens / self.num_experts) * self.capacity_factor * self.top_k))
+
+    def _sequence_keep(self, topk_indices: torch.Tensor, shape) -> torch.Tensor:
+        """capacity_mode='sequence': keep mask [N, K] for flat assignments.
+
+        Per sequence, assignments to each expert are ranked by (position, slot)
+        and the first `capacity` are kept: an inclusive cumulative count over
+        the position-major/slot-minor order, so position t only sees t' <= t.
+        """
+        K, E = self.top_k, self.num_experts
+        if len(shape) == 3:
+            b, t = shape[0], shape[1]
+        elif len(shape) == 2:
+            b, t = 1, shape[0]
+        else:
+            raise ValueError(f"capacity_mode='sequence' needs x of shape [B, T, d] or [T, d], got {tuple(shape)}")
+        cap = self.expert_capacity(t)
+        onehot = F.one_hot(topk_indices.reshape(b, t * K), num_classes=E)       # [B, T*K, E]
+        rank = (onehot.cumsum(dim=1) * onehot).sum(dim=-1) - 1                  # 0-based rank in its expert
+        return (rank < cap).reshape(b * t, K), cap
 
     def forward(self, x: torch.Tensor):
         if self.legacy:
@@ -136,7 +192,10 @@ class CapacitySparseMoELayer(nn.Module):
         pe = gate_prob.mean(dim=0)
         aux_loss = self.num_experts * torch.sum(me * pe)
 
-        expert_capacity = self.expert_capacity(num_tokens)
+        if self.capacity_mode == "sequence":
+            seq_keep, expert_capacity = self._sequence_keep(topk_indices, orig_shape)
+        else:
+            seq_keep, expert_capacity = None, self.expert_capacity(num_tokens)
         output_workspace = torch.zeros_like(flat_tokens)
         processed_slots = torch.zeros(num_tokens, self.top_k, dtype=torch.bool, device=x.device)
         dropped_count = 0
@@ -149,7 +208,12 @@ class CapacitySparseMoELayer(nn.Module):
             n = token_positions.numel()
             if n == 0:
                 continue
-            if n > expert_capacity:
+            if seq_keep is not None:
+                keep = seq_keep[token_positions, k_positions]
+                dropped_count += int(n - int(keep.sum()))
+                token_positions = token_positions[keep]
+                k_positions = k_positions[keep]
+            elif n > expert_capacity:
                 # priority: lower slot first (top-1 before top-2), then larger router probability
                 w = priority[token_positions, expert_idx]
                 order = torch.argsort(-w, stable=True)
@@ -190,6 +254,9 @@ class CapacitySparseMoELayer(nn.Module):
         pe = gate_prob.mean(dim=0)
         aux_loss = E * torch.sum(me * pe)
 
+        if self.capacity_mode == "sequence":
+            return self._forward_vectorized_sequence(flat_tokens, orig_shape, topk_indices,
+                                                     topk_softmax_weights, aux_loss)
         cap = self.expert_capacity(num_tokens)
         priority = F.softmax(logits.detach(), dim=-1)
         # flat assignment list in the loop's nonzero() order: token-major, then slot
@@ -225,6 +292,41 @@ class CapacitySparseMoELayer(nn.Module):
 
         processed_slots = torch.zeros(num_tokens, K, dtype=torch.bool, device=x.device)
         processed_slots[k_tok, k_slot] = True
+        dropped_tokens = int((~processed_slots.any(dim=-1)).sum().item())
+        self.last_stats = {"capacity": cap, "dropped_assignments": dropped_count,
+                           "dropped_tokens": dropped_tokens, "num_tokens": num_tokens,
+                           "topk_indices": topk_indices.detach(), "kept_slots": processed_slots}
+        return output_workspace.view(orig_shape), aux_loss, dropped_count
+
+    def _expert_batch(self, buf: torch.Tensor) -> torch.Tensor:
+        W1 = torch.stack([e.w1.weight for e in self.experts])
+        b1 = torch.stack([e.w1.bias for e in self.experts])
+        W2 = torch.stack([e.w2.weight for e in self.experts])
+        b2 = torch.stack([e.w2.bias for e in self.experts])
+        h = self.experts[0].act(torch.baddbmm(b1.unsqueeze(1), buf, W1.transpose(1, 2)))
+        return torch.baddbmm(b2.unsqueeze(1), h, W2.transpose(1, 2))
+
+    def _forward_vectorized_sequence(self, flat_tokens, orig_shape, topk_indices, topk_softmax_weights, aux_loss):
+        num_tokens, d = flat_tokens.shape
+        E, K = self.num_experts, self.top_k
+        keep2d, cap = self._sequence_keep(topk_indices, orig_shape)
+        keep = keep2d.reshape(-1)
+        tok = torch.arange(num_tokens, device=flat_tokens.device).repeat_interleave(K)
+        slot = torch.arange(K, device=flat_tokens.device).repeat(num_tokens)
+        exp_ = topk_indices.reshape(-1)
+        dropped_count = int((~keep).sum().item())
+        k_tok, k_slot, k_e = tok[keep], slot[keep], exp_[keep]
+        order = torch.argsort(k_e, stable=True)
+        k_tok, k_slot, k_e = k_tok[order], k_slot[order], k_e[order]
+        counts = torch.bincount(k_e, minlength=E)
+        starts = torch.cumsum(counts, 0) - counts
+        k_rank = torch.arange(k_e.numel(), device=flat_tokens.device) - starts[k_e]
+        buf_len = int(counts.max().item()) if k_e.numel() else 1
+        buf = flat_tokens.new_zeros(E, max(buf_len, 1), d).index_put((k_e, k_rank), flat_tokens[k_tok])
+        out = self._expert_batch(buf)
+        contrib = out[k_e, k_rank] * topk_softmax_weights[k_tok, k_slot].unsqueeze(-1)
+        output_workspace = torch.zeros_like(flat_tokens).index_add(0, k_tok, contrib)
+        processed_slots = keep2d.clone()
         dropped_tokens = int((~processed_slots.any(dim=-1)).sum().item())
         self.last_stats = {"capacity": cap, "dropped_assignments": dropped_count,
                            "dropped_tokens": dropped_tokens, "num_tokens": num_tokens,

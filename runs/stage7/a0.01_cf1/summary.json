@@ -1,0 +1,104 @@
+{
+  "run_name": "a0.01_cf1",
+  "data": "corpus=/workspace/artemis-corpus-bench/corpus train/ vs val/",
+  "train_bytes": 11984086,
+  "heldout_bytes": 1230205,
+  "eval_windows": 256,
+  "eval_predicted_bytes": 32768,
+  "params": 1058304,
+  "steps": 2000,
+  "train_time_s": 343.8,
+  "bytes_seen": 8192000,
+  "first_train_bpb": 8.2763,
+  "initial_heldout_bpb": 8.28895,
+  "final_heldout_bpb": 2.02143,
+  "best_heldout_bpb": 2.02143,
+  "final_heldout_loss_nats": 1.40115,
+  "capacity_factor": 1.0,
+  "capacity_mode": "sequence",
+  "leaky": false,
+  "train_drop_rate": 0.046215,
+  "heldout_drop_rate": 0.040743,
+  "heldout_entropy_routed": [
+    0.99781,
+    0.99953,
+    0.99968
+  ],
+  "heldout_entropy_kept": [
+    0.99903,
+    0.99987,
+    0.99989
+  ],
+  "heldout_entropy_routed_mean": 0.99901,
+  "heldout_entropy_kept_mean": 0.9996,
+  "heldout_load_routed": [
+    [
+      14392.0,
+      17285.0,
+      16702.0,
+      17669.0
+    ],
+    [
+      15984.0,
+      17355.0,
+      16789.0,
+      15920.0
+    ],
+    [
+      16812.0,
+      16364.0,
+      17089.0,
+      15783.0
+    ]
+  ],
+  "final_aux": 3.00258,
+  "unigram_bpb_eval_windows": 4.59647,
+  "unigram_bpb_full_heldout": 4.58172,
+  "config": {
+    "corpus": null,
+    "text": null,
+    "heldout_split": "val",
+    "heldout_frac": 0.1,
+    "d_model": 128,
+    "n_heads": 4,
+    "d_ff": 256,
+    "experts": 4,
+    "layers": 3,
+    "top_k": 2,
+    "pos": "sinusoidal",
+    "dispatch": "loop",
+    "seq_len": 128,
+    "batch": 32,
+    "lr": 0.002,
+    "warmup": 100,
+    "weight_decay": 0.01,
+    "grad_clip": 1.0,
+    "aux_alpha": 0.01,
+    "capacity_factor": 1.0,
+    "capacity_mode": "sequence",
+    "max_steps": 2000,
+    "time_budget": 0.0,
+    "eval_every": 250,
+    "eval_windows": 256,
+    "eval_batch": 64,
+    "sample_len": 160,
+    "temperature": 0.8,
+    "sample_top_k": 40,
+    "seed": 567885,
+    "threads": 2,
+    "out_dir": "/workspace/artemis-567885/runs/stage7",
+    "run_name": "a0.01_cf1",
+    "save_checkpoint": false
+  },
+  "torch": "2.14.1+cpu",
+  "threads": 2,
+  "samples": [
+    {
+      "prompt": "It was a ",
+      "temperature": 0.8,
+      "top_k": 40,
+      "seed": 567885,
+      "text": "It was a pertant troung spite of them, that\r\neldest coundel. The eprisons caffessie lifes thest prson\u2019e\r\nwhich interratidin a faccoons with and laugher spee and bachoo"
+    }
+  ]
+}
