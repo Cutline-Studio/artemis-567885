@@ -245,12 +245,12 @@ class CapacitySparseMoELayer(nn.Module):
         new = Expert(self.d_model, self.d_ff).to(src.w1.weight.device, src.w1.weight.dtype)
         new.load_state_dict(src.state_dict())
         for p in new.parameters():
-            p.add_(torch.randn(p.shape, generator=generator, dtype=p.dtype) * noise_std)
+            p.add_(torch.randn(p.shape, generator=generator, dtype=p.dtype).to(p.device) * noise_std)
         self.experts.append(new)
 
         old_w = self.gate.weight.data
         row = old_w[source_idx:source_idx + 1].clone()
-        row.add_(torch.randn(row.shape, generator=generator, dtype=row.dtype) * noise_std)
+        row.add_(torch.randn(row.shape, generator=generator, dtype=row.dtype).to(row.device) * noise_std)
         new_gate = nn.Linear(self.d_model, self.num_experts + 1, bias=False).to(old_w.device, old_w.dtype)
         new_gate.weight.data.copy_(torch.cat([old_w, row], dim=0))
         self.gate = new_gate
