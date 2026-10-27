@@ -1,0 +1,4 @@
+checkpoint runs/stage6_gutenberg_cpu_900s.pt: 2593 steps, 5,399,296 params
+val: 4786 windows x 256 = 1,225,216 predicted bytes | model 1.7605 bpb | unigram (train) 4.5814 bpb | 36s
+test: 3957 windows x 256 = 1,012,992 predicted bytes | model 1.9746 bpb | unigram (train) 4.7076 bpb | 22s
+done
