@@ -1,0 +1,42 @@
+{"validation": {"epoch": 0, "optimizer_steps": 0, "training_target_bytes": 0, "neural_bpb": 8.35081875746399, "unigram_bpb": 4.58170858514225, "scored_bytes": 1230203}}
+{"validation": {"epoch": 1, "optimizer_steps": 1000, "training_target_bytes": 2047909, "neural_bpb": 3.619183483419506, "unigram_bpb": 4.58170858514225, "scored_bytes": 1230203}}
+{
+  "timestamp_utc": "2026-10-23T06:01:57.208016+00:00",
+  "configuration": {
+    "data": "corpus",
+    "output": "runs/seed42",
+    "seed": 42,
+    "context": 128,
+    "batch_size": 16,
+    "epochs": 10,
+    "steps": 1000,
+    "lr": 0.001,
+    "threads": 1,
+    "device": "cpu",
+    "parameters": 37888,
+    "layers": 2,
+    "width": 32,
+    "heads": 2,
+    "feedforward_width": 64,
+    "evaluation": "chunk-reset; skip first byte of each file"
+  },
+  "torch_version": "2.14.1+cpu",
+  "device": "cpu",
+  "optimizer_steps": 1000,
+  "training_target_bytes": 2047909,
+  "total_elapsed_seconds": 30.09744460699585,
+  "best_validation": {
+    "epoch": 1,
+    "optimizer_steps": 1000,
+    "training_target_bytes": 2047909,
+    "neural_bpb": 3.619183483419506,
+    "unigram_bpb": 4.58170858514225,
+    "scored_bytes": 1230203
+  },
+  "test": {
+    "neural_bpb": 3.5859531551986064,
+    "unigram_bpb": 4.7078532510571165,
+    "scored_bytes": 1017125
+  },
+  "checkpoint_sha256": "f3353706b3d4049f36b47be56f0d16bb4797de80d4968894cdffaa663bbf18f6"
+}

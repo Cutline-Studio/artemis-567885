@@ -1,0 +1,53 @@
+{
+  "train": [
+    {
+      "path": "train/pg1023.txt",
+      "bytes": 2024933,
+      "sha256": "f5a63bc64af664bb555a3cf8c2804e1d2b612cc07d898d567a1d5aa8e83edd85"
+    },
+    {
+      "path": "train/pg135.txt",
+      "bytes": 3349400,
+      "sha256": "d005a0c4b44d6a2cefc5353ae2adc6a11dd47aadcd4015c9cae8ad8046867fcd"
+    },
+    {
+      "path": "train/pg2600.txt",
+      "bytes": 3339773,
+      "sha256": "841254e45cac8dfda9ff0870f544e67eff7302e9bf56614c5efe5f4a9b6bd479"
+    },
+    {
+      "path": "train/pg2701.txt",
+      "bytes": 1256486,
+      "sha256": "9c05ad4f019bc4f8d1462bef1e2b3c0a84ff3d13482bbe877b92659c0c8e00a8"
+    },
+    {
+      "path": "train/pg766.txt",
+      "bytes": 2013494,
+      "sha256": "dcc5a23ccdf78e8fa00329950af99270ce10e7801d183cd8f59966b7252722aa"
+    }
+  ],
+  "val": [
+    {
+      "path": "val/pg105.txt",
+      "bytes": 477763,
+      "sha256": "6b27ade16e38576309ab7b594c0d96e0281760c8cabdfb3ee02ae6f8c559a7e8"
+    },
+    {
+      "path": "val/pg1342.txt",
+      "bytes": 752442,
+      "sha256": "3709883de831a8cd1b6f2ead5640644c4e26abe972ca382b774b221c90c26bd5"
+    }
+  ],
+  "test": [
+    {
+      "path": "test/pg74.txt",
+      "bytes": 414509,
+      "sha256": "916902210dff1b2818fbafa3a6239dc685129b7a08334312873015e88a1aed4a"
+    },
+    {
+      "path": "test/pg76.txt",
+      "bytes": 602618,
+      "sha256": "c00901b5e87adb23b0008c70bbb11304b74abccad33ad4631b2b6b779271ce95"
+    }
+  ]
+}

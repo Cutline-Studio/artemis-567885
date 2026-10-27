@@ -1,0 +1,2 @@
+{"epoch": 0, "optimizer_steps": 0, "training_target_bytes": 0, "neural_bpb": 8.19006882761816, "unigram_bpb": 4.58170858514225, "scored_bytes": 1230203}
+{"epoch": 1, "optimizer_steps": 1000, "training_target_bytes": 2048000, "neural_bpb": 3.6146678837181945, "unigram_bpb": 4.58170858514225, "scored_bytes": 1230203}
