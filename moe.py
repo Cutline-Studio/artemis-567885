@@ -27,11 +27,28 @@ class CapacitySparseMoELayer(nn.Module):
       * last_stats exposes dropped assignments AND fully dropped tokens separately
     The return signature (output, aux_loss, dropped_count) is unchanged;
     dropped_count is the number of dropped (token, slot) assignments in both modes.
+
+    dispatch="loop" (default) is the per-expert Python loop above.
+    dispatch="vectorized" (repo-checks, check 3) computes the SAME routing,
+    capacity ranking, drops and outputs with one sort and two batched matmuls
+    over a padded [E, capacity, d] buffer. Equivalence to the loop (outputs,
+    assignments, drops, gradients) is asserted in checks/test_check3_moe_dispatch.py.
+    Only valid with legacy=False.
+
+    capacity_factor=None means dropless routing (capacity = number of tokens).
+    Capacity-limited routing ranks tokens across the whole flattened batch, so
+    with a causal mask a future token can displace a past token (see
+    checks/test_check5_causal.py); use capacity_factor=None for causal models.
     """
 
     def __init__(self, d_model: int, d_ff: int, num_experts: int, top_k: int = 2,
-                 capacity_factor: float = 1.0, legacy: bool = False):
+                 capacity_factor: float = 1.0, legacy: bool = False, dispatch: str = "loop"):
         super().__init__()
+        if dispatch not in ("loop", "vectorized"):
+            raise ValueError(f"dispatch must be 'loop' or 'vectorized', got {dispatch!r}")
+        if dispatch == "vectorized" and legacy:
+            raise ValueError("dispatch='vectorized' implements the fixed (legacy=False) semantics only")
+        self.dispatch = dispatch
         self.d_model = d_model
         self.d_ff = d_ff
         self.num_experts = num_experts
@@ -43,11 +60,15 @@ class CapacitySparseMoELayer(nn.Module):
         self.last_stats = {}
 
     def expert_capacity(self, num_tokens: int) -> int:
+        if self.capacity_factor is None:  # dropless
+            return int(num_tokens)
         return int(math.ceil((num_tokens / self.num_experts) * self.capacity_factor * self.top_k))
 
     def forward(self, x: torch.Tensor):
         if self.legacy:
             return self._forward_legacy(x)
+        if self.dispatch == "vectorized":
+            return self._forward_vectorized(x)
         return self._forward_fixed(x)
 
     # ---- original implementation, kept verbatim for reproducibility ----
@@ -145,8 +166,70 @@ class CapacitySparseMoELayer(nn.Module):
 
         dropped_tokens = int((~processed_slots.any(dim=-1)).sum().item())
         self.last_stats = {"capacity": expert_capacity, "dropped_assignments": int(dropped_count),
-                           "dropped_tokens": dropped_tokens, "num_tokens": num_tokens}
+                           "dropped_tokens": dropped_tokens, "num_tokens": num_tokens,
+                           "topk_indices": topk_indices.detach(), "kept_slots": processed_slots}
         return output_workspace.view(orig_shape), aux_loss, int(dropped_count)
+
+    # ---- vectorized dispatch, same semantics as _forward_fixed ----
+    def _forward_vectorized(self, x: torch.Tensor):
+        orig_shape = x.shape
+        flat_tokens = x.reshape(-1, orig_shape[-1])
+        num_tokens, d = flat_tokens.shape
+        E, K = self.num_experts, self.top_k
+
+        clean_logits = self.gate(flat_tokens)
+        logits = clean_logits
+        if self.training:
+            logits = clean_logits + torch.randn_like(clean_logits) * (1.0 / self.num_experts)
+        topk_logits, topk_indices = torch.topk(logits, K, dim=-1)
+        topk_softmax_weights = F.softmax(topk_logits, dim=-1)
+
+        gate_prob = F.softmax(clean_logits, dim=-1)
+        assign = F.one_hot(topk_indices, num_classes=E).float().sum(dim=1)
+        me = assign.mean(dim=0) / K
+        pe = gate_prob.mean(dim=0)
+        aux_loss = E * torch.sum(me * pe)
+
+        cap = self.expert_capacity(num_tokens)
+        priority = F.softmax(logits.detach(), dim=-1)
+        # flat assignment list in the loop's nonzero() order: token-major, then slot
+        tok = torch.arange(num_tokens, device=x.device).repeat_interleave(K)
+        slot = torch.arange(K, device=x.device).repeat(num_tokens)
+        exp_ = topk_indices.reshape(-1)
+        prio = priority[tok, exp_]
+        # rank inside each expert by (slot asc, priority desc, original order asc),
+        # exactly the loop's two stable argsorts, then group by expert (stable).
+        order = torch.argsort(-prio, stable=True)
+        order = order[torch.argsort(slot[order], stable=True)]
+        order = order[torch.argsort(exp_[order], stable=True)]
+        e_sorted = exp_[order]
+        counts = torch.bincount(e_sorted, minlength=E)
+        starts = torch.cumsum(counts, 0) - counts
+        rank = torch.arange(order.numel(), device=x.device) - starts[e_sorted]
+        keep = rank < cap
+        dropped_count = int((~keep).sum().item())
+        k_order, k_e, k_rank = order[keep], e_sorted[keep], rank[keep]
+        k_tok, k_slot = tok[k_order], slot[k_order]
+
+        buf_len = int(min(cap, int(counts.max().item()) if counts.numel() else 0))
+        buf = flat_tokens.new_zeros(E, max(buf_len, 1), d)
+        buf = buf.index_put((k_e, k_rank), flat_tokens[k_tok])
+        W1 = torch.stack([e.w1.weight for e in self.experts])      # [E, d_ff, d]
+        b1 = torch.stack([e.w1.bias for e in self.experts])        # [E, d_ff]
+        W2 = torch.stack([e.w2.weight for e in self.experts])      # [E, d, d_ff]
+        b2 = torch.stack([e.w2.bias for e in self.experts])        # [E, d]
+        h = self.experts[0].act(torch.baddbmm(b1.unsqueeze(1), buf, W1.transpose(1, 2)))
+        out = torch.baddbmm(b2.unsqueeze(1), h, W2.transpose(1, 2))  # [E, L, d]
+        contrib = out[k_e, k_rank] * topk_softmax_weights[k_tok, k_slot].unsqueeze(-1)
+        output_workspace = torch.zeros_like(flat_tokens).index_add(0, k_tok, contrib)
+
+        processed_slots = torch.zeros(num_tokens, K, dtype=torch.bool, device=x.device)
+        processed_slots[k_tok, k_slot] = True
+        dropped_tokens = int((~processed_slots.any(dim=-1)).sum().item())
+        self.last_stats = {"capacity": cap, "dropped_assignments": dropped_count,
+                           "dropped_tokens": dropped_tokens, "num_tokens": num_tokens,
+                           "topk_indices": topk_indices.detach(), "kept_slots": processed_slots}
+        return output_workspace.view(orig_shape), aux_loss, dropped_count
 
     @torch.no_grad()
     def add_expert(self, source_idx: int = None, noise_std: float = 1e-2, generator: torch.Generator = None) -> int:

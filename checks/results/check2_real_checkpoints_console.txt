@@ -1,0 +1,7 @@
+$ python3 checks/check2_real_checkpoints.py --runs /workspace/artemis-corpus-bench/runs --data /workspace/artemis-corpus-bench/corpus
+torch 2.14.1+cpu threads 1
+{"seed": 42, "sha256_matches_metrics": true, "val_bpb_reloaded": 3.619183483419506, "val_bpb_recorded": 3.619183483419506, "val_abs_diff": 0.0, "test_bpb_reloaded": 3.5859531551986064, "test_bpb_recorded": 3.5859531551986064, "test_abs_diff": 0.0, "scored_val": 1230203, "scored_test": 1017125, "resave_logits_equal": true, "resave_max_abs_diff": 0.0}
+{"seed": 1, "sha256_matches_metrics": true, "val_bpb_reloaded": 3.60915380011616, "val_bpb_recorded": 3.60915380011616, "val_abs_diff": 0.0, "test_bpb_reloaded": 3.553500941327769, "test_bpb_recorded": 3.553500941327769, "test_abs_diff": 0.0, "scored_val": 1230203, "scored_test": 1017125, "resave_logits_equal": true, "resave_max_abs_diff": 0.0}
+{"seed": 2, "sha256_matches_metrics": true, "val_bpb_reloaded": 3.6146678837181945, "val_bpb_recorded": 3.6146678837181945, "val_abs_diff": 0.0, "test_bpb_reloaded": 3.555148343771295, "test_bpb_recorded": 3.555148343771295, "test_abs_diff": 0.0, "scored_val": 1230203, "scored_test": 1017125, "resave_logits_equal": true, "resave_max_abs_diff": 0.0}
+CHECK2_REAL_CHECKPOINTS PASS
+exit=0

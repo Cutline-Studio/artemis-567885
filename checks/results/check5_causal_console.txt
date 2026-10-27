@@ -1,0 +1,33 @@
+$ python3 -m pytest -v -s checks/test_check5_causal.py
+============================= test session starts ==============================
+platform linux -- Python 3.13.5, pytest-9.1.1, pluggy-1.7.0 -- /usr/bin/python3
+cachedir: .pytest_cache
+rootdir: /workspace/artemis-567885
+plugins: platformdirs-4.13.5
+collecting ... collected 11 items
+
+checks/test_check5_causal.py::test_attention_alone_is_causal_and_original_is_not non-causal (original) attention: max change at position 0 = 0.23848015069961548
+PASSED
+checks/test_check5_causal.py::test_causal_dropless_moe_has_no_leak[False-loop] CAUSAL dropless dispatch=loop train=False: {"max_abs_change_past": 0.0, "leaking_trials": 0, "trials": 15} max|dPast/dFuture|=0.0 cross_sample=0.0
+PASSED
+checks/test_check5_causal.py::test_causal_dropless_moe_has_no_leak[False-vectorized] CAUSAL dropless dispatch=vectorized train=False: {"max_abs_change_past": 0.0, "leaking_trials": 0, "trials": 15} max|dPast/dFuture|=0.0 cross_sample=0.0
+PASSED
+checks/test_check5_causal.py::test_causal_dropless_moe_has_no_leak[True-loop] CAUSAL dropless dispatch=loop train=True: {"max_abs_change_past": 0.0, "leaking_trials": 0, "trials": 15} max|dPast/dFuture|=0.0 cross_sample=0.0
+PASSED
+checks/test_check5_causal.py::test_causal_dropless_moe_has_no_leak[True-vectorized] CAUSAL dropless dispatch=vectorized train=True: {"max_abs_change_past": 0.0, "leaking_trials": 0, "trials": 15} max|dPast/dFuture|=0.0 cross_sample=0.0
+PASSED
+checks/test_check5_causal.py::test_FINDING_capacity_routing_leaks_future_into_past[1.0-False-loop] CAUSAL capacity cf=1.0 legacy=False dispatch=loop: {"max_abs_change_past": 0.3659561574459076, "leaking_trials": 12, "trials": 15} cross_sample=0.18521550297737122
+PASSED
+checks/test_check5_causal.py::test_FINDING_capacity_routing_leaks_future_into_past[1.0-False-vectorized] CAUSAL capacity cf=1.0 legacy=False dispatch=vectorized: {"max_abs_change_past": 0.3659561574459076, "leaking_trials": 12, "trials": 15} cross_sample=0.18521550297737122
+PASSED
+checks/test_check5_causal.py::test_FINDING_capacity_routing_leaks_future_into_past[0.5-False-loop] CAUSAL capacity cf=0.5 legacy=False dispatch=loop: {"max_abs_change_past": 0.6051089763641357, "leaking_trials": 15, "trials": 15} cross_sample=0.28673845529556274
+PASSED
+checks/test_check5_causal.py::test_FINDING_capacity_routing_leaks_future_into_past[1.0-True-loop] CAUSAL capacity cf=1.0 legacy=True dispatch=loop: {"max_abs_change_past": 2.654020071029663, "leaking_trials": 12, "trials": 15} cross_sample=0.0
+PASSED
+checks/test_check5_causal.py::test_FINDING_capacity_routing_leaks_future_into_past[0.5-True-loop] CAUSAL capacity cf=0.5 legacy=True dispatch=loop: {"max_abs_change_past": 4.653511047363281, "leaking_trials": 13, "trials": 15} cross_sample=0.0
+PASSED
+checks/test_check5_causal.py::test_noncausal_model_leaks_even_dropless NON-causal model, dropless: {"max_abs_change_past": 0.5539199113845825, "leaking_trials": 15, "trials": 15}
+PASSED
+
+============================== 11 passed in 1.69s ==============================
+exit=0

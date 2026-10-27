@@ -1,5 +1,12 @@
 """Artemis 567885 physics sandbox: coordinate-routed SIREN mixture-of-experts PINN.
 
+EXPLORATORY (repo-checks, check 1): this file does NOT use the historical
+Artemis pilot setup restored in checks/historical.py. Deviations: target is a
+Gaussian bump advected on [-1,1]^2 x [0,1] (historical: sin(k(x - 0.5 t)) on
+[0,2pi]^2 x [0,2]); inputs are not the historical x/pi-1, y/pi-1, t-1
+normalisation; SIREN biases keep nn.Linear's default init (historical: bias
+~ U(-b, b) with the same bound as the weights).
+
 Separate from the sin(X) expand engine. Solves 2-D linear advection
 
     dh/dt + c * (dh/dx + dh/dy) = 0,   (x, y) in [-1, 1]^2, t in [0, 1]
@@ -173,9 +180,41 @@ def evaluate(model, res: int = 41):
     return out
 
 
+def heldout_reference(n: int = 161, times=(0.25, 0.5, 0.75, 1.0), stride: int = 4):
+    """Held-out solution-error set (repo-checks, check 4).
+
+    Reference values come from the validated Lax-Wendroff solver
+    (physics_solver.py, order ~2 measured) on an n x n grid; every `stride`-th
+    node is used at each time in `times`. Training samples are drawn from a
+    continuous uniform generator, so these exact grid nodes are never trained on.
+    The analytic values are returned too, so the solver's own error is visible.
+    """
+    import numpy as np
+    import physics_solver as S
+    x, X, Y, out, info = S.solve(n, max(times), "laxwendroff", snapshots=tuple(times))
+    cs, fd, ex = [], [], []
+    for t in times:
+        Xs, Ys, U = X[::stride, ::stride], Y[::stride, ::stride], out[t][::stride, ::stride]
+        cs.append(np.stack([Xs.ravel(), Ys.ravel(), np.full(Xs.size, t)], 1))
+        fd.append(U.ravel()); ex.append(S.exact_np(Xs, Ys, t).ravel())
+    coords = torch.tensor(np.concatenate(cs), dtype=torch.float32)
+    fd = torch.tensor(np.concatenate(fd), dtype=torch.float32).unsqueeze(1)
+    ex = torch.tensor(np.concatenate(ex), dtype=torch.float32).unsqueeze(1)
+    return {"coords": coords, "fd": fd, "exact": ex, "solver": dict(n=n, stride=stride, times=list(times), **info),
+            "fd_vs_exact_rel_l2": float(torch.norm(fd - ex) / torch.norm(ex))}
+
+
+@torch.no_grad()
+def heldout_error(model, ref):
+    h, _, _ = model(ref["coords"])
+    return {"heldout_rel_l2_vs_fd": float(torch.norm(h - ref["fd"]) / torch.norm(ref["fd"])),
+            "heldout_rel_l2_vs_exact": float(torch.norm(h - ref["exact"]) / torch.norm(ref["exact"])),
+            "heldout_max_abs_vs_fd": float((h - ref["fd"]).abs().max())}
+
+
 def train(seconds: float = 120.0, max_steps: int = 200_000, n: int = 1024, lr: float = 1e-3, seed: int = 567885,
           num_experts: int = 4, top_k: int = 2, hidden: int = 64, omega0: float = 30.0, alpha: float = 0.01,
-          log_every: int = 250, log_path: str = None):
+          log_every: int = 250, log_path: str = None, heldout: dict = None):
     torch.manual_seed(seed)
     torch.set_num_threads(max(1, min(8, os.cpu_count() or 1)))
     gen = torch.Generator().manual_seed(seed)
@@ -193,6 +232,8 @@ def train(seconds: float = 120.0, max_steps: int = 200_000, n: int = 1024, lr: f
         if step % log_every == 0 or step == 1:
             rec = {"step": step, "sec": round(time.time() - t0, 1), "pde": l_pde.item(), "ic": l_ic.item(),
                    "bc": l_bc.item(), "aux": aux.item()}
+            if heldout is not None:
+                rec.update(heldout_error(model, heldout))
             hist.append(rec)
             if log_path:
                 with open(log_path, "a") as f:
@@ -202,6 +243,8 @@ def train(seconds: float = 120.0, max_steps: int = 200_000, n: int = 1024, lr: f
     l_pde, l_ic, l_bc, aux, _, _ = losses(model, 8192, eg)
     final = {"steps": step, "seconds": round(time.time() - t0, 1), "pde_residual_mse": l_pde.item(),
              "ic_mse": l_ic.item(), "bc_mse": l_bc.item(), "aux": aux.item(), **evaluate(model)}
+    if heldout is not None:
+        final.update(heldout_error(model, heldout))
     return model, final, hist
 
 

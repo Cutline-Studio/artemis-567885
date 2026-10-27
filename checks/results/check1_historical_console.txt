@@ -1,0 +1,31 @@
+$ python3 -m pytest -v -s checks/test_check1_historical.py
+============================= test session starts ==============================
+platform linux -- Python 3.13.5, pytest-9.1.1, pluggy-1.7.0 -- /usr/bin/python3
+cachedir: .pytest_cache
+rootdir: /workspace/artemis-567885
+plugins: platformdirs-4.13.5
+collecting ... collected 19 items
+
+checks/test_check1_historical.py::test_target_matches_study[1] PASSED
+checks/test_check1_historical.py::test_target_matches_study[2] PASSED
+checks/test_check1_historical.py::test_target_matches_study[4] PASSED
+checks/test_check1_historical.py::test_target_matches_study[8] PASSED
+checks/test_check1_historical.py::test_target_matches_pilot_benchmark_k1 PASSED
+checks/test_check1_historical.py::test_sampling_matches_study PASSED
+checks/test_check1_historical.py::test_normalisation_matches_study_and_maps_to_unit_cube PASSED
+checks/test_check1_historical.py::test_init_matches_study_build_model[0] PASSED
+checks/test_check1_historical.py::test_init_matches_study_build_model[1] PASSED
+checks/test_check1_historical.py::test_init_matches_study_build_model[2] PASSED
+checks/test_check1_historical.py::test_init_matches_study_build_model[3] PASSED
+checks/test_check1_historical.py::test_init_matches_study_build_model[4] PASSED
+checks/test_check1_historical.py::test_init_matches_pilot_model[0] PASSED
+checks/test_check1_historical.py::test_init_matches_pilot_model[1] PASSED
+checks/test_check1_historical.py::test_init_matches_pilot_model[2] PASSED
+checks/test_check1_historical.py::test_init_matches_pilot_model[3] PASSED
+checks/test_check1_historical.py::test_init_matches_pilot_model[4] PASSED
+checks/test_check1_historical.py::test_FINDING_study_output_init_differs_from_pilot pilot vs study param equality: {'net.0.linear.weight': True, 'net.0.linear.bias': True, 'net.1.linear.weight': True, 'net.1.linear.bias': True, 'net.2.weight': False, 'net.2.bias': True}
+PASSED
+checks/test_check1_historical.py::test_physics_simulation_is_exploratory_and_deviates PASSED
+
+============================== 19 passed in 0.94s ==============================
+exit=0
