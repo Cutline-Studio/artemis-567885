@@ -28,5 +28,5 @@ def test_405b_examples():
 def test_table_rows():
     rows = sz.main(["--json"])
     assert len(rows) == len(sz.STAGES)
-    one_t = {r["name"]: r for r in rows}["1T MoE plan (Kimi-K2-like dims, GQA assumed)"]
-    assert one_t["training_gpus"]["H100-80GB"] == 188 and one_t["inference_gpus_bf16"]["B200-192GB"] == 13
+    big = {r["name"]: r for r in rows}["Llama 3.1 405B (deck example)"]
+    assert big["training_gpus"]["H100-80GB"] == 76 and big["inference_gpus_bf16"]["B200-192GB"] == 6

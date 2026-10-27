@@ -101,14 +101,11 @@ The table is BF16, 1 concurrent session at the context shown, with GPUs on H100 
 | Qwen2.5-7B-Instruct (base for Artemis-7B) | 7.62 | 15.2 / 7.62 / 3.81 | 57.3 (401), GQA 7 | 32,768 | 20.5 | 1/1/1 | 114 | 2/1/1 | none ; tensor |
 | Llama 3.1 8B (teacher) | 8.03 | 16.1 / 8.03 / 4.02 | 131 (524), GQA 4 | 131,072 | 39.9 | 1/1/1 | 120 | 2/1/1 | none ; tensor |
 | Llama 3.1 405B (deck example) | 405 | 810 / 405 / 202.5 | 516 (8,258), GQA 16 | 131,072 | 1,053 | 14/8/6 | 6,075 | 76/44/32 | hybrid ; hybrid |
-| 100B MoE plan (shape assumed: 48 layers × 5120, 40 heads / 8 KV) | 100 (8 active) | 200 / 100 / 50 | 197 (983), GQA 5 | 131,072 | 271 | 4/2/2 | 1,500 | 19/11/8 | tensor + expert ; pipeline + expert |
-| 1T MoE plan (Kimi-K2-like 61 × 7168, GQA 8 assumed) | 1,000 (32 active) | 2,000 / 1,000 / 500 | 219 (1,749), GQA 8 | 131,072 | 2,434 | 31/18/13 | 15,000 | 188/107/79 | hybrid + expert ; hybrid + expert |
-| 6T MoE option (shape assumed: 96 × 12288, 96 heads / 8 KV) | 6,000 (180 active) | 12,000 / 6,000 / 3,000 | 393 (4,719), GQA 12 | 131,072 | 14,462 | 181/103/76 | 90,000 | 1,125/639/469 | hybrid + expert ; hybrid + expert |
 
 How to read this table:
 
-- **The GPU counts are memory floors, not throughput plans.** The Oct 27 planning page's 64 H100 for a 100B run in about 4.6 days is set by FLOPs and wall-clock time. The table's 19 H100 is only the minimum needed to *hold* training state.
-- **The 100B, 1T and 6T layer and head shapes are assumptions.** They exist only so the KV cache can be sized. Real Kimi K2 uses MLA rather than GQA, so its actual KV cache is smaller.
+- **The GPU counts are memory floors, not throughput plans.** A real training run's GPU count is set by FLOPs and wall-clock time; the table's training GPUs are only the minimum needed to *hold* training state.
+- **Larger configurations are planned privately; the sizing tool accepts any model shape** (`python tools/artemis_sizing.py --params N --layers L --d-model D --heads H`).
 - **Concurrency (Cisco slide 14), Llama 3.1 8B at 131,072 context:**
   - With a BF16 KV cache, one GPU holds 2 sessions on an H100, 5 on an H200 and 8 on a B200 (`max_concurrent_sessions`).
   - Quantizing the KV cache to FP8 raises H100 to 5 sessions.
@@ -174,9 +171,9 @@ How to read this table:
 | Model parallelism (16) | `parallelism()` rules and the 20% overhead | Actual tensor/pipeline code (Megatron, DeepSpeed, TorchTitan). `test_fsdp.py` covers FSDP only |
 | Intra-node NVLink / NVSwitch, UCS C885A / C845A (17, 20) | The 8-GPU NVLink domain is used as the tensor-parallel boundary | **Hardware for owned clusters.** It matters only when Cutline buys or colocates HGX nodes instead of renting (Vast, Azure ND H100) |
 | Training memory (18) | `training_bytes` (the deck breakdown) | n/a |
-| Network requirements, NCCL / CUDA / Kubernetes stack, collectives (22-25) | Noted: all-reduce = reduce-scatter + all-gather is what FSDP uses | Tuning matters for multi-node training (≥2 nodes, i.e. the 100B training floor of 19 H100) |
+| Network requirements, NCCL / CUDA / Kubernetes stack, collectives (22-25) | Noted: all-reduce = reduce-scatter + all-gather is what FSDP uses | Tuning matters for multi-node training (≥2 nodes, i.e. any run whose training floor exceeds 8 GPUs) |
 | RoCEv2, rail-optimized backend, ECMP / flowlet / per-packet load balancing (26-28) | none | **Owned-fabric only.** On rented clouds the provider's InfiniBand/RoCE fabric covers it. It matters at NVIDIA ERA scale (**32-256 GPUs**, slides 29-30) on owned racks |
-| ERA / NCP reference architectures (29-30) | The 1T plan's 512 H100 and the 6T plan's 4,096 H100 sit in NCP territory (256-16,000+ GPUs) | Only with a cluster partner. Not before the 100B stage is proven |
+| ERA / NCP reference architectures (29-30) | Noted: NCP reference architectures cover 256-16,000+ GPUs | Only with a cluster partner, and only once smaller runs are proven |
 | Cisco Nexus 9000 / 8000 / Hyperfabric AI, Silicon One (31-32) | none | Switch vendor choice for owned racks only |
 | Security: data, training and inference risks (34) | The checklist above, with code where the paths exist | n/a |
 | Hybrid Mesh Firewall, Hypershield, DPU / Smart Switch, Cilium (35) | none | Network-level workload security for owned clusters or Kubernetes. Azure NSGs and Container Apps ingress cover the current deployment |

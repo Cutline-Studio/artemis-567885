@@ -138,8 +138,7 @@ def size(shape: Shape, users: int = 1) -> dict:
 
 
 # Stages. Artemis rows use Cutline-Industries gateway/configs/models.yaml (param counts from ModelConfig.param_count, quoted there).
-# Llama / Qwen rows use the published configs. The 100B / 1T / 6T rows are the planning page's sizes; their
-# layer/width/head shapes are ASSUMPTIONS made here only to size the KV cache (no such model exists).
+# Llama / Qwen rows use the published configs. Any other shape can be sized with --params and friends.
 STAGES = (
     Shape("artemis 100m (models.yaml)", 153e6, 12, 768, 12, 4, 2048, 111e6, "configs/models.yaml"),
     Shape("artemis 1b (models.yaml)", 1.31e9, 20, 2048, 16, 8, 4096, 1.06e9, "configs/models.yaml"),
@@ -148,9 +147,6 @@ STAGES = (
     Shape("Qwen2.5-7B-Instruct (teacher/base)", 7.62e9, 28, 3584, 28, 4, 32768, None, "Qwen2.5 config.json"),
     Shape("Llama 3.1 8B (teacher)", 8.03e9, 32, 4096, 32, 8, 131072, None, "BRKCOM-2115 slides 11-12, 18"),
     Shape("Llama 3.1 405B (deck example)", 405e9, 126, 16384, 128, 8, 131072, None, "BRKCOM-2115 slide 16"),
-    Shape("100B MoE plan (shape assumed)", 100e9, 48, 5120, 40, 8, 131072, 8e9, "planning page, Oct 27"),
-    Shape("1T MoE plan (Kimi-K2-like dims, GQA assumed)", 1e12, 61, 7168, 64, 8, 131072, 32e9, "planning page, Oct 27"),
-    Shape("6T MoE option (shape assumed)", 6e12, 96, 12288, 96, 8, 131072, 180e9, "planning page, Oct 27"),
 )
 
 
