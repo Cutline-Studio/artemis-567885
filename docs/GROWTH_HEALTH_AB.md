@@ -46,4 +46,4 @@ What this shows:
 
 ## Cost and teardown
 - Vast instance 57991927 (offer 25468214, $0.0696/h), rented 13:28:52 and destroyed 14:10:15 EDT. It had an on-instance self-destroy at rent+60 min plus a box-side spend/time killer.
-- Vast credit $14.743560 → $14.695343 = **$0.0482** (`credit_before.txt`, `credit_after.txt`, `spend.log`). After teardown the Vast account showed 0 instances.
+- Vast credit $14.743560 → $14.695343 = $0.0482 right after teardown, and $14.693797 = **$0.0498** after final billing settled (`credit_before.txt`, `credit_after.txt`, `spend.log`). After teardown the Vast account showed 0 instances.
