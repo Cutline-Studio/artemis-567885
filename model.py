@@ -3,6 +3,7 @@ from typing import List, Sequence, Union
 import torch
 import torch.nn as nn
 from transformer import MoETransformerBlock
+from positional import build_positional
 
 
 class DynamicMultiBlockTransformer(nn.Module):
@@ -12,11 +13,14 @@ class DynamicMultiBlockTransformer(nn.Module):
     Each block returns three values (x, aux, dropped); both aux and dropped are
     summed across layers. top_k / capacity_factor / legacy are passed to every block.
     `num_experts` may be an int (same for all layers) or a per-layer list.
+    pos_encoding in {"none", "sinusoidal", "learned"} is added to x once, before
+    the first block (positional.py); "none" keeps the original behaviour.
     """
 
     def __init__(self, d_model: int, n_heads: int, d_ff: int, num_experts: Union[int, Sequence[int]],
                  num_layers: int = 1, top_k: int = 2, capacity_factor: float = 1.0, legacy: bool = False,
-                 causal: bool = False, dispatch: str = "loop"):
+                 causal: bool = False, dispatch: str = "loop", pos_encoding: str = "none",
+                 max_len: int = 512):
         super().__init__()
         if d_model % n_heads != 0:
             raise ValueError(f"d_model ({d_model}) must be divisible by n_heads ({n_heads})")
@@ -27,6 +31,9 @@ class DynamicMultiBlockTransformer(nn.Module):
         self.d_model, self.n_heads, self.d_ff = d_model, n_heads, d_ff
         self.top_k, self.legacy, self.causal, self.dispatch = top_k, legacy, causal, dispatch
         self._capacity_factor = capacity_factor
+        self.pos_encoding, self.max_len = pos_encoding, max_len
+        # "none" is nn.Identity (no parameters): default behaviour and checkpoints unchanged
+        self.pos = build_positional(pos_encoding, d_model, max_len)
         self.blocks = nn.ModuleList([
             MoETransformerBlock(d_model, n_heads, d_ff, e, top_k, capacity_factor, legacy=legacy,
                                 causal=causal, dispatch=dispatch)
@@ -48,6 +55,7 @@ class DynamicMultiBlockTransformer(nn.Module):
     def forward(self, x: torch.Tensor):
         aux_total = x.new_zeros(())
         dropped_total = 0
+        x = self.pos(x)
         for block in self.blocks:
             x, aux, dropped = block(x)
             aux_total = aux_total + aux
