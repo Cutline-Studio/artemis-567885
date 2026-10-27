@@ -1,0 +1,11 @@
+$ python3 sandbox.py --mode legacy
+--- Initializing Artemis 567885 Sparse Sandbox ---
+[mode: legacy (original behaviour); target: zeros (original)]
+
+=== SANDBOX EXECUTION METRICS ===
+Total Loss Value: 1.5083
+Enforced Drop-out Vector Count: 6
+Input Structural Gradient Norm (\nabla_x L): 0.1581
+Router Gate Matrix Gradient Norm (\nabla_W_g L): 0.0546
+Output shape == input shape: (2, 8, 16)
+exit=0

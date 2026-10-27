@@ -1,0 +1,15 @@
+lr1e-4_a0.1_n1_cur0.5      n=4 mean=0.0082 max=0.0097 used=4 H=0.892
+lr1e-4_n1                  n=4 mean=0.0112 max=0.0127 used=4 H=0.8852
+lr1e-4_a0.1_n1             n=4 mean=0.0115 max=0.0128 used=4 H=0.9024
+alpha0.1_noise1            n=4 mean=0.0687 max=0.1310 used=1.75 H=0.3173
+curriculum0.5              n=4 mean=0.1025 max=0.2600 used=1.75 H=0.115
+alpha1.0                   n=1 mean=0.2128 max=0.2128 used=4 H=0.7981
+baseline                   n=4 mean=0.2211 max=0.6272 used=1.75 H=0.1915
+cosine                     n=1 mean=0.5894 max=0.5894 used=4 H=0.865
+lr1e-4_a0.1                n=4 mean=0.5985 max=0.8412 used=4 H=0.8863
+lr1e-4                     n=4 mean=0.6639 max=0.8710 used=4 H=0.9454
+lr1e-4_causal1             n=4 mean=0.6655 max=0.8910 used=4 H=0.9449
+cosine3e-4                 n=4 mean=0.8104 max=0.8978 used=4 H=0.8985
+causal_eps100              n=1 mean=1.0124 max=1.0124 used=4 H=0.6926
+causal_eps10               n=1 mean=1.0178 max=1.0178 used=4 H=0.6338
+total wall s (sum of runs): 3639.4

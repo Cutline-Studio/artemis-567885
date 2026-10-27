@@ -1,0 +1,104 @@
+{
+  "run_name": "a0.3_cfnone",
+  "data": "corpus=/workspace/artemis-corpus-bench/corpus train/ vs val/",
+  "train_bytes": 11984086,
+  "heldout_bytes": 1230205,
+  "eval_windows": 256,
+  "eval_predicted_bytes": 32768,
+  "params": 1058304,
+  "steps": 2000,
+  "train_time_s": 337.6,
+  "bytes_seen": 8192000,
+  "first_train_bpb": 8.2762,
+  "initial_heldout_bpb": 8.28978,
+  "final_heldout_bpb": 1.99062,
+  "best_heldout_bpb": 1.99062,
+  "final_heldout_loss_nats": 1.37979,
+  "capacity_factor": null,
+  "capacity_mode": "sequence",
+  "leaky": false,
+  "train_drop_rate": 0.0,
+  "heldout_drop_rate": 0.0,
+  "heldout_entropy_routed": [
+    0.99978,
+    0.99996,
+    0.99997
+  ],
+  "heldout_entropy_kept": [
+    0.99978,
+    0.99996,
+    0.99997
+  ],
+  "heldout_entropy_routed_mean": 0.9999,
+  "heldout_entropy_kept_mean": 0.9999,
+  "heldout_load_routed": [
+    [
+      16199.0,
+      16661.0,
+      17115.0,
+      16073.0
+    ],
+    [
+      16569.0,
+      16528.0,
+      16705.0,
+      16246.0
+    ],
+    [
+      16358.0,
+      16593.0,
+      16358.0,
+      16739.0
+    ]
+  ],
+  "final_aux": 3.00383,
+  "unigram_bpb_eval_windows": 4.59647,
+  "unigram_bpb_full_heldout": 4.58172,
+  "config": {
+    "corpus": null,
+    "text": null,
+    "heldout_split": "val",
+    "heldout_frac": 0.1,
+    "d_model": 128,
+    "n_heads": 4,
+    "d_ff": 256,
+    "experts": 4,
+    "layers": 3,
+    "top_k": 2,
+    "pos": "sinusoidal",
+    "dispatch": "loop",
+    "seq_len": 128,
+    "batch": 32,
+    "lr": 0.002,
+    "warmup": 100,
+    "weight_decay": 0.01,
+    "grad_clip": 1.0,
+    "aux_alpha": 0.3,
+    "capacity_factor": null,
+    "capacity_mode": "sequence",
+    "max_steps": 2000,
+    "time_budget": 0.0,
+    "eval_every": 250,
+    "eval_windows": 256,
+    "eval_batch": 64,
+    "sample_len": 160,
+    "temperature": 0.8,
+    "sample_top_k": 40,
+    "seed": 567885,
+    "threads": 2,
+    "out_dir": "/workspace/artemis-567885/runs/stage7",
+    "run_name": "a0.3_cfnone",
+    "save_checkpoint": false
+  },
+  "torch": "2.14.1+cpu",
+  "threads": 2,
+  "samples": [
+    {
+      "prompt": "It was a ",
+      "temperature": 0.8,
+      "top_k": 40,
+      "seed": 567885,
+      "text": "It was a few and the leasting of that a family and\r\ncolonel. The fashes wicaffested heard these pressions willus and\r\neverybody from the wind growing of as fifty of the "
+    }
+  ]
+}

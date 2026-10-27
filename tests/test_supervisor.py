@@ -10,7 +10,7 @@ FAST = {"steps_per_cycle": 15, "batch_size": 4, "seq_len": 8, "eval_batch_size":
 
 @pytest.fixture
 def repo(tmp_path):
-    for f in ("moe.py", "transformer.py", "model.py", "expand.py", "supervisor.py", "sandbox.py"):
+    for f in ("moe.py", "transformer.py", "model.py", "positional.py", "expand.py", "supervisor.py", "sandbox.py"):
         shutil.copy(os.path.join(ROOT, f), tmp_path / f)
     expand.init_config(str(tmp_path), overrides=FAST)
     return tmp_path

@@ -1,0 +1,15 @@
+[stage9c] https://www.gutenberg.org/cache/epub/1342/pg1342.txt 772,386 B sha256 3f6bb9d6f78e0293… (6 chunks, sources {'cache': 6}, 0 requests)
+[stage9c] body 993-753,480 | train 677,238 B @ 993 | held-out 75,249 B @ 678,231
+[stage9c] unigram: train entropy 4.5742 bpb | held-out cross-entropy 4.6221 (full) / 4.6192 (eval targets)
+[stage9c:none] params 727,552 | d=128 layers=2 experts=4 top_k=2 seq=128 batch=32 steps=700 | eval 583 windows x 128 predicted bytes
+[stage9c:none] step 0 held-out 8.3025 bpb
+[stage9c:none] step   100 t=  189.9s lr=2.00e-03 train 4.7162 | held-out 3.5181 bpb
+[stage9c:none] step   200 t=  391.3s lr=1.66e-03 train 3.4181 | held-out 3.3834 bpb
+[stage9c:none] step   300 t=  516.3s lr=1.30e-03 train 3.3304 | held-out 3.3083 bpb
+[stage9c:none] step   400 t=  670.5s lr=9.04e-04 train 3.2677 | held-out 3.2595 bpb
+[stage9c:none] step   500 t=  749.3s lr=5.42e-04 train 3.2070 | held-out 3.2089 bpb
+[stage9c:none] step   600 t=  811.2s lr=2.91e-04 train 3.1609 | held-out 3.1610 bpb
+[stage9c:none] step   700 t=  830.6s lr=2.00e-04 train 3.1368 | held-out 3.1418 bpb
+[stage9c] summary (held-out bpb, lower is better):
+  unigram (train dist on held-out) 4.6192
+  none    final 3.1418 best 3.1418 (train windows 3.1135, 830.6s)

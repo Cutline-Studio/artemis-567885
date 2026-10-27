@@ -4,3 +4,5 @@ __pycache__/
 .backup_checkpoint/
 runs/*.pt
 runs/tmp_*
+runs/stage9b/cache/
+runs/stage9c/cache/

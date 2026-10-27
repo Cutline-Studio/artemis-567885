@@ -1,0 +1,4 @@
+top_k=2 gate_weighting=renorm: task-only gate grad norm = 0.013825
+top_k=2 gate_weighting=switch: task-only gate grad norm = 0.014302
+top_k=1 gate_weighting=renorm: task-only gate grad norm = 0.000000
+top_k=1 gate_weighting=switch: task-only gate grad norm = 0.015389

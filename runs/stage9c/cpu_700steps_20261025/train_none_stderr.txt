@@ -1,0 +1,9 @@
+[webstream] cache hit https://www.gutenberg.org/cache/epub/1342/pg1342.txt bytes=0-131071 (131072 B)
+[webstream] cache hit https://www.gutenberg.org/cache/epub/1342/pg1342.txt bytes=131072-262143 (131072 B)
+[webstream] cache hit https://www.gutenberg.org/cache/epub/1342/pg1342.txt bytes=262144-393215 (131072 B)
+[webstream] cache hit https://www.gutenberg.org/cache/epub/1342/pg1342.txt bytes=393216-524287 (131072 B)
+[webstream] cache hit https://www.gutenberg.org/cache/epub/1342/pg1342.txt bytes=524288-655359 (131072 B)
+[webstream] cache hit https://www.gutenberg.org/cache/epub/1342/pg1342.txt bytes=655360-786431 (117026 B)
+/workspace/artemis-567885-stage9c/clf.py:283: UserWarning: Converting a tensor with requires_grad=True to a scalar may lead to unexpected behavior.
+Consider using tensor.detach() first. (Triggered internally at /__w/pytorch/pytorch/torch/csrc/autograd/generated/python_variable_methods.cpp:820.)
+  run += float(loss); rn += 1

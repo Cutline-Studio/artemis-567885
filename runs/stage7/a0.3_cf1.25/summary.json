@@ -1,0 +1,104 @@
+{
+  "run_name": "a0.3_cf1.25",
+  "data": "corpus=/workspace/artemis-corpus-bench/corpus train/ vs val/",
+  "train_bytes": 11984086,
+  "heldout_bytes": 1230205,
+  "eval_windows": 256,
+  "eval_predicted_bytes": 32768,
+  "params": 1058304,
+  "steps": 2000,
+  "train_time_s": 338.0,
+  "bytes_seen": 8192000,
+  "first_train_bpb": 8.2761,
+  "initial_heldout_bpb": 8.2896,
+  "final_heldout_bpb": 1.98974,
+  "best_heldout_bpb": 1.98974,
+  "final_heldout_loss_nats": 1.37918,
+  "capacity_factor": 1.25,
+  "capacity_mode": "sequence",
+  "leaky": false,
+  "train_drop_rate": 0.000799,
+  "heldout_drop_rate": 0.001095,
+  "heldout_entropy_routed": [
+    0.99975,
+    0.99985,
+    1.0
+  ],
+  "heldout_entropy_kept": [
+    0.99974,
+    0.99985,
+    1.0
+  ],
+  "heldout_entropy_routed_mean": 0.99987,
+  "heldout_entropy_kept_mean": 0.99986,
+  "heldout_load_routed": [
+    [
+      16656.0,
+      16790.0,
+      16827.0,
+      15775.0
+    ],
+    [
+      16651.0,
+      16571.0,
+      16864.0,
+      15962.0
+    ],
+    [
+      16542.0,
+      16567.0,
+      16467.0,
+      16472.0
+    ]
+  ],
+  "final_aux": 3.00574,
+  "unigram_bpb_eval_windows": 4.59647,
+  "unigram_bpb_full_heldout": 4.58172,
+  "config": {
+    "corpus": null,
+    "text": null,
+    "heldout_split": "val",
+    "heldout_frac": 0.1,
+    "d_model": 128,
+    "n_heads": 4,
+    "d_ff": 256,
+    "experts": 4,
+    "layers": 3,
+    "top_k": 2,
+    "pos": "sinusoidal",
+    "dispatch": "loop",
+    "seq_len": 128,
+    "batch": 32,
+    "lr": 0.002,
+    "warmup": 100,
+    "weight_decay": 0.01,
+    "grad_clip": 1.0,
+    "aux_alpha": 0.3,
+    "capacity_factor": 1.25,
+    "capacity_mode": "sequence",
+    "max_steps": 2000,
+    "time_budget": 0.0,
+    "eval_every": 250,
+    "eval_windows": 256,
+    "eval_batch": 64,
+    "sample_len": 160,
+    "temperature": 0.8,
+    "sample_top_k": 40,
+    "seed": 567885,
+    "threads": 2,
+    "out_dir": "/workspace/artemis-567885/runs/stage7",
+    "run_name": "a0.3_cf1.25",
+    "save_checkpoint": false
+  },
+  "torch": "2.14.1+cpu",
+  "threads": 2,
+  "samples": [
+    {
+      "prompt": "It was a ",
+      "temperature": 0.8,
+      "top_k": 40,
+      "seed": 567885,
+      "text": "It was a little has\r\nleas in the pooor, falling through droporities in subjects.\r\n\r\nMrs. Jorkins, then all they line, if it was from the whole to last\r\nCasperfield\u2014she"
+    }
+  ]
+}
