@@ -42,3 +42,15 @@ On hold until stage 9c shows real held-out bits-per-byte results. When unblocked
 - pilot/artemis_physics_benchmark.py as given: 1000 epochs, test MSE 0.3567, rel L2 0.852, y-variance 0.441 (target 1e-4 never reached).
 - Variant with inputs normalized to [-1,1], 5000 epochs: test MSE 0.0935, rel L2 0.436, y-variance 0.155.
 - Next stage: diagnose — w0=30 is far too high-frequency for sin(x - 0.5t) (period ~2pi); sweep w0 (1, 3, 10, 30), lr, epochs, train set size; add a plain MLP/Fourier-feature baseline; report steps/time to MSE<1e-4 and y-variance. Only then consider Navier-Stokes.
+
+## Frequency-and-capacity study (user spec, 2026-10-23) — measured
+Script `pilot/frequency_capacity_study.py`, summary `pilot/results/FREQUENCY_CAPACITY_STUDY.md` (all numbers from `pilot/results/frequency_capacity_runs.csv`).
+Supervised regression on analytical labels sin(k(x-0.5t)); not physics-informed; same-domain interpolation only. One fixed split, 5 init seeds per finalist, selection on validation only.
+- Selected (val only): SIREN w0_first 3 / w0_hidden 10 (w0 30/30 hypothesis refuted), lr 3e-3, 10000 epochs; tanh lr 3e-3. lr and budget are at the edge of their grids.
+- Study A (SIREN 32x2, 1217 params): val-threshold success k=1,2,4: 5/5 each (test rel L2 ~1e-3); k=8: 0/5 (rel L2 ~1.0).
+- Width 16-128 / depth 1-4, SIREN and matched tanh: no 3-input config reached the threshold at k=8. Wide/deep SIRENs fit train but not val (poor generalisation); smallest models stall.
+- (x,t)-only SIREN: k=8 5/5 (rel L2 ~1e-2). Implicates the 3-input setup; not isolated (input dim, init bound, params also change).
+- Ablation (k=1, w0 30/30, lr 1e-3): only normalisation + 5000 epochs succeeded (5/5); each alone 0/5.
+- Latency: the formula was 1.3x-15.9x faster than every network (same procedure). No speed advantage.
+- Cost: CPU only, no cloud charges; study wall clock 667 s.
+- Next step: per-k selection of lr/budget at k=8 (3-input), plus an ablation that separates the y-input effect (3 inputs with y fixed to a constant, matched first-layer init bound) before any Navier-Stokes work.

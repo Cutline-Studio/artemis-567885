@@ -1,0 +1,11 @@
+param_count 37888
+  byte 8192
+  position 4096
+  block0 8544
+  norm 64
+  head 8448
+nhead=1 vs 2 vs 4 counts: [8544, 8544, 8544]
+eval forward: max|delta| positions <t: 0.0  at/after t: 1.6922341585159302
+eval grad of logits[:, t-1] wrt emb[:, >=t]: max|g| = 0.0  exactly zero: True ; wrt emb[:, <t] max|g| = 3.7250325679779053
+train forward: max|delta| positions <t: 0.0  at/after t: 2.037046432495117
+train grad of logits[:, t-1] wrt emb[:, >=t]: max|g| = 0.0  exactly zero: True ; wrt emb[:, <t] max|g| = 3.58670711517334
