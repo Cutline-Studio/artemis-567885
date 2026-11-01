@@ -66,6 +66,7 @@ def make(causal=True, cf=None, legacy=False, dispatch="loop", layers=2, E=4, K=2
                                         legacy=legacy, causal=causal, dispatch=dispatch)
 
 
+@pytest.mark.bitexact
 def test_attention_alone_is_causal_and_original_is_not():
     torch.manual_seed(0)
     a = MultiHeadAttention(D, 4, causal=True); u = MultiHeadAttention(D, 4, causal=False)
@@ -81,6 +82,7 @@ def test_attention_alone_is_causal_and_original_is_not():
 
 @pytest.mark.parametrize("dispatch", ["loop", "vectorized"])
 @pytest.mark.parametrize("train", [False, True])
+@pytest.mark.bitexact
 def test_causal_dropless_moe_has_no_leak(dispatch, train):
     m = make(cf=None, dispatch=dispatch)
     st = leak_stats(m, train)

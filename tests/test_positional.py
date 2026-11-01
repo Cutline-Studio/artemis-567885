@@ -67,6 +67,7 @@ def test_positional_breaks_permutation_equivariance(pos):
 
 
 @pytest.mark.parametrize("pos", ["none", "sinusoidal", "learned"])
+@pytest.mark.bitexact
 def test_causal_future_change_does_not_affect_past(pos):
     m = make(pos, causal=True, cf=None)  # dropless: capacity ranking would leak (check 5)
     x = torch.randn(3, 16, D, generator=torch.Generator().manual_seed(0))

@@ -85,6 +85,7 @@ def test_sequence_mode_dropless_equals_global_dropless():
     assert da == db == 0 and torch.equal(ya, yb)
 
 
+@pytest.mark.bitexact
 def test_sequence_mode_2d_input_is_one_sequence():
     m = layer(0.5)
     x = torch.randn(20, D, generator=torch.Generator().manual_seed(4))
@@ -95,6 +96,7 @@ def test_sequence_mode_2d_input_is_one_sequence():
         m(torch.randn(2, 3, 4, D))
 
 
+@pytest.mark.bitexact
 def test_sequence_independent_of_other_sequences():
     m = layer(0.5)
     x = torch.randn(4, 20, D, generator=torch.Generator().manual_seed(5))
@@ -127,6 +129,7 @@ def fwd(m, x, train):
 @pytest.mark.parametrize("dispatch", ["loop", "vectorized"])
 @pytest.mark.parametrize("cf", [0.5, 1.0])
 @pytest.mark.parametrize("train", [False, True])
+@pytest.mark.bitexact
 def test_causal_sequence_capacity_has_no_future_leak(dispatch, cf, train):
     torch.manual_seed(0)
     m = DynamicMultiBlockTransformer(32, 4, 64, 4, num_layers=2, top_k=2, capacity_factor=cf, causal=True,
@@ -160,6 +163,7 @@ def test_global_capacity_still_leaks_for_contrast():
         assert not torch.equal(y[:, :6], fwd(m, x2, False)[0][:, :6])
 
 
+@pytest.mark.bitexact
 def test_artemis_model_byte_causality_with_sequence_capacity():
     torch.manual_seed(0)
     m = ArtemisModel(32, 4, 64, 4, 2, capacity_factor=0.8, max_len=40, capacity_mode="sequence").eval()
