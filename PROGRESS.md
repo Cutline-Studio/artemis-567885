@@ -142,3 +142,10 @@ Session: 1× RTX 4070 on Vast.ai (instance 57817513, $0.167/h, torch 2.5.1+cu124
 ### Next
 - Make the bit-exact causality tests thread-robust (pin threads inside the test, or compare with a tight tolerance plus an exact 1-thread check).
 - Stage 9(c) follow-ups: more seeds and a second book (author-level held-out), a relative/periodic document coordinate so held-out offsets are in-distribution, then 9(d).
+
+## Thread-robust bit-exact tests — 2026-11-01 (CPU, no GPU session)
+- New `bitexact` pytest marker (root `conftest.py`): an autouse fixture runs a marked test with `torch.set_num_threads(1)` and restores the previous count afterwards. The strict `torch.equal` claim is kept; only the summation order is fixed, so a difference now means a real leak, not multi-threaded reduction order.
+- Marked: `test_causal_future_bytes_do_not_affect_past` (artemis_model), `test_causal_future_change_does_not_affect_past` (positional), the four cross-pass `torch.equal` tests in `test_stage7_capacity.py` (2-D input, sequence independence incl. batch-of-1 vs batch-of-4, sequence-capacity causality, byte causality), and the two bit-exact tests in `checks/test_check5_causal.py`. This covers all 5 tests that failed with 32 threads on 2026-10-26.
+- `tests/test_bitexact_threads.py` checks the marker pins to 1 thread (also for parametrized cases) and restores the count.
+- Could not reproduce the original failure here (4-core cloud CPU, torch 2.15.0+cpu, Python 3.13.18): the affected files pass at 4, 16 and 32 threads before the change too. The fix relies on the 2026-10-26 evidence that all 5 pass with `OMP_NUM_THREADS=1` (`runs/stage9c/gpu_20261026/s9c_causal_1thread.txt`). Confirm on the next GPU-host run with the default thread count.
+- `python -m pytest -q --strict-markers tests checks`: 411 passed, 1 skipped (74 s). `python sandbox.py`: fixed 0.3415, legacy 1.5083 (unchanged).

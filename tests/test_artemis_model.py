@@ -88,6 +88,7 @@ def test_dropless_default_has_no_drops():
 
 @pytest.mark.parametrize("pos", ["none", "sinusoidal", "learned"])
 @pytest.mark.parametrize("dispatch", ["loop", "vectorized"])
+@pytest.mark.bitexact
 def test_causal_future_bytes_do_not_affect_past(pos, dispatch):
     m = make(pos=pos, dispatch=dispatch)  # default dropless routing
     m.eval()
